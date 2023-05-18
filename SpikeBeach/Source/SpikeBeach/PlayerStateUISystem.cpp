@@ -39,7 +39,7 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// Set Receive RG Position
-	if (player_state_ui_->receive_rg_img_->GetVisibility() == ESlateVisibility::Visible)
+	if (player_state_ui_ && player_state_ui_->receive_rg_img_->GetVisibility() == ESlateVisibility::Visible)
 	{
 		FVector world_location = player_capsule_->GetComponentTransform().GetLocation();
 		FVector2D screen_location;
@@ -51,7 +51,7 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 	}
 
 	// Set Receive RG Position
-	if (player_state_ui_->spike_rg_img_->GetVisibility() == ESlateVisibility::Visible)
+	if (player_state_ui_ && player_state_ui_->spike_rg_img_->GetVisibility() == ESlateVisibility::Visible)
 	{
 		FVector world_location = player_capsule_->GetComponentTransform().GetLocation();
 		FVector2D screen_location;
