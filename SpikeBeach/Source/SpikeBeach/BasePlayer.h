@@ -11,9 +11,8 @@ UENUM(BlueprintType)
 enum class EPlayerTurn : uint8
 {
 	PT_SERVICE,
-	PT_RECEIVE,
-	PT_TOSS,
-	PT_SPIKE,
+	PT_DEFENCE,
+	PT_OFFENCE,
 	COUNT,
 };
 
@@ -54,36 +53,44 @@ private:
 		class UCameraComponent* FollowCamera;
 
 	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputMappingContext* DefaultMappingContext;
 
-	/** Click Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputAction* ClickAction;
+	/** LClick Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* LClickAction;
+
+	/** RClick Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* RClickAction;
 
 	/** Move Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* MoveAction;
 
 	/** Sprint Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* SprintAction;
 
-	/** Receive Anim Montage */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	/** Service Anim Montage */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
 		class UAnimMontage* ServiceMontage;
 
 	/** Receive Anim Montage */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
 		class UAnimMontage* ReceiveMontage;
 
-	/** Receive Toss Montage */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	/** Toss Toss Montage */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
 		class UAnimMontage* TossMontage;
 
-	/** Receive Spike Montage */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	/** Spike Spike Montage */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
 		class UAnimMontage* SpikeMontage;
+
+	/** Block Spike Montage */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
+		class UAnimMontage* BlockMontage;
 
 public:
 	// Sets default values for this character's properties
@@ -111,19 +118,25 @@ private:
 protected:
 	/** Called for movement input */
 	UFUNCTION(BlueprintCallable, Category = Input)
-	void Move(const FInputActionValue& Value);
-	/* Called for Click Input*/
+		void Move(const FInputActionValue& Value);
+	/* Called for LClick Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
-	void ClickTriggered(const FInputActionValue& Value);
-	/* Called for Click Input*/
+		void LClickTriggered(const FInputActionValue& Value);
+	/* Called for LClick Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
-	void ClickCompleted(const FInputActionValue& Value);
+		void LClickCompleted(const FInputActionValue& Value);
+	/* Called for LClick Input*/
+	UFUNCTION(BlueprintCallable, Category = Input)
+		void RClickTriggered(const FInputActionValue& Value);
+	/* Called for LClick Input*/
+	UFUNCTION(BlueprintCallable, Category = Input)
+		void RClickCompleted(const FInputActionValue& Value);
 	/* Called for Sprint Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
-	void SprintTriggered(const FInputActionValue& Value);
+		void SprintTriggered(const FInputActionValue& Value);
 	/* Called for Sprint Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
-	void SprintCompleted(const FInputActionValue& Value);
+		void SprintCompleted(const FInputActionValue& Value);
 
 private:
 	/** Called From AnimNotify for Service */
@@ -140,6 +153,9 @@ private:
 	/** Called From AnimNotify for Spike */
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
 		void SpikeBall();
+	/** Called From AnimNotify for Block */
+	UFUNCTION(BlueprintCallable, Category = BallFunc)
+		void BlockBall();
 
 public:
 	/** Returns CameraBoom subobject **/
