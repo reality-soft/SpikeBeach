@@ -3,14 +3,22 @@
 
 #include "PlayerStateUIBase.h"
 
-bool UPlayerStateUIBase::InitRGImages(UImage* receive_rg_img, UImage* spike_rg_img, UWidgetAnimation* receive_rg_anim, UWidgetAnimation* spike_rg_anim)
+bool UPlayerStateUIBase::InitReceiveRGInstances(UImage* img, USizeBox* size, UWidgetAnimation* anim)
 {
-	receive_rg_img_ = receive_rg_img;
-	spike_rg_img_ = spike_rg_img;
-	receive_rg_anim_ = receive_rg_anim;
-	spike_rg_anim_ = spike_rg_anim;
+	receive_rg_img_ = img;
+	receive_rg_size_ = size;
+	receive_rg_anim_ = anim;
 
-	return (receive_rg_img_ && spike_rg_img_ && receive_rg_anim_ && spike_rg_anim_) ? true : false;
+	return (receive_rg_img_ && receive_rg_size_ && receive_rg_anim_) ? true : false;
+}
+
+bool UPlayerStateUIBase::InitSpikeRGInstances(UImage* img, USizeBox* size, UWidgetAnimation* anim)
+{
+	spike_rg_img_ = img;
+	spike_rg_size_ = size;
+	spike_rg_anim_ = anim;
+	
+	return (spike_rg_img_ && spike_rg_size_ && spike_rg_anim_) ? true : false;
 }
 
 void UPlayerStateUIBase::FillReceiveRG(float fill_value)

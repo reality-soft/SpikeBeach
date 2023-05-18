@@ -26,6 +26,9 @@ private:
 	float Gauge;
 	bool bIsGauging;
 
+public:
+	bool GetIsGauging();
+
 	// Properties
 
 	/* Guage Speed */

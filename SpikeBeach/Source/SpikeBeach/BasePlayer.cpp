@@ -12,6 +12,11 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
+bool ABasePlayer::GetIsGauging()
+{
+	return bIsGauging;
+}
+
 // Sets default values
 ABasePlayer::ABasePlayer()
 {

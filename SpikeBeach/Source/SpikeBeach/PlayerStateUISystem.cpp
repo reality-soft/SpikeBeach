@@ -24,13 +24,14 @@ void UPlayerStateUISystem::BeginPlay()
 }
 
 
-bool UPlayerStateUISystem::InitInstances(UCapsuleComponent* player_calsule, ACustomPlayerController* player_controller, UPlayerStateUIBase* state_ui)
+bool UPlayerStateUISystem::InitInstances(ABasePlayer* player_, UCapsuleComponent* player_calsule, ACustomPlayerController* player_controller, UPlayerStateUIBase* state_ui)
 {
+	target_player_ = player_;
 	player_capsule_ = player_calsule;
 	player_controller_ = player_controller;
 	player_state_ui_ = state_ui;
 
-	return (player_capsule_ && player_controller_ && player_state_ui_) ? true : false;
+	return (target_player_ && player_capsule_ && player_controller_ && player_state_ui_) ? true : false;
 }
 
 // Called every frame
@@ -38,27 +39,24 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// Set Receive RG Position
-	if (player_state_ui_->receive_rg_img_->GetVisibility() == ESlateVisibility::Visible)
+	if (target_player_->GetIsGauging())
 	{
-		FVector world_location = player_capsule_->GetComponentTransform().GetLocation();
-		FVector2D screen_location;
-		player_controller_->ProjectWorldLocationToScreen(world_location, screen_location);
-		screen_location.X += -200.0f;
-		screen_location.Y += -200.0f;
-
-		player_state_ui_->receive_rg_img_->SetRenderTransform(FWidgetTransform(screen_location, FVector2D(1.0f, 1.0f), FVector2D(0.0f, 0.0f), 0.0f));
+		player_state_ui_->FillSpikeRG(DeltaTime * spike_proficiency);
+	}
+	else
+	{
+		player_state_ui_->LossSpikeRG();
 	}
 
 	// Set Receive RG Position
-	if (player_state_ui_->spike_rg_img_->GetVisibility() == ESlateVisibility::Visible)
+	if (player_state_ui_ && player_state_ui_->receive_rg_img_->GetVisibility() == ESlateVisibility::Visible)
 	{
-		FVector world_location = player_capsule_->GetComponentTransform().GetLocation();
-		FVector2D screen_location;
-		player_controller_->ProjectWorldLocationToScreen(world_location, screen_location);
-		screen_location.X += -200.0f;
-		screen_location.Y += 200.0f;
+		player_state_ui_->receive_rg_img_->SetRenderTranslation(player_screen_pos_ + receive_rg_local_);
+	}
 
-		player_state_ui_->spike_rg_img_->SetRenderTransform(FWidgetTransform(screen_location, FVector2D(1.0f, 1.0f), FVector2D(0.0f, 0.0f), 0.0f));
+	// Set Spike RG Position
+	if (player_state_ui_ && player_state_ui_->spike_rg_img_->GetVisibility() == ESlateVisibility::Visible)
+	{
+		player_state_ui_->spike_rg_img_->SetRenderTranslation(player_screen_pos_ + spike_rg_local_);
 	}
 }
