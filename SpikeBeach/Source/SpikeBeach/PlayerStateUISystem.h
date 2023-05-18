@@ -2,12 +2,15 @@
 
 #pragma once
 
+#include "Engine/GameViewportClient.h"
+#include "Engine/Engine.h"
+
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "CustomPlayerController.h"
 #include "PlayerStateUIBase.h"
-
+#include "BasePlayer.h"
 #include "Blueprint/UserWidget.h"
 
 #include "PlayerStateUISystem.generated.h"
@@ -26,6 +29,9 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	UPROPERTY(BlueprintReadWrite, Category = "Widget")
+		FVector2D player_screen_pos_;
+
 	UPROPERTY(BlueprintReadWrite, Category = "UISystem")
 		float receive_proficiency = 1.0f;
 
@@ -35,16 +41,27 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "UISystem")
 		float player_stamina = 1.0f;
 
-	UCapsuleComponent* player_capsule_ = nullptr;
-	ACustomPlayerController* player_controller_ = nullptr;
-	UPlayerStateUIBase* player_state_ui_ = nullptr;
+	UPROPERTY(BlueprintReadOnly, Category = "Instance")
+		ABasePlayer* target_player_ = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Instance")
+		UCapsuleComponent* player_capsule_ = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Instance")
+		ACustomPlayerController* player_controller_ = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Instance")
+		UPlayerStateUIBase* player_state_ui_ = nullptr;
 
 public:	
 	UFUNCTION(BlueprintCallable, Category = "UISystem")
-		bool InitInstances(UCapsuleComponent* player_calsule_, ACustomPlayerController* player_controller, UPlayerStateUIBase* state_ui);
+		bool InitInstances(ABasePlayer* player_, UCapsuleComponent* player_calsule_, ACustomPlayerController* player_controller, UPlayerStateUIBase* state_ui);
+
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
+private:
+	FVector2D receive_rg_local_ = { -150, -150 };
+	FVector2D spike_rg_local_ = { -150, -150 };
 };

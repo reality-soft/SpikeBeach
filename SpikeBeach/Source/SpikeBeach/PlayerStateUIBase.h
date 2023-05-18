@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "UMG/Public/Components/Image.h"
+#include "UMG/Public/Components/SizeBox.h"
 
 #include "PlayerStateUIBase.generated.h"
 
@@ -18,12 +19,20 @@ class SPIKEBEACH_API UPlayerStateUIBase : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Animation")
-		bool InitRGImages(UImage* receive_rg_img, UImage* spike_rg_img, UWidgetAnimation* receive_rg_anim, UWidgetAnimation* spike_rg_anim);
+		bool InitReceiveRGInstances(UImage* img, USizeBox* size, UWidgetAnimation* anim);
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+		bool InitSpikeRGInstances(UImage* img, USizeBox* size, UWidgetAnimation* anim);
+
+
 
 public:
 	UImage* receive_rg_img_ = nullptr;
-	UImage* spike_rg_img_ = nullptr;
+	USizeBox* receive_rg_size_ = nullptr;
 	UWidgetAnimation* receive_rg_anim_ = nullptr;
+
+	UImage* spike_rg_img_ = nullptr;
+	USizeBox* spike_rg_size_ = nullptr;
 	UWidgetAnimation* spike_rg_anim_ = nullptr;
 
 public:
