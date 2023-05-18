@@ -10,9 +10,11 @@
 UENUM(BlueprintType)
 enum class EPlayerTurn : uint8
 {
-	PT_RECEIVE = 0,
-	PT_TOSS = 1,
-	PT_SPIKE = 2,
+	PT_SERVICE,
+	PT_RECEIVE,
+	PT_TOSS,
+	PT_SPIKE,
+	COUNT,
 };
 
 UCLASS()
@@ -69,6 +71,10 @@ private:
 
 	/** Receive Anim Montage */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+		class UAnimMontage* ServiceMontage;
+
+	/** Receive Anim Montage */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
 		class UAnimMontage* ReceiveMontage;
 
 	/** Receive Toss Montage */
@@ -118,6 +124,22 @@ protected:
 	/* Called for Sprint Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
 	void SprintCompleted(const FInputActionValue& Value);
+
+private:
+	/** Called From AnimNotify for Service */
+	UFUNCTION(BlueprintCallable, Category = BallFunc)
+		void ServiceFloatingBall();
+	UFUNCTION(BlueprintCallable, Category = BallFunc)
+		void ServiceHitBall();
+	/** Called From AnimNotify for Receive */
+	UFUNCTION(BlueprintCallable, Category = BallFunc)
+		void ReceiveBall();
+	/** Called From AnimNotify for Toss */
+	UFUNCTION(BlueprintCallable, Category = BallFunc)
+		void TossBall();
+	/** Called From AnimNotify for Spike */
+	UFUNCTION(BlueprintCallable, Category = BallFunc)
+		void SpikeBall();
 
 public:
 	/** Returns CameraBoom subobject **/

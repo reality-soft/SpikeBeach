@@ -39,6 +39,8 @@ void ABasePlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	bUseControllerRotationYaw = false;
+
 	//Add Input Mapping Context
 	if (ACustomPlayerController* PlayerController = Cast<ACustomPlayerController>(Controller))
 	{
@@ -98,7 +100,7 @@ void ABasePlayer::SetSuperSettings()
 
 void ABasePlayer::SetPlayerAttributes()
 {
-	PlayerTurn = EPlayerTurn::PT_RECEIVE;
+	PlayerTurn = EPlayerTurn::PT_SERVICE;
 
 	GaugeSpeed = 100.0f;
 
@@ -188,9 +190,15 @@ void ABasePlayer::ClickTriggered(const FInputActionValue& Value)
 	if (!bIsGauging)
 	{
 		bIsGauging = true;
+		FName Service = FName(TEXT("Jump"));
 		FName Direction = FName(TEXT("Left"));
+		FName Spike = FName(TEXT("FullSpike"));
 		switch (PlayerTurn)
 		{
+		case EPlayerTurn::PT_SERVICE:
+			PlayAnimMontage(ServiceMontage, 1.0f, Service);
+			PlayerTurn = EPlayerTurn::PT_RECEIVE;
+			break;
 		case EPlayerTurn::PT_RECEIVE:
 			PlayAnimMontage(ReceiveMontage, 1.0f, Direction);
 			PlayerTurn = EPlayerTurn::PT_TOSS;
@@ -200,8 +208,8 @@ void ABasePlayer::ClickTriggered(const FInputActionValue& Value)
 			PlayerTurn = EPlayerTurn::PT_SPIKE;
 			break;
 		case EPlayerTurn::PT_SPIKE:
-			PlayAnimMontage(SpikeMontage, 1.0f, FName(TEXT("FullSpike")));
-			PlayerTurn = EPlayerTurn::PT_RECEIVE;
+			PlayAnimMontage(SpikeMontage, 1.0f, Spike);
+			PlayerTurn = EPlayerTurn::PT_SERVICE;
 			break;
 		}
 	}
@@ -229,4 +237,28 @@ void ABasePlayer::SprintCompleted(const FInputActionValue& Value)
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
+void ABasePlayer::ServiceFloatingBall()
+{
+	UE_LOG(LogTemp, Log, TEXT("Service : Float Ball"));
+}
+
+void ABasePlayer::ServiceHitBall()
+{
+	UE_LOG(LogTemp, Log, TEXT("Service : Hit Ball"));
+}
+
+void ABasePlayer::ReceiveBall()
+{
+	UE_LOG(LogTemp, Log, TEXT("Service : Receive Ball"));
+}
+
+void ABasePlayer::TossBall()
+{
+	UE_LOG(LogTemp, Log, TEXT("Service : Toss Ball"));
+}
+
+void ABasePlayer::SpikeBall()
+{
+	UE_LOG(LogTemp, Log, TEXT("Service : Spike Ball"));
+}
 
