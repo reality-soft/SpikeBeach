@@ -30,4 +30,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void SpikeHit(FVector direction_vector, FVector start_pos, FVector end_pos);
 };
