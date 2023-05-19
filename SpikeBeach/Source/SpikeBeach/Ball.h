@@ -30,5 +30,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	USphereComponent* GetSphereComp() { return SphereCollisionComponent; }
+
 	void SpikeHit(FVector direction_vector, FVector start_pos, FVector end_pos);
 };
