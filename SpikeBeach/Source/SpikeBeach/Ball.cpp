@@ -33,7 +33,7 @@ void ABall::BeginPlay()
 	FVector direction_vector = end_pos - start_pos;
 	direction_vector.Normalize();
 
-	end_pos[2] = 50;
+	end_pos[2] = 0;
 
 	SpikeHit(direction_vector, start_pos, end_pos);
 }
@@ -53,6 +53,6 @@ void ABall::SpikeHit(FVector direction_vector, FVector start_pos, FVector end_po
 
 	float k = (end_pos[used_index] - start_pos[used_index]) / (total_time * direction_vector[used_index]);
 
-	SphereCollisionComponent->AddImpulse(k * 11.5 * direction_vector);
+	SphereCollisionComponent->AddImpulse(k * 11.5f * direction_vector);
 }
 
