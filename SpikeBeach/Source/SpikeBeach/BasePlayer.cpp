@@ -82,8 +82,10 @@ void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 
 		// Clicking
-		EnhancedInputComponent->BindAction(ClickAction, ETriggerEvent::Triggered, this, &ABasePlayer::ClickTriggered);
-		EnhancedInputComponent->BindAction(ClickAction, ETriggerEvent::Completed, this, &ABasePlayer::ClickCompleted);
+		EnhancedInputComponent->BindAction(LClickAction, ETriggerEvent::Triggered, this, &ABasePlayer::LClickTriggered);
+		EnhancedInputComponent->BindAction(LClickAction, ETriggerEvent::Completed, this, &ABasePlayer::LClickCompleted);
+		EnhancedInputComponent->BindAction(RClickAction, ETriggerEvent::Triggered, this, &ABasePlayer::RClickTriggered);
+		EnhancedInputComponent->BindAction(RClickAction, ETriggerEvent::Completed, this, &ABasePlayer::RClickCompleted);
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABasePlayer::Move);
@@ -117,6 +119,7 @@ void ABasePlayer::SetCapsuleComponent()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 90.0f);
+	GetCapsuleComponent()->SetRelativeLocation({ 0.f, 0.f, -90.f });
 }
 
 void ABasePlayer::SetCharacterMovement()
@@ -190,40 +193,65 @@ void ABasePlayer::Move(const FInputActionValue& Value)
 	}
 }
 
-void ABasePlayer::ClickTriggered(const FInputActionValue& Value)
+void ABasePlayer::LClickTriggered(const FInputActionValue& Value)
 {
 	if (!bIsGauging)
 	{
 		bIsGauging = true;
-		FName Service = FName(TEXT("Jump"));
+		FName Service = FName(TEXT("Spoon"));
 		FName Direction = FName(TEXT("Left"));
 		FName Spike = FName(TEXT("FullSpike"));
 		switch (PlayerTurn)
 		{
 		case EPlayerTurn::PT_SERVICE:
 			PlayAnimMontage(ServiceMontage, 1.0f, Service);
-			PlayerTurn = EPlayerTurn::PT_RECEIVE;
+			PlayerTurn = EPlayerTurn::PT_DEFENCE;
 			break;
-		case EPlayerTurn::PT_RECEIVE:
+		case EPlayerTurn::PT_DEFENCE:
 			PlayAnimMontage(ReceiveMontage, 1.0f, Direction);
-			PlayerTurn = EPlayerTurn::PT_TOSS;
+			PlayerTurn = EPlayerTurn::PT_OFFENCE;
 			break;
-		case EPlayerTurn::PT_TOSS:
-			PlayAnimMontage(TossMontage, 1.0f, Direction);
-			PlayerTurn = EPlayerTurn::PT_SPIKE;
-			break;
-		case EPlayerTurn::PT_SPIKE:
-			PlayAnimMontage(SpikeMontage, 1.0f, Spike);
-			PlayerTurn = EPlayerTurn::PT_SERVICE;
+		case EPlayerTurn::PT_OFFENCE:
+			PlayAnimMontage(SpikeMontage, 1.0f, Direction);
+			PlayerTurn = EPlayerTurn::PT_DEFENCE;
 			break;
 		}
 	}
 
 }
 
-void ABasePlayer::ClickCompleted(const FInputActionValue& Value)
+void ABasePlayer::LClickCompleted(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Click Complete"));
+	UE_LOG(LogTemp, Log, TEXT("LClick Complete"));
+
+	bIsGauging = false;
+}
+
+void ABasePlayer::RClickTriggered(const FInputActionValue& Value)
+{
+	if (!bIsGauging)
+	{
+		bIsGauging = true;
+		FName Direction = FName(TEXT("Front"));
+		FName Spike = FName(TEXT("SemiSpike"));
+		switch (PlayerTurn)
+		{
+		case EPlayerTurn::PT_DEFENCE:
+			PlayAnimMontage(BlockMontage, 1.0f, Direction);
+			PlayerTurn = EPlayerTurn::PT_OFFENCE;
+			break;
+		case EPlayerTurn::PT_OFFENCE:
+			PlayAnimMontage(SpikeMontage, 1.0f, Spike);
+			PlayerTurn = EPlayerTurn::PT_DEFENCE;
+			break;
+		}
+	}
+
+}
+
+void ABasePlayer::RClickCompleted(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("RClick Complete"));
 
 	bIsGauging = false;
 }
@@ -254,16 +282,22 @@ void ABasePlayer::ServiceHitBall()
 
 void ABasePlayer::ReceiveBall()
 {
-	UE_LOG(LogTemp, Log, TEXT("Service : Receive Ball"));
+	UE_LOG(LogTemp, Log, TEXT("Receive Ball"));
 }
 
 void ABasePlayer::TossBall()
 {
-	UE_LOG(LogTemp, Log, TEXT("Service : Toss Ball"));
+	UE_LOG(LogTemp, Log, TEXT("Toss Ball"));
 }
 
 void ABasePlayer::SpikeBall()
 {
-	UE_LOG(LogTemp, Log, TEXT("Service : Spike Ball"));
+	UE_LOG(LogTemp, Log, TEXT("Spike Ball"));
 }
+
+void ABasePlayer::BlockBall()
+{
+	UE_LOG(LogTemp, Log, TEXT("Block Ball"));
+}
+
 
