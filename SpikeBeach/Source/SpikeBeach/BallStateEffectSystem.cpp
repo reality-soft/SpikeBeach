@@ -2,6 +2,7 @@
 
 
 #include "BallStateEffectSystem.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values for this component's properties
 UBallStateEffectSystem::UBallStateEffectSystem()
@@ -30,5 +31,27 @@ void UBallStateEffectSystem::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+bool UBallStateEffectSystem::InitOwnerInstance(ABall* ball)
+{
+	owner_ball_ = ball;
+	if (!owner_ball_)
+		return false;
+
+	UNiagaraComponent* ng_comp = UNiagaraFunctionLibrary::SpawnSystemAttached(arc_trail_fx_, owner_ball_->GetSphereComp(), NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, false);
+	if (!ng_comp)
+		return false;
+
+	return true;
+}
+
+void UBallStateEffectSystem::ShowArcTrail()
+{
+	if (!owner_ball_)
+		return;
+
+
+	return;
 }
 
