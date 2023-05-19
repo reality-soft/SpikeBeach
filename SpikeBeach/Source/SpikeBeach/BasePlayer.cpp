@@ -3,6 +3,7 @@
 
 #include "BasePlayer.h"
 #include "CustomPlayerController.h"
+#include "Math/UnrealMathUtility.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -113,6 +114,11 @@ void ABasePlayer::SetPlayerAttributes()
 
 	WalkSpeed = 500.0f;
 	SprintSpeed = 700.0f;
+
+	OffenceMode = EOffenceMode::OM_NONE;
+	DefenceMode = EDefenceMode::DM_NONE;
+
+	Direction = FName(TEXT("Left"));
 }
 
 void ABasePlayer::SetCapsuleComponent()
@@ -198,22 +204,18 @@ void ABasePlayer::LClickTriggered(const FInputActionValue& Value)
 	if (!bIsGauging)
 	{
 		bIsGauging = true;
-		FName Service = FName(TEXT("Spoon"));
-		FName Direction = FName(TEXT("Left"));
-		FName Spike = FName(TEXT("FullSpike"));
 		switch (PlayerTurn)
 		{
 		case EPlayerTurn::PT_SERVICE:
-			PlayAnimMontage(ServiceMontage, 1.0f, Service);
-			PlayerTurn = EPlayerTurn::PT_DEFENCE;
+			CheckServiceMode();
 			break;
 		case EPlayerTurn::PT_DEFENCE:
-			PlayAnimMontage(ReceiveMontage, 1.0f, Direction);
-			PlayerTurn = EPlayerTurn::PT_OFFENCE;
+			DefenceMode = CheckReceiveMode();
+			OffenceMode = EOffenceMode::OM_NONE;
 			break;
 		case EPlayerTurn::PT_OFFENCE:
-			PlayAnimMontage(SpikeMontage, 1.0f, Direction);
-			PlayerTurn = EPlayerTurn::PT_DEFENCE;
+			OffenceMode = CheckAttackMode();
+			DefenceMode = EDefenceMode::DM_NONE;
 			break;
 		}
 	}
@@ -224,6 +226,19 @@ void ABasePlayer::LClickCompleted(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("LClick Complete"));
 
+	switch (PlayerTurn)
+	{
+	case EPlayerTurn::PT_SERVICE:
+		PlayServiceAnimation();
+		break;
+	case EPlayerTurn::PT_DEFENCE:
+		PlayReceiveAnimation();
+		break;
+	case EPlayerTurn::PT_OFFENCE:
+		PlayAttackAnimation();
+		break;
+	}
+
 	bIsGauging = false;
 }
 
@@ -232,17 +247,15 @@ void ABasePlayer::RClickTriggered(const FInputActionValue& Value)
 	if (!bIsGauging)
 	{
 		bIsGauging = true;
-		FName Direction = FName(TEXT("Front"));
-		FName Spike = FName(TEXT("SemiSpike"));
 		switch (PlayerTurn)
 		{
 		case EPlayerTurn::PT_DEFENCE:
-			PlayAnimMontage(BlockMontage, 1.0f, Direction);
-			PlayerTurn = EPlayerTurn::PT_OFFENCE;
+			DefenceMode = CheckBlockMode();
+			OffenceMode = EOffenceMode::OM_NONE;
 			break;
 		case EPlayerTurn::PT_OFFENCE:
-			PlayAnimMontage(SpikeMontage, 1.0f, Spike);
-			PlayerTurn = EPlayerTurn::PT_DEFENCE;
+			OffenceMode = CheckPassMode();
+			DefenceMode = EDefenceMode::DM_NONE;
 			break;
 		}
 	}
@@ -252,6 +265,16 @@ void ABasePlayer::RClickTriggered(const FInputActionValue& Value)
 void ABasePlayer::RClickCompleted(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("RClick Complete"));
+
+	switch (PlayerTurn)
+	{
+	case EPlayerTurn::PT_DEFENCE:
+		PlayBlockAnimation();
+		break;
+	case EPlayerTurn::PT_OFFENCE:
+		PlayPassAnimation();
+		break;
+	}
 
 	bIsGauging = false;
 }
@@ -278,26 +301,154 @@ void ABasePlayer::ServiceFloatingBall()
 void ABasePlayer::ServiceHitBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Service : Hit Ball"));
+	PlayerTurn = EPlayerTurn::PT_DEFENCE;
+}
+
+void ABasePlayer::DigBall()
+{
+	UE_LOG(LogTemp, Log, TEXT("Dig Ball"));
+	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABasePlayer::ReceiveBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Receive Ball"));
-}
-
-void ABasePlayer::TossBall()
-{
-	UE_LOG(LogTemp, Log, TEXT("Toss Ball"));
-}
-
-void ABasePlayer::SpikeBall()
-{
-	UE_LOG(LogTemp, Log, TEXT("Spike Ball"));
+	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABasePlayer::BlockBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Block Ball"));
+	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
+
+void ABasePlayer::TossBall()
+{
+	UE_LOG(LogTemp, Log, TEXT("Toss Ball"));
+	PlayerTurn = EPlayerTurn::PT_OFFENCE;
+}
+
+void ABasePlayer::PassBall()
+{
+	UE_LOG(LogTemp, Log, TEXT("Pass Ball"));
+	PlayerTurn = EPlayerTurn::PT_OFFENCE;
+}
+
+void ABasePlayer::SpikeBall()
+{
+	UE_LOG(LogTemp, Log, TEXT("Spike Ball"));
+	PlayerTurn = EPlayerTurn::PT_DEFENCE;
+}
+
+void ABasePlayer::FloatingBall()
+{
+	UE_LOG(LogTemp, Log, TEXT("Floating Ball"));
+	PlayerTurn = EPlayerTurn::PT_DEFENCE;
+}
+
+void ABasePlayer::CheckServiceMode()
+{
+	ServiceMode = FName(TEXT("Spoon"));
+}
+
+EOffenceMode ABasePlayer::CheckPassMode()
+{
+	// Mode Check
+	int32 mode = FMath::RandRange((int32)EOffenceMode::OM_TOSS, (int32)EOffenceMode::OM_PASS);
+
+	// Direction Check
+	// TOSS : Front(Back) / Left / Right
+	// PASS : Front / Back / Right / Left
+	Direction = FName(TEXT("Front"));
+
+	return EOffenceMode(mode);
+}
+
+EOffenceMode ABasePlayer::CheckAttackMode()
+{
+	// Mode Check
+	int32 mode = FMath::RandRange((int32)EOffenceMode::OM_SPIKE, (int32)EOffenceMode::OM_FLOATING);
+
+	// Direction Check
+	// Floating : Front(Back) / Left / Right
+	Direction = FName(TEXT("Front"));
+
+	return EOffenceMode(mode);
+}
+
+EDefenceMode ABasePlayer::CheckReceiveMode()
+{
+	// Mode Check
+	int32 mode = FMath::RandRange((int32)EDefenceMode::DM_DIG, (int32)EDefenceMode::DM_RECEIVE);
+
+	// Direction Check
+	// Dig : Front / Left / Right
+	// Receive : Front / Back / Right / Left
+	Direction = FName(TEXT("Front"));
+
+	return EDefenceMode(mode);
+}
+
+EDefenceMode ABasePlayer::CheckBlockMode()
+{
+	// Direction Check
+	// Block : Front / Left / Right
+	Direction = FName(TEXT("Front"));
+
+	return EDefenceMode::DM_BLOCK;
+}
+
+void ABasePlayer::PlayServiceAnimation()
+{
+	FName Service = FName(TEXT("Spoon"));
+	PlayAnimMontage(ServiceMontage, 1.0f, ServiceMode);
+}
+
+void ABasePlayer::PlayPassAnimation()
+{
+	switch (OffenceMode)
+	{
+	case EOffenceMode::OM_TOSS:
+		PlayAnimMontage(TossMontage, 1.0f, Direction);
+		break;
+	case EOffenceMode::OM_PASS:
+		PlayAnimMontage(PassMontage, 1.0f, Direction);
+		break;
+	}
+}
+
+void ABasePlayer::PlayAttackAnimation()
+{
+	FName Spike = FName(TEXT("FullSpike"));
+
+	switch (OffenceMode)
+	{
+	case EOffenceMode::OM_SPIKE:
+		PlayAnimMontage(SpikeMontage, 1.0f, Spike);
+		break;
+	case EOffenceMode::OM_FLOATING:
+		PlayAnimMontage(FloatingMontage, 1.0f, Direction);
+		break;
+	}
+}
+
+void ABasePlayer::PlayReceiveAnimation()
+{
+	switch (DefenceMode)
+	{
+	case EDefenceMode::DM_DIG:
+		PlayAnimMontage(DigMontage, 1.0f, Direction);
+		break;
+	case EDefenceMode::DM_RECEIVE:
+		PlayAnimMontage(ReceiveMontage, 1.0f, Direction);
+		break;
+	}
+}
+
+void ABasePlayer::PlayBlockAnimation()
+{
+	PlayAnimMontage(BlockMontage, 1.0f, Direction);
+}
+
 
 
