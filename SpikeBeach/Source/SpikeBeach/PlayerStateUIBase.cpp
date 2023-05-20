@@ -5,47 +5,56 @@
 
 bool UPlayerStateUIBase::InitReceiveRGInstances(UImage* img, USizeBox* size, UWidgetAnimation* anim)
 {
-	receive_rg_img_ = img;
-	receive_rg_size_ = size;
-	receive_rg_anim_ = anim;
+	stable_rg_img_ = img;
+	stable_rg_size_ = size;
+	stable_rg_anim_ = anim;
 
-	return (receive_rg_img_ && receive_rg_size_ && receive_rg_anim_) ? true : false;
+	return (stable_rg_img_ && stable_rg_size_ && stable_rg_anim_) ? true : false;
 }
 
 bool UPlayerStateUIBase::InitSpikeRGInstances(UImage* img, USizeBox* size, UWidgetAnimation* anim)
 {
-	spike_rg_img_ = img;
-	spike_rg_size_ = size;
-	spike_rg_anim_ = anim;
+	offensive_rg_img_ = img;
+	offensive_rg_size_ = size;
+	offensive_rg_anim_ = anim;
 	
-	return (spike_rg_img_ && spike_rg_size_ && spike_rg_anim_) ? true : false;
+	return (offensive_rg_img_ && offensive_rg_size_ && offensive_rg_anim_) ? true : false;
 }
 
-void UPlayerStateUIBase::FillReceiveRG(float fill_value)
+void UPlayerStateUIBase::FillStableRG(float fill_value)
 {
 	rg_1_animtime_ += fill_value;
-	receive_rg_img_->SetVisibility(ESlateVisibility::Visible);
-	PlayAnimation(receive_rg_anim_, rg_1_animtime_);
+	stable_rg_img_->SetVisibility(ESlateVisibility::Visible);
+	PlayAnimation(stable_rg_anim_, rg_1_animtime_);
 }
 
-void UPlayerStateUIBase::FillSpikeRG(float fill_value)
+void UPlayerStateUIBase::FillOffensiveRG(float fill_value)
 {
 	rg_2_animtime_ += fill_value;
-	spike_rg_img_->SetVisibility(ESlateVisibility::Visible);
-	PlayAnimation(spike_rg_anim_, rg_2_animtime_);
+	offensive_rg_img_->SetVisibility(ESlateVisibility::Visible);
+	PlayAnimation(offensive_rg_anim_, rg_2_animtime_);
 }
 
-void UPlayerStateUIBase::LossReceiveRG()
+void UPlayerStateUIBase::LossStableRG()
 {
+	PauseAnimation(stable_rg_anim_);
+}
+
+void UPlayerStateUIBase::LossOffensiveRG()
+{
+	PauseAnimation(offensive_rg_anim_);
+}
+
+void UPlayerStateUIBase::UnshowStableRG()
+{
+	StopAnimation(stable_rg_anim_);
 	rg_1_animtime_ = 0.0f;
-	receive_rg_img_->SetVisibility(ESlateVisibility::Hidden);
-	StopAnimation(receive_rg_anim_);
+	stable_rg_img_->SetVisibility(ESlateVisibility::Hidden);
 }
 
-
-void UPlayerStateUIBase::LossSpikeRG()
+void UPlayerStateUIBase::UnshowOffensiveRG()
 {
+	StopAnimation(offensive_rg_anim_);
 	rg_2_animtime_ = 0.0f;
-	spike_rg_img_->SetVisibility(ESlateVisibility::Hidden);
-	StopAnimation(spike_rg_anim_);
+	offensive_rg_img_->SetVisibility(ESlateVisibility::Hidden);
 }
