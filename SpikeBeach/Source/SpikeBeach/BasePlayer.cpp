@@ -13,11 +13,6 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
-bool ABasePlayer::GetIsGauging()
-{
-	return bIsGauging;
-}
-
 // Sets default values
 ABasePlayer::ABasePlayer()
 {
@@ -207,6 +202,7 @@ void ABasePlayer::LClickTriggered(const FInputActionValue& Value)
 		switch (PlayerTurn)
 		{
 		case EPlayerTurn::PT_SERVICE:
+			state_ui_notices_.Enqueue(EStateUINotice::eStartedGauge_StableType);
 			CheckServiceMode();
 			break;
 		case EPlayerTurn::PT_DEFENCE:
@@ -219,7 +215,6 @@ void ABasePlayer::LClickTriggered(const FInputActionValue& Value)
 			break;
 		}
 	}
-
 }
 
 void ABasePlayer::LClickCompleted(const FInputActionValue& Value)
@@ -229,6 +224,7 @@ void ABasePlayer::LClickCompleted(const FInputActionValue& Value)
 	switch (PlayerTurn)
 	{
 	case EPlayerTurn::PT_SERVICE:
+		state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
 		PlayServiceAnimation();
 		break;
 	case EPlayerTurn::PT_DEFENCE:
@@ -301,7 +297,9 @@ void ABasePlayer::ServiceFloatingBall()
 void ABasePlayer::ServiceHitBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Service : Hit Ball"));
-	PlayerTurn = EPlayerTurn::PT_DEFENCE;
+	state_ui_notices_.Enqueue(EStateUINotice::eUnshowedGauge_StableType);
+
+	//PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
 void ABasePlayer::DigBall()
@@ -348,7 +346,7 @@ void ABasePlayer::FloatingBall()
 
 void ABasePlayer::CheckServiceMode()
 {
-	ServiceMode = FName(TEXT("Spoon"));
+	ServiceMode = FName(TEXT("Jump"));
 }
 
 EOffenceMode ABasePlayer::CheckPassMode()

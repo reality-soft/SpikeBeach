@@ -37,6 +37,18 @@ enum class EDefenceMode : uint8
 	COUNT,
 };
 
+enum class EStateUINotice
+{
+	eStartedGauge_StableType,
+	eStartedGauge_OffensiveType,
+
+	eFinishedGauge_StableType,
+	eFinishedGauge_OffensiveType,
+
+	eUnshowedGauge_StableType,
+	eUnshowedGauge_OffensiveType,
+};
+
 UCLASS()
 class SPIKEBEACH_API ABasePlayer : public ACharacter
 {
@@ -48,8 +60,7 @@ private:
 	bool bIsGauging;
 
 public:
-	bool GetIsGauging();
-
+	TQueue<EStateUINotice> state_ui_notices_;
 	// Properties
 
 #pragma region CHARACTER
@@ -89,6 +100,7 @@ public:
 #pragma endregion
 
 #pragma region Component
+
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
