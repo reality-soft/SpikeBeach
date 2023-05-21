@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "NiagaraComponent.h"
+
 #include "Ball.generated.h"
 
 UCLASS()
@@ -18,6 +20,14 @@ private:
 	/** Mesh Component */
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		class UStaticMeshComponent* MeshComponent;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
+		UNiagaraSystem* ngsystem_arc_trail_ = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
+		UNiagaraSystem* ngsystem_landing_point_ = nullptr;
+
 public:	
 	// Sets default values for this actor's properties
 	ABall();

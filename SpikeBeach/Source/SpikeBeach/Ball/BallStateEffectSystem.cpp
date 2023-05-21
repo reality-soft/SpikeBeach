@@ -39,19 +39,86 @@ bool UBallStateEffectSystem::InitOwnerInstance(ABall* ball)
 	if (!owner_ball_)
 		return false;
 
-	UNiagaraComponent* ng_comp = UNiagaraFunctionLibrary::SpawnSystemAttached(arc_trail_fx_, owner_ball_->GetSphereComp(), NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, false);
-	if (!ng_comp)
-		return false;
-
 	return true;
 }
 
-void UBallStateEffectSystem::ShowArcTrail()
+void UBallStateEffectSystem::SpawnArcTrail()
 {
-	if (!owner_ball_)
+	if (!owner_ball_ && !owner_ball_->ngsystem_arc_trail_)
 		return;
 
+	if (ngcomp_arc_trail_ != nullptr)
+		DestroyArcTrail();
 
-	return;
+	ngcomp_arc_trail_ = UNiagaraFunctionLibrary::SpawnSystemAttached(owner_ball_->ngsystem_arc_trail_, owner_ball_->GetSphereComp(), NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, false);
+	if (ngcomp_arc_trail_)
+	{
+		ngcomp_arc_trail_->SetNiagaraVariableLinearColor(FString("SubColor"), FLinearColor(1, 1, 1));
+		ngcomp_arc_trail_->SetNiagaraVariableLinearColor(FString("MainColor"), FLinearColor(1, 1, 1));
+		ngcomp_arc_trail_->SetNiagaraVariableFloat(FString("SphereRad"), owner_ball_->GetSphereComp()->GetScaledSphereRadius());
+	}
 }
 
+void UBallStateEffectSystem::SpawnLandingPoint(FVector world_location)
+{
+	if (!owner_ball_ && !owner_ball_->ngsystem_landing_point_)
+		return;
+
+	if (ngcomp_arc_trail_ != nullptr)
+		DestroyLandingPoint();	
+	
+	ngcomp_landing_point_ = UNiagaraFunctionLibrary::SpawnSystemAtLocation(owner_ball_->GetWorld(), owner_ball_->ngsystem_arc_trail_, world_location, FRotator(0.f), FVector(1.0f), false);
+}
+
+void UBallStateEffectSystem::DestroyArcTrail()
+{
+	if (ngcomp_arc_trail_)
+	{
+		ngcomp_arc_trail_->DestroyComponent();
+		ngcomp_arc_trail_ = nullptr;
+	}
+}
+
+void UBallStateEffectSystem::DestroyLandingPoint()
+{
+	if (ngcomp_landing_point_)
+	{
+		ngcomp_landing_point_->DestroyComponent();
+		ngcomp_landing_point_ = nullptr;
+	}
+}
+
+void UBallStateEffectSystem::SetArcTrailSpawnRate(float spawn_rate)
+{
+	if (ngcomp_arc_trail_)
+	{
+		ngcomp_arc_trail_->SetNiagaraVariableFloat(FString("SpawnRate"), spawn_rate);
+	}
+}
+
+void UBallStateEffectSystem::SetTrailColor_Stable()
+{
+	if (ngcomp_arc_trail_)
+	{
+		ngcomp_arc_trail_->SetNiagaraVariableLinearColor(FString("SubColor"), subcolor_stable_);
+		ngcomp_arc_trail_->SetNiagaraVariableLinearColor(FString("MainColor"), maincolor_stable_);
+	}
+}
+
+void UBallStateEffectSystem::SetTrailColor_Offensive()
+{
+	if (ngcomp_arc_trail_)
+	{
+		ngcomp_arc_trail_->SetNiagaraVariableLinearColor(FString("SubColor"), subcolor_offensive_);
+		ngcomp_arc_trail_->SetNiagaraVariableLinearColor(FString("MainColor"), maincolor_offensive_);
+	}
+}
+
+void UBallStateEffectSystem::SetTrailColor_Wrong()
+{
+	if (ngcomp_arc_trail_)
+	{
+		ngcomp_arc_trail_->SetNiagaraVariableLinearColor(FString("SubColor"), subcolor_wrong_);
+		ngcomp_arc_trail_->SetNiagaraVariableLinearColor(FString("MainColor"), maincolor_wrong_);
+	}
+}
