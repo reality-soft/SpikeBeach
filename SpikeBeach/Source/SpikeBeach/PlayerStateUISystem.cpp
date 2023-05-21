@@ -39,7 +39,7 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (target_player_->GetIsGauging())
+	if (target_player_->GetIsClicking())
 	{
 		player_state_ui_->FillSpikeRG(DeltaTime * spike_proficiency);
 	}
