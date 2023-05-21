@@ -15,13 +15,7 @@ class SPIKEBEACH_API AVolleyballScriptBase : public ALevelScriptActor
 {
 	GENERATED_BODY()
 	
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameRule")
-		ATriggerBox* t1_area_ = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameRule")
-		ATriggerBox* t2_area_ = nullptr;
-
-	
+public:	
 	UFUNCTION(BlueprintCallable, Category = "GameRule")
 		void SetRule();
 };

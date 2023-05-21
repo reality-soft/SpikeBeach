@@ -24,16 +24,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 		bool InitSpikeRGInstances(UImage* img, USizeBox* size, UWidgetAnimation* anim);
 
-
+protected:
+	FTimerHandle timer_handle_;
+	FTimerManager timer_manager_;
 
 public:
-	UImage* receive_rg_img_ = nullptr;
-	USizeBox* receive_rg_size_ = nullptr;
-	UWidgetAnimation* receive_rg_anim_ = nullptr;
+	UImage* stable_rg_img_ = nullptr;
+	USizeBox* stable_rg_size_ = nullptr;
+	UWidgetAnimation* stable_rg_anim_ = nullptr;
 
-	UImage* spike_rg_img_ = nullptr;
-	USizeBox* spike_rg_size_ = nullptr;
-	UWidgetAnimation* spike_rg_anim_ = nullptr;
+	UImage* offensive_rg_img_ = nullptr;
+	USizeBox* offensive_rg_size_ = nullptr;
+	UWidgetAnimation* offensive_rg_anim_ = nullptr;
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Animation")
@@ -44,14 +46,20 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Animation")
-		void FillReceiveRG(float fill_value);
+		void FillStableRG(float fill_value);
 
 	UFUNCTION(BlueprintCallable, Category = "Animation")
-		void FillSpikeRG(float fill_value);
+		void LossStableRG();
 
 	UFUNCTION(BlueprintCallable, Category = "Animation")
-		void LossSpikeRG();
+		void UnshowStableRG();
 
 	UFUNCTION(BlueprintCallable, Category = "Animation")
-		void LossReceiveRG();
+		void FillOffensiveRG(float fill_value);
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+		void LossOffensiveRG();
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+		void UnshowOffensiveRG();
 };

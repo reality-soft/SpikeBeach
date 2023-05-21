@@ -13,5 +13,6 @@ UCLASS()
 class SPIKEBEACH_API ASpikeBeachGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
 };
+ 
