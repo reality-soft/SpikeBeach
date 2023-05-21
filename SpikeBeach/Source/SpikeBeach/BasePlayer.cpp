@@ -13,11 +13,6 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
-bool ABasePlayer::GetIsGauging()
-{
-	return bIsGauging;
-}
-
 // Sets default values
 ABasePlayer::ABasePlayer()
 {
@@ -62,16 +57,31 @@ void ABasePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bIsGauging)
+	if (bIsClicking)
 	{
+		// Gauge To Power
 		Gauge = Gauge < 100.0f ? Gauge + DeltaTime * GaugeSpeed : 100.0f;
-		UE_LOG(LogTemp, Log, TEXT("Gauge : %f"), Gauge);
+
+		// Timing To Accuracy
+		TimingTimer += DeltaTime;
 	}
 	else
 	{
 		Gauge = 0;
+		TimingAccuracy = -1.0f;
+		TimingTimer = 0.0f;
+		TimingMax = 0.0f;
 	}
 
+	// Smoothing between Walk & Sprint
+	if (!bIsSprint && fabs(GetCharacterMovement()->GetMaxSpeed() - WalkSpeed) > FLT_EPSILON)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed - 300.0f * DeltaTime;
+	}
+	else if (!bIsSprint && fabs(GetCharacterMovement()->GetMaxSpeed() - WalkSpeed) <= FLT_EPSILON)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	}
 }
 
 // Called to bind functionality to input
@@ -119,6 +129,14 @@ void ABasePlayer::SetPlayerAttributes()
 	DefenceMode = EDefenceMode::DM_NONE;
 
 	Direction = FName(TEXT("Left"));
+
+	bIsClicking = false;
+	bIsSprint = false;
+
+	Gauge = 0.0f;
+	TimingAccuracy = 0.0f;
+	TimingTimer = 0.0f;
+	TimingMax = 0.0f;
 }
 
 void ABasePlayer::SetCapsuleComponent()
@@ -201,20 +219,21 @@ void ABasePlayer::Move(const FInputActionValue& Value)
 
 void ABasePlayer::LClickTriggered(const FInputActionValue& Value)
 {
-	if (!bIsGauging)
+	if (!bIsClicking)
 	{
-		bIsGauging = true;
+		bIsClicking = true;
+
 		switch (PlayerTurn)
 		{
 		case EPlayerTurn::PT_SERVICE:
-			CheckServiceMode();
+			SetServiceMode();
 			break;
 		case EPlayerTurn::PT_DEFENCE:
-			DefenceMode = CheckReceiveMode();
+			SetReceiveMode();
 			OffenceMode = EOffenceMode::OM_NONE;
 			break;
 		case EPlayerTurn::PT_OFFENCE:
-			OffenceMode = CheckAttackMode();
+			SetAttackMode();
 			DefenceMode = EDefenceMode::DM_NONE;
 			break;
 		}
@@ -226,35 +245,32 @@ void ABasePlayer::LClickCompleted(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("LClick Complete"));
 
-	switch (PlayerTurn)
-	{
-	case EPlayerTurn::PT_SERVICE:
-		PlayServiceAnimation();
-		break;
-	case EPlayerTurn::PT_DEFENCE:
-		PlayReceiveAnimation();
-		break;
-	case EPlayerTurn::PT_OFFENCE:
-		PlayAttackAnimation();
-		break;
-	}
+	bIsClicking = false;
 
-	bIsGauging = false;
+	TimingAccuracy = TimingTimer / TimingMax;
+	UE_LOG(LogTemp, Log, TEXT("TimingAccuracy : %f"), TimingAccuracy);
+	UE_LOG(LogTemp, Log, TEXT("TimingTimer : %f"), TimingTimer);
 }
 
 void ABasePlayer::RClickTriggered(const FInputActionValue& Value)
 {
-	if (!bIsGauging)
+	if (!bIsClicking)
 	{
-		bIsGauging = true;
+		bIsClicking = true;
+
+		float RemainingTimeToAction = 0.0f;
+		FVector ActionPos;
+
+		TimingMax = RemainingTimeToAction;
+
 		switch (PlayerTurn)
 		{
 		case EPlayerTurn::PT_DEFENCE:
-			DefenceMode = CheckBlockMode();
+			SetBlockMode();
 			OffenceMode = EOffenceMode::OM_NONE;
 			break;
 		case EPlayerTurn::PT_OFFENCE:
-			OffenceMode = CheckPassMode();
+			SetPassMode();
 			DefenceMode = EDefenceMode::DM_NONE;
 			break;
 		}
@@ -266,23 +282,17 @@ void ABasePlayer::RClickCompleted(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("RClick Complete"));
 
-	switch (PlayerTurn)
-	{
-	case EPlayerTurn::PT_DEFENCE:
-		PlayBlockAnimation();
-		break;
-	case EPlayerTurn::PT_OFFENCE:
-		PlayPassAnimation();
-		break;
-	}
+	bIsClicking = false;
 
-	bIsGauging = false;
+	TimingAccuracy = TimingTimer / TimingMax;
+	UE_LOG(LogTemp, Log, TEXT("TimingAccuracy : %f"), TimingAccuracy);
+	UE_LOG(LogTemp, Log, TEXT("TimingTimer : %f"), TimingTimer);
 }
 
 void ABasePlayer::SprintTriggered(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("Sprint Triggered"));
-
+	bIsSprint = true;
 	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 }
 
@@ -290,7 +300,9 @@ void ABasePlayer::SprintCompleted(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("Sprint Completed"));
 
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	bIsSprint = false;
+
+	//GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
 void ABasePlayer::ServiceFloatingBall()
@@ -300,7 +312,8 @@ void ABasePlayer::ServiceFloatingBall()
 
 void ABasePlayer::ServiceHitBall()
 {
-	UE_LOG(LogTemp, Log, TEXT("Service : Hit Ball"));
+	UE_LOG(LogTemp, Log, TEXT("Service :: Hit Ball"));
+
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
@@ -337,6 +350,7 @@ void ABasePlayer::PassBall()
 void ABasePlayer::SpikeBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Spike Ball"));
+
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
@@ -346,101 +360,158 @@ void ABasePlayer::FloatingBall()
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
-void ABasePlayer::CheckServiceMode()
+void ABasePlayer::SetServiceMode()
 {
-	ServiceMode = FName(TEXT("Spoon"));
+	// 1. Set Service Mode upon Player Pos : TODO 
+	ServiceMode = FName(TEXT("Floating"));
+
+	// 2. Call Ball's Calculate values : TODO
+	float RemainingTimeToAction = 2.0f;
+	FVector ActionPos;
+	TimingMax = RemainingTimeToAction;
+
+	// 3. Play Service Anim
+	PlayServiceAnimation(RemainingTimeToAction);
 }
 
-EOffenceMode ABasePlayer::CheckPassMode()
+void ABasePlayer::SetPassMode()
 {
-	// Mode Check
-	int32 mode = FMath::RandRange((int32)EOffenceMode::OM_TOSS, (int32)EOffenceMode::OM_PASS);
+	// 1. Mode Check : TODO 
+	// Set Pass Mode upon Ball's Z coord
+	//OffenceMode = EOffenceMode(FMath::RandRange((int32)EOffenceMode::OM_TOSS, (int32)EOffenceMode::OM_PASS));
+	OffenceMode = EOffenceMode::OM_PASS;
 
-	// Direction Check
-	// TOSS : Front(Back) / Left / Right
-	// PASS : Front / Back / Right / Left
+	// 2. Direction Check : TODO 
+	// Set Direction upon Team's Position
+		// TOSS : Front(Back) / Left / Right
+		// PASS : Front / Back / Right / Left
+	Direction = FName(TEXT("Right"));
+	FString dir = Direction.ToString();
+	UE_LOG(LogTemp, Log, TEXT("Direction :: %s"), *dir);
+
+	// 3. Call Ball's Calculate values : TODO
+	float RemainingTimeToAction = 2.0f;
+	FVector ActionPos;
+	TimingMax = RemainingTimeToAction;
+
+	// 4. Play Pass Anim
+	PlayPassAnimation(RemainingTimeToAction);
+}
+
+void ABasePlayer::SetAttackMode()
+{
+	// 1. Mode Check : TODO 
+	// Set Attack Mode upon Ball's Z coord
+	OffenceMode = EOffenceMode(FMath::RandRange((int32)EOffenceMode::OM_SPIKE, (int32)EOffenceMode::OM_FLOATING));
+
+	// 2. Direction Check : TODO 
+		// Floating : Front(Back) / Left / Right
 	Direction = FName(TEXT("Front"));
+	FString dir = Direction.ToString();
+	UE_LOG(LogTemp, Log, TEXT("Direction :: %s"), *dir);
 
-	return EOffenceMode(mode);
+	// 3. Set SpikeMode if Spike,
+	SpikeMode = FName(TEXT("FullSpike"));
+
+	// 4. Call Ball's Calculate values : TODO
+	float RemainingTimeToAction = 2.0f;
+	FVector ActionPos;
+	TimingMax = RemainingTimeToAction;
+
+	// 5. Play Attack Anim
+	PlayAttackAnimation(RemainingTimeToAction);
 }
 
-EOffenceMode ABasePlayer::CheckAttackMode()
+void ABasePlayer::SetReceiveMode()
 {
-	// Mode Check
-	int32 mode = FMath::RandRange((int32)EOffenceMode::OM_SPIKE, (int32)EOffenceMode::OM_FLOATING);
+	// 1. Mode Check : TODO 
+	// Set Receive Mode upon Ball's Z coord
+	DefenceMode = EDefenceMode(FMath::RandRange((int32)EDefenceMode::DM_DIG, (int32)EDefenceMode::DM_RECEIVE));
 
-	// Direction Check
-	// Floating : Front(Back) / Left / Right
+	// 2. Direction Check : TODO 
+		// Dig : Front / Left / Right
+		// Receive : Front / Back / Right / Left
 	Direction = FName(TEXT("Front"));
+	FString dir = Direction.ToString();
+	UE_LOG(LogTemp, Log, TEXT("Direction :: %s"), *dir);
 
-	return EOffenceMode(mode);
+	// 3. Call Ball's Calculate values
+	float RemainingTimeToAction = 2.0f;
+	FVector ActionPos;
+	TimingMax = RemainingTimeToAction;
+
+	// 4. Play Receive Anim
+	PlayReceiveAnimation(RemainingTimeToAction);
 }
 
-EDefenceMode ABasePlayer::CheckReceiveMode()
+void ABasePlayer::SetBlockMode()
 {
-	// Mode Check
-	int32 mode = FMath::RandRange((int32)EDefenceMode::DM_DIG, (int32)EDefenceMode::DM_RECEIVE);
+	// 0. Mode Set
+	DefenceMode = EDefenceMode::DM_BLOCK;
 
-	// Direction Check
-	// Dig : Front / Left / Right
-	// Receive : Front / Back / Right / Left
-	Direction = FName(TEXT("Front"));
-
-	return EDefenceMode(mode);
-}
-
-EDefenceMode ABasePlayer::CheckBlockMode()
-{
-	// Direction Check
+	// 1. Direction Check : TODO 
 	// Block : Front / Left / Right
 	Direction = FName(TEXT("Front"));
+	FString dir = Direction.ToString();
+	UE_LOG(LogTemp, Log, TEXT("Direction :: %s"), *dir);
 
-	return EDefenceMode::DM_BLOCK;
+	// 2. Play Block Anim with 1.0 rate
+	PlayBlockAnimation();
 }
 
-void ABasePlayer::PlayServiceAnimation()
+void ABasePlayer::PlayServiceAnimation(float RemainingTimeToAction)
 {
-	FName Service = FName(TEXT("Spoon"));
-	PlayAnimMontage(ServiceMontage, 1.0f, ServiceMode);
+	float PlayRate = CalculatePlayRate(RemainingTimeToAction, ServiceMontage, ServiceMode);
+
+	PlayAnimMontage(ServiceMontage, PlayRate, ServiceMode);
 }
 
-void ABasePlayer::PlayPassAnimation()
+void ABasePlayer::PlayPassAnimation(float RemainingTimeToAction)
 {
+	float PlayRate;
 	switch (OffenceMode)
 	{
 	case EOffenceMode::OM_TOSS:
-		PlayAnimMontage(TossMontage, 1.0f, Direction);
+		PlayRate = CalculatePlayRate(RemainingTimeToAction, TossMontage, Direction);
+		PlayAnimMontage(TossMontage, PlayRate, Direction);
 		break;
 	case EOffenceMode::OM_PASS:
-		PlayAnimMontage(PassMontage, 1.0f, Direction);
+		PlayRate = CalculatePlayRate(RemainingTimeToAction, PassMontage, Direction);
+		PlayAnimMontage(PassMontage, PlayRate, Direction);
 		break;
 	}
 }
 
-void ABasePlayer::PlayAttackAnimation()
+void ABasePlayer::PlayAttackAnimation(float RemainingTimeToAction)
 {
-	FName Spike = FName(TEXT("FullSpike"));
+	float PlayRate;
 
 	switch (OffenceMode)
 	{
 	case EOffenceMode::OM_SPIKE:
-		PlayAnimMontage(SpikeMontage, 1.0f, Spike);
+		PlayRate = CalculatePlayRate(RemainingTimeToAction, SpikeMontage, SpikeMode);
+		PlayAnimMontage(SpikeMontage, PlayRate, SpikeMode);
 		break;
 	case EOffenceMode::OM_FLOATING:
-		PlayAnimMontage(FloatingMontage, 1.0f, Direction);
+		PlayRate = CalculatePlayRate(RemainingTimeToAction, FloatingMontage, Direction);
+		PlayAnimMontage(FloatingMontage, PlayRate, Direction);
 		break;
 	}
 }
 
-void ABasePlayer::PlayReceiveAnimation()
+void ABasePlayer::PlayReceiveAnimation(float RemainingTimeToAction)
 {
+	float PlayRate;
+
 	switch (DefenceMode)
 	{
 	case EDefenceMode::DM_DIG:
-		PlayAnimMontage(DigMontage, 1.0f, Direction);
+		PlayRate = CalculatePlayRate(RemainingTimeToAction, DigMontage, Direction);
+		PlayAnimMontage(DigMontage, PlayRate, Direction);
 		break;
 	case EDefenceMode::DM_RECEIVE:
-		PlayAnimMontage(ReceiveMontage, 1.0f, Direction);
+		PlayRate = CalculatePlayRate(RemainingTimeToAction, ReceiveMontage, Direction);
+		PlayAnimMontage(ReceiveMontage, PlayRate, Direction);
 		break;
 	}
 }
@@ -450,5 +521,16 @@ void ABasePlayer::PlayBlockAnimation()
 	PlayAnimMontage(BlockMontage, 1.0f, Direction);
 }
 
+
+float ABasePlayer::CalculatePlayRate(float TimeRemaining, UAnimMontage* Montage, FName SectionName)
+{
+	float StartTime, EndTime;
+
+	int32 SectionIndex = Montage->GetSectionIndex(SectionName);
+	Montage->GetSectionStartAndEndTime(SectionIndex, StartTime, EndTime);
+	float AnimTime = EndTime - StartTime;
+
+	return AnimTime / TimeRemaining;
+}
 
 

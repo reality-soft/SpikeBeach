@@ -44,11 +44,15 @@ class SPIKEBEACH_API ABasePlayer : public ACharacter
 
 private:
 	// Variables
-	float Gauge;
-	bool bIsGauging;
+	bool	bIsClicking;
+	bool	bIsSprint;
+	float	Gauge;
+	float	TimingAccuracy;
+	float	TimingTimer;
+	float	TimingMax;
 
 public:
-	bool GetIsGauging();
+	bool GetIsClicking() {	return bIsClicking;	}
 
 	// Properties
 
@@ -81,6 +85,10 @@ public:
 	/* Service Mode */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player, meta = (AllowPrivateAccess = "true"))
 		FName ServiceMode;
+
+	/* Spike Mode */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player, meta = (AllowPrivateAccess = "true"))
+		FName SpikeMode;
 
 	/* Direction */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player, meta = (AllowPrivateAccess = "true"))
@@ -236,26 +244,29 @@ private:
 	
 
 private:
-	void			CheckServiceMode();
-	EOffenceMode	CheckPassMode();
-	EOffenceMode	CheckAttackMode();
-	EDefenceMode	CheckReceiveMode();
-	EDefenceMode	CheckBlockMode();
+	void	SetServiceMode();
+	void	SetPassMode();
+	void	SetAttackMode();
+	void	SetReceiveMode();
+	void	SetBlockMode();
 private:
 	/* Play Service(Floating/Spoon/Jump) Animation */
-	void PlayServiceAnimation();
+	void PlayServiceAnimation(float RemainingTimeToAction);
 
 	/* Play Pass(Floating Pass / Toss) Animation */
-	void PlayPassAnimation();
+	void PlayPassAnimation(float RemainingTimeToAction);
 
 	/* Play Attack(Spike/Floating Attack) Animation */
-	void PlayAttackAnimation();
+	void PlayAttackAnimation(float RemainingTimeToAction);
 
 	/* Play Receive(Dig/Receive) Animation */
-	void PlayReceiveAnimation();
+	void PlayReceiveAnimation(float RemainingTimeToAction);
 
 	/* Play Block Animation */
 	void PlayBlockAnimation();
+
+private:
+	float CalculatePlayRate(float TimeRemaining, UAnimMontage* Montage, FName SectionName);
 
 
 public:
