@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "NiagaraComponent.h"
 #include "BasePlayer.generated.h"
 
 UENUM(BlueprintType)
@@ -59,8 +60,6 @@ private:
 	float Gauge;
 	bool bIsGauging;
 
-public:
-	TQueue<EStateUINotice> state_ui_notices_;
 	// Properties
 
 #pragma region CHARACTER
@@ -166,6 +165,17 @@ public:
 	/** Floating Anim Montage */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
 		class UAnimMontage* FloatingMontage;
+#pragma endregion
+
+#pragma region UI
+public:
+	TQueue<EStateUINotice> state_ui_notices_;
+#pragma endregion
+
+#pragma region EFFECT
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
+		UNiagaraSystem* ngsystem_timing_arm_ = nullptr;
+
 #pragma endregion
 
 public:
