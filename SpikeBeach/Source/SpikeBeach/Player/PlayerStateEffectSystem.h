@@ -6,7 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
-#include "BasePlayer.h"
 
 #include "PlayerStateEffectSystem.generated.h"
 
@@ -44,7 +43,8 @@ public:
 		void SetColorByTiming_TimingArm(float timing);
 
 public:
-	ABasePlayer* target_player_ = nullptr;
+	UPROPERTY(BlueprintReadOnly, Category = "Owner")
+		class ABasePlayer* target_player_ = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Timing Arm")
 		UNiagaraComponent* ngcomp_timing_arm_ = nullptr;

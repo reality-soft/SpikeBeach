@@ -10,7 +10,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "PlayerStateEffectSystem.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
@@ -23,8 +22,6 @@ ABasePlayer::ABasePlayer()
 	SetSuperSettings();
 
 	SetPlayerAttributes();
-
-	SetPlayerSystemComponent();
 
 	SetCapsuleComponent();
 
@@ -140,11 +137,6 @@ void ABasePlayer::SetPlayerAttributes()
 	TimingAccuracy = 0.0f;
 	TimingTimer = 0.0f;
 	TimingMax = 0.0f;
-}
-
-void ABasePlayer::SetPlayerSystemComponent()
-{
-	PlayerStateEffectSystem = CreateDefaultSubobject<UPlayerStateEffectSystem>(TEXT("PlayerStateEffectSystem"));
 }
 
 void ABasePlayer::SetCapsuleComponent()

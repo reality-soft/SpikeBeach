@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PlayerStateEffectSystem.h"
+#include "BasePlayer.h"
 
 // Sets default values for this component's properties
 UPlayerStateEffectSystem::UPlayerStateEffectSystem()

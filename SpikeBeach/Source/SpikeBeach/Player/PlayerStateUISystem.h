@@ -10,7 +10,6 @@
 #include "Components/CapsuleComponent.h"
 #include "CustomPlayerController.h"
 #include "PlayerStateUIBase.h"
-#include "BasePlayer.h"
 #include "Blueprint/UserWidget.h"
 
 #include "PlayerStateUISystem.generated.h"
@@ -45,7 +44,7 @@ public:
 		float player_stamina = 1.0f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Instance")
-		ABasePlayer* target_player_ = nullptr;
+		class ABasePlayer* target_player_ = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Instance")
 		UCapsuleComponent* player_capsule_ = nullptr;
