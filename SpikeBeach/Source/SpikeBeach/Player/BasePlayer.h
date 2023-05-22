@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
-#include "NiagaraComponent.h"
+#include "PlayerStateEffectSystem.h"
+#include "PlayerStateUISystem.h"
+
 #include "BasePlayer.generated.h"
 
 UENUM(BlueprintType)
@@ -129,9 +131,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
 
-	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class UPlayerStateEffectSystem* PlayerStateEffectSystem;
 #pragma endregion
 
 #pragma region Input
@@ -221,7 +220,6 @@ public:
 private:
 	void SetSuperSettings();
 	void SetPlayerAttributes();
-	void SetPlayerSystemComponent();
 	void SetCapsuleComponent();
 	void SetCharacterMovement();
 	void SetCamera();
