@@ -128,6 +128,10 @@ public:
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
+
+	/** Follow camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class UPlayerStateEffectSystem* PlayerStateEffectSystem;
 #pragma endregion
 
 #pragma region Input
@@ -217,6 +221,7 @@ public:
 private:
 	void SetSuperSettings();
 	void SetPlayerAttributes();
+	void SetPlayerSystemComponent();
 	void SetCapsuleComponent();
 	void SetCharacterMovement();
 	void SetCamera();

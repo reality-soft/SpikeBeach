@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "PlayerStateEffectSystem.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
@@ -22,6 +23,8 @@ ABasePlayer::ABasePlayer()
 	SetSuperSettings();
 
 	SetPlayerAttributes();
+
+	SetPlayerSystemComponent();
 
 	SetCapsuleComponent();
 
@@ -139,6 +142,11 @@ void ABasePlayer::SetPlayerAttributes()
 	TimingMax = 0.0f;
 }
 
+void ABasePlayer::SetPlayerSystemComponent()
+{
+	PlayerStateEffectSystem = CreateDefaultSubobject<UPlayerStateEffectSystem>(TEXT("PlayerStateEffectSystem"));
+}
+
 void ABasePlayer::SetCapsuleComponent()
 {
 	// Set size for collision capsule
@@ -148,8 +156,6 @@ void ABasePlayer::SetCapsuleComponent()
 
 void ABasePlayer::SetCharacterMovement()
 {
-	
-
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
@@ -245,6 +251,8 @@ void ABasePlayer::LClickCompleted(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("LClick Complete"));
 
+	bIsClicking = false;
+
 	switch (PlayerTurn)
 	{
 	case EPlayerTurn::PT_SERVICE:
@@ -291,7 +299,10 @@ void ABasePlayer::RClickCompleted(const FInputActionValue& Value)
 
 void ABasePlayer::SprintTriggered(const FInputActionValue& Value)
 {
+	if (bIsSprint) return;
+
 	UE_LOG(LogTemp, Log, TEXT("Sprint Triggered"));
+	
 	bIsSprint = true;
 	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 }
