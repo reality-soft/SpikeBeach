@@ -57,8 +57,15 @@ class SPIKEBEACH_API ABasePlayer : public ACharacter
 
 private:
 	// Variables
-	float Gauge;
-	bool bIsGauging;
+	bool	bIsClicking;
+	bool	bIsSprint;
+	float	Gauge;
+	float	TimingAccuracy;
+	float	TimingTimer;
+	float	TimingMax;
+
+public:
+	bool GetIsClicking() {	return bIsClicking;	}
 
 	// Properties
 
@@ -81,21 +88,35 @@ private:
 		EPlayerTurn PlayerTurn;
 
 	/* Attack Mode */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Player, meta = (AllowPrivateAccess = "true"))
 		EOffenceMode OffenceMode;
 
 	/* Defence Mode */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Player, meta = (AllowPrivateAccess = "true"))
 		EDefenceMode DefenceMode;
 
 	/* Service Mode */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Player, meta = (AllowPrivateAccess = "true"))
 		FName ServiceMode;
 
+	/* Spike Mode */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Player, meta = (AllowPrivateAccess = "true"))
+		FName SpikeMode;
+
 	/* Direction */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Player, meta = (AllowPrivateAccess = "true"))
 		FName Direction;
 
+
+
+#pragma endregion
+
+#pragma region BALL INFO
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = BallInfo, meta = (AllowPrivateAccess = "true"))
+	float RemainingTimeToAction;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = BallInfo, meta = (AllowPrivateAccess = "true"))
+	FVector ActionPos;
 #pragma endregion
 
 #pragma region Component
@@ -107,6 +128,10 @@ private:
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
+
+	/** Follow camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class UPlayerStateEffectSystem* PlayerStateEffectSystem;
 #pragma endregion
 
 #pragma region Input
@@ -196,10 +221,38 @@ public:
 private:
 	void SetSuperSettings();
 	void SetPlayerAttributes();
+	void SetPlayerSystemComponent();
 	void SetCapsuleComponent();
 	void SetCharacterMovement();
 	void SetCamera();
 	void SetInputAction();
+
+#pragma region GETTER
+public:
+	/** Returns CameraBoom subobject **/
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	/** Returns FollowCamera subobject **/
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+#pragma endregion
+
+#pragma region SETTER
+private:
+	//UFUNCTION(BlueprintSetter, Category = Player)
+	//	void SetOffenceMode(const EOffenceMode& mode) { OffenceMode = mode; }
+	//
+	//UFUNCTION(BlueprintSetter, Category = Player)
+	//	void SetDefenceMode(const EDefenceMode& mode) { DefenceMode = mode; }
+	//
+	//UFUNCTION(BlueprintSetter, Category = Player)
+	//	void SetServiceMode(const FName& mode) { ServiceMode = mode; }
+	//
+	//UFUNCTION(BlueprintSetter, Category = Player)
+	//	void SetSpikeMode(const FName& mode) { SpikeMode = mode; }
+	//
+	//UFUNCTION(BlueprintSetter, Category = Player)
+	//	void SetDirection(const FName& direct) { Direction = direct; }
+
+#pragma endregion
 
 protected:
 	/** Called for movement input */
@@ -255,14 +308,25 @@ private:
 	/** Called From AnimNotify for Floating */
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
 		void FloatingBall();
-	
+
+public:
+	UFUNCTION(BlueprintImplementableEvent, Category = Player)
+		void JudgeServiceMode();
+	UFUNCTION(BlueprintImplementableEvent, Category = Player)
+		void JudgePassMode();
+	UFUNCTION(BlueprintImplementableEvent, Category = Player)
+		void JudgeAttackMode();
+	UFUNCTION(BlueprintImplementableEvent, Category = Player)
+		void JudgeReceiveMode();
+	UFUNCTION(BlueprintImplementableEvent, Category = Player)
+		void JudgeBlockMode();
 
 private:
-	void			CheckServiceMode();
-	EOffenceMode	CheckPassMode();
-	EOffenceMode	CheckAttackMode();
-	EDefenceMode	CheckReceiveMode();
-	EDefenceMode	CheckBlockMode();
+	void	SetServiceMode();
+	void	SetPassMode();
+	void	SetAttackMode();
+	void	SetReceiveMode();
+	void	SetBlockMode();
 private:
 	/* Play Service(Floating/Spoon/Jump) Animation */
 	void PlayServiceAnimation();
@@ -279,10 +343,10 @@ private:
 	/* Play Block Animation */
 	void PlayBlockAnimation();
 
+private:
+	/* To Play Animation in Accurate Timing, Calculate Play Rate */
+	float CalculatePlayRate(float TimeRemaining, UAnimMontage* Montage, FName SectionName);
 
-public:
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+
 };
