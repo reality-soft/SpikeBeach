@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "DropInfo.h"
 #include "GameFramework/Actor.h"
 #include "Ball.generated.h"
 
@@ -18,6 +18,13 @@ private:
 	/** Mesh Component */
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		class UStaticMeshComponent* MeshComponent;
+
+private:
+	float cur_time_ = 0.0f;
+	FVector start_pos_;
+	FVector end_pos_;
+	FVector init_velocity_;
+
 public:	
 	// Sets default values for this actor's properties
 	ABall();
@@ -30,10 +37,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-#define MIN_POWER 500
-#define MAX_POWER 2000
-
-	void SpikeHit(float power, FVector start_pos, FVector end_pos);
-	void ReceiveHit(float power, FVector start_pos, FVector end_pos);
-	void PredictSpikePath(float power, FVector start_pos, FVector end_pos);
+	void SpikeHit(float power, const FVector& start_pos, const FVector& end_pos);
+	void ReceiveHit(float power, const FVector& start_pos, const FVector& end_pos);
+	void PredictHitRoute(const FVector& velocity, const FVector& start_pos);
+	DropInfo GetDropInfo(float height);
 };
