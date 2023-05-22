@@ -28,6 +28,9 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	FTimerHandle timer_handle_;
+	FTimerManager timer_manager_;
+
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Widget")
 		FVector2D player_screen_pos_;
@@ -56,7 +59,6 @@ public:
 public:	
 	UFUNCTION(BlueprintCallable, Category = "UISystem")
 		bool InitInstances(ABasePlayer* player_, UCapsuleComponent* player_calsule_, ACustomPlayerController* player_controller, UPlayerStateUIBase* state_ui);
-
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

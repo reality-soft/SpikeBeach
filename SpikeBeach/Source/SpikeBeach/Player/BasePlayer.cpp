@@ -226,6 +226,7 @@ void ABasePlayer::LClickTriggered(const FInputActionValue& Value)
 		switch (PlayerTurn)
 		{
 		case EPlayerTurn::PT_SERVICE:
+			state_ui_notices_.Enqueue(EStateUINotice::eStartedGauge_StableType);
 			SetServiceMode();
 			break;
 		case EPlayerTurn::PT_DEFENCE:
@@ -238,14 +239,18 @@ void ABasePlayer::LClickTriggered(const FInputActionValue& Value)
 			break;
 		}
 	}
-
 }
 
 void ABasePlayer::LClickCompleted(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("LClick Complete"));
 
-	bIsClicking = false;
+	switch (PlayerTurn)
+	{
+	case EPlayerTurn::PT_SERVICE:
+		state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
+		break;
+	}
 
 	TimingAccuracy = TimingTimer / TimingMax;
 	UE_LOG(LogTemp, Log, TEXT("TimingAccuracy : %f"), TimingAccuracy);
@@ -307,7 +312,8 @@ void ABasePlayer::ServiceFloatingBall()
 
 void ABasePlayer::ServiceHitBall()
 {
-	UE_LOG(LogTemp, Log, TEXT("Service :: Hit Ball"));
+	UE_LOG(LogTemp, Log, TEXT("Service : Hit Ball"));
+	state_ui_notices_.Enqueue(EStateUINotice::eUnshowedGauge_StableType);
 
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }

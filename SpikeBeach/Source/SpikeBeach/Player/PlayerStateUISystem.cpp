@@ -1,6 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "PlayerStateUISystem.h"
 
 // Sets default values for this component's properties
@@ -38,25 +36,43 @@ bool UPlayerStateUISystem::InitInstances(ABasePlayer* player_, UCapsuleComponent
 void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	timer_manager_.Tick(DeltaTime);
 
-	if (target_player_->GetIsClicking())
+	while (!target_player_->state_ui_notices_.IsEmpty())
 	{
-		player_state_ui_->FillSpikeRG(DeltaTime * spike_proficiency);
+		EStateUINotice out_notice;
+		target_player_->state_ui_notices_.Dequeue(out_notice);
+
+		switch (out_notice)
+		{
+		case EStateUINotice::eStartedGauge_StableType:
+			player_state_ui_->FillStableRG(DeltaTime * spike_proficiency);
+			break;
+
+		case EStateUINotice::eFinishedGauge_StableType:
+			player_state_ui_->LossStableRG();
+			break;
+
+		case EStateUINotice::eUnshowedGauge_StableType:
+			player_state_ui_->UnshowStableRG();
+			break;
+		}
 	}
-	else
-	{
-		player_state_ui_->LossSpikeRG();
-	}
+
+
+
+	
+	
 
 	// Set Receive RG Position
-	if (player_state_ui_ && player_state_ui_->receive_rg_img_->GetVisibility() == ESlateVisibility::Visible)
+	if (player_state_ui_ && player_state_ui_->stable_rg_img_->GetVisibility() == ESlateVisibility::Visible)
 	{
-		player_state_ui_->receive_rg_img_->SetRenderTranslation(player_screen_pos_ + receive_rg_local_);
+		player_state_ui_->stable_rg_img_->SetRenderTranslation(player_screen_pos_ + receive_rg_local_);
 	}
 
 	// Set Spike RG Position
-	if (player_state_ui_ && player_state_ui_->spike_rg_img_->GetVisibility() == ESlateVisibility::Visible)
+	if (player_state_ui_ && player_state_ui_->offensive_rg_img_->GetVisibility() == ESlateVisibility::Visible)
 	{
-		player_state_ui_->spike_rg_img_->SetRenderTranslation(player_screen_pos_ + spike_rg_local_);
+		player_state_ui_->offensive_rg_img_->SetRenderTranslation(player_screen_pos_ + spike_rg_local_);
 	}
 }

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "NiagaraComponent.h"
 #include "BasePlayer.generated.h"
 
 UENUM(BlueprintType)
@@ -35,6 +36,18 @@ enum class EDefenceMode : uint8
 	DM_RECEIVE,
 	DM_BLOCK,
 	COUNT,
+};
+
+enum class EStateUINotice
+{
+	eStartedGauge_StableType,
+	eStartedGauge_OffensiveType,
+
+	eFinishedGauge_StableType,
+	eFinishedGauge_OffensiveType,
+
+	eUnshowedGauge_StableType,
+	eUnshowedGauge_OffensiveType,
 };
 
 UCLASS()
@@ -107,6 +120,7 @@ public:
 #pragma endregion
 
 #pragma region Component
+
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
@@ -172,6 +186,17 @@ public:
 	/** Floating Anim Montage */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
 		class UAnimMontage* FloatingMontage;
+#pragma endregion
+
+#pragma region UI
+public:
+	TQueue<EStateUINotice> state_ui_notices_;
+#pragma endregion
+
+#pragma region EFFECT
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
+		UNiagaraSystem* ngsystem_timing_arm_ = nullptr;
+
 #pragma endregion
 
 public:
