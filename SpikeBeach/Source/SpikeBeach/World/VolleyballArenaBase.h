@@ -5,19 +5,19 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "../Player/BasePlayer.h"
+#include "../Ball/Ball.h"
 
 #include "VolleyballArenaBase.generated.h"
 
 UENUM(BlueprintType)
-enum class ETeamName
+enum class ETeamName : uint8
 {
 	eNone,
 	eReefSideTeam,
 	eBeachSideTeam
 };
-
 UENUM(BlueprintType)
-enum class EPlayerPosition
+enum class EPlayerPosition : uint8
 {
 	eNone,
 	eRightSidePlayer,
@@ -52,11 +52,20 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Team")
 		FVolleyballTeam beach_side_team_;
 
+	UPROPERTY(BlueprintReadWrite, Category = "BallSystem")
+		ABall* arena_ball_ = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "BallSystem")
+		ETeamName service_team_ = ETeamName::eNone;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Team")
 		bool SetPlayerToTeam(ABasePlayer* player_to_add, ETeamName team_to_add, EPlayerPosition player_position);
 
-public:	
+	UFUNCTION(BlueprintCallable, Category = "BallSystem")
+		void SetServiceTeam(ETeamName service_team, bool start_new_set);
+
+public:
 	// Sets default values for this actor's properties
 	AVolleyballArenaBase();
 
