@@ -18,31 +18,35 @@ class SPIKEBEACH_API UPlayerStateUIBase : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Animation")
-		bool InitReceiveRGInstances(UImage* img, USizeBox* size, UWidgetAnimation* anim);
+	UFUNCTION(BlueprintCallable, Category = "Stable Gauge")
+		bool InitReceiveRGInstances(UImage* img, USizeBox* size, UMaterialInstanceDynamic* mi);
 
-	UFUNCTION(BlueprintCallable, Category = "Animation")
-		bool InitSpikeRGInstances(UImage* img, USizeBox* size, UWidgetAnimation* anim);
+	UFUNCTION(BlueprintCallable, Category = "Offensive Gauge")
+		bool InitSpikeRGInstances(UImage* img, USizeBox* size, UMaterialInstanceDynamic* mi);
 
 protected:
 	FTimerHandle timer_handle_;
 	FTimerManager timer_manager_;
 
 public:
-	UImage* stable_rg_img_ = nullptr;
-	USizeBox* stable_rg_size_ = nullptr;
-	UWidgetAnimation* stable_rg_anim_ = nullptr;
+	UPROPERTY(BlueprintReadOnly, Category = "Stable Gauge")
+		UImage* stable_rg_img_ = nullptr;
 
-	UImage* offensive_rg_img_ = nullptr;
-	USizeBox* offensive_rg_size_ = nullptr;
-	UWidgetAnimation* offensive_rg_anim_ = nullptr;
+	UPROPERTY(BlueprintReadOnly, Category = "Stable Gauge")
+		USizeBox* stable_rg_size_ = nullptr;
 
-public:
-	UPROPERTY(BlueprintReadWrite, Category = "Animation")
-		float rg_1_animtime_ = 0.0f;
+	UPROPERTY(BlueprintReadOnly, Category = "Stable Gauge")
+		UMaterialInstanceDynamic* stable_rg_mi_ = nullptr;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Animation")
-		float rg_2_animtime_ = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Offensive Gauge")
+		UImage* offensive_rg_img_ = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Offensive Gauge")
+		USizeBox* offensive_rg_size_ = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Offensive Gauge")
+		UMaterialInstanceDynamic* offensive_rg_mi_ = nullptr;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Animation")
@@ -62,4 +66,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 		void UnshowOffensiveRG();
+
+public:
+
+
 };
