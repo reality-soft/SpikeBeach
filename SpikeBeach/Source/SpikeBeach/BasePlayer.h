@@ -75,25 +75,35 @@ public:
 		EPlayerTurn PlayerTurn;
 
 	/* Attack Mode */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Player, meta = (AllowPrivateAccess = "true"))
 		EOffenceMode OffenceMode;
 
 	/* Defence Mode */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Player, meta = (AllowPrivateAccess = "true"))
 		EDefenceMode DefenceMode;
 
 	/* Service Mode */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Player, meta = (AllowPrivateAccess = "true"))
 		FName ServiceMode;
 
 	/* Spike Mode */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Player, meta = (AllowPrivateAccess = "true"))
 		FName SpikeMode;
 
 	/* Direction */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Player, meta = (AllowPrivateAccess = "true"))
 		FName Direction;
 
+
+
+#pragma endregion
+
+#pragma region BALL INFO
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = BallInfo, meta = (AllowPrivateAccess = "true"))
+	float RemainingTimeToAction;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = BallInfo, meta = (AllowPrivateAccess = "true"))
+	FVector ActionPos;
 #pragma endregion
 
 #pragma region Component
@@ -187,6 +197,33 @@ private:
 	void SetCamera();
 	void SetInputAction();
 
+#pragma region GETTER
+public:
+	/** Returns CameraBoom subobject **/
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	/** Returns FollowCamera subobject **/
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+#pragma endregion
+
+#pragma region SETTER
+private:
+	//UFUNCTION(BlueprintSetter, Category = Player)
+	//	void SetOffenceMode(const EOffenceMode& mode) { OffenceMode = mode; }
+	//
+	//UFUNCTION(BlueprintSetter, Category = Player)
+	//	void SetDefenceMode(const EDefenceMode& mode) { DefenceMode = mode; }
+	//
+	//UFUNCTION(BlueprintSetter, Category = Player)
+	//	void SetServiceMode(const FName& mode) { ServiceMode = mode; }
+	//
+	//UFUNCTION(BlueprintSetter, Category = Player)
+	//	void SetSpikeMode(const FName& mode) { SpikeMode = mode; }
+	//
+	//UFUNCTION(BlueprintSetter, Category = Player)
+	//	void SetDirection(const FName& direct) { Direction = direct; }
+
+#pragma endregion
+
 protected:
 	/** Called for movement input */
 	UFUNCTION(BlueprintCallable, Category = Input)
@@ -241,7 +278,18 @@ private:
 	/** Called From AnimNotify for Floating */
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
 		void FloatingBall();
-	
+
+public:
+	UFUNCTION(BlueprintImplementableEvent, Category = Player)
+		void JudgeServiceMode();
+	UFUNCTION(BlueprintImplementableEvent, Category = Player)
+		void JudgePassMode();
+	UFUNCTION(BlueprintImplementableEvent, Category = Player)
+		void JudgeAttackMode();
+	UFUNCTION(BlueprintImplementableEvent, Category = Player)
+		void JudgeReceiveMode();
+	UFUNCTION(BlueprintImplementableEvent, Category = Player)
+		void JudgeBlockMode();
 
 private:
 	void	SetServiceMode();
@@ -251,27 +299,24 @@ private:
 	void	SetBlockMode();
 private:
 	/* Play Service(Floating/Spoon/Jump) Animation */
-	void PlayServiceAnimation(float RemainingTimeToAction);
+	void PlayServiceAnimation();
 
 	/* Play Pass(Floating Pass / Toss) Animation */
-	void PlayPassAnimation(float RemainingTimeToAction);
+	void PlayPassAnimation();
 
 	/* Play Attack(Spike/Floating Attack) Animation */
-	void PlayAttackAnimation(float RemainingTimeToAction);
+	void PlayAttackAnimation();
 
 	/* Play Receive(Dig/Receive) Animation */
-	void PlayReceiveAnimation(float RemainingTimeToAction);
+	void PlayReceiveAnimation();
 
 	/* Play Block Animation */
 	void PlayBlockAnimation();
 
 private:
+	/* To Play Animation in Accurate Timing, Calculate Play Rate */
 	float CalculatePlayRate(float TimeRemaining, UAnimMontage* Montage, FName SectionName);
 
 
-public:
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
 };

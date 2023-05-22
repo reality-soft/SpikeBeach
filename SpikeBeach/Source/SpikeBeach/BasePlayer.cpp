@@ -258,11 +258,6 @@ void ABasePlayer::RClickTriggered(const FInputActionValue& Value)
 	{
 		bIsClicking = true;
 
-		float RemainingTimeToAction = 0.0f;
-		FVector ActionPos;
-
-		TimingMax = RemainingTimeToAction;
-
 		switch (PlayerTurn)
 		{
 		case EPlayerTurn::PT_DEFENCE:
@@ -362,111 +357,91 @@ void ABasePlayer::FloatingBall()
 
 void ABasePlayer::SetServiceMode()
 {
+	// Set Service Mode& Calculate Ball's Action Values
 	// 1. Set Service Mode upon Player Pos : TODO 
-	ServiceMode = FName(TEXT("Floating"));
-
 	// 2. Call Ball's Calculate values : TODO
-	float RemainingTimeToAction = 2.0f;
-	FVector ActionPos;
+	// 3. Call Ball's Calculate values : TODO
+	JudgeServiceMode();
+
 	TimingMax = RemainingTimeToAction;
 
 	// 3. Play Service Anim
-	PlayServiceAnimation(RemainingTimeToAction);
+	PlayServiceAnimation();
 }
 
 void ABasePlayer::SetPassMode()
 {
-	// 1. Mode Check : TODO 
-	// Set Pass Mode upon Ball's Z coord
-	//OffenceMode = EOffenceMode(FMath::RandRange((int32)EOffenceMode::OM_TOSS, (int32)EOffenceMode::OM_PASS));
-	OffenceMode = EOffenceMode::OM_PASS;
-
-	// 2. Direction Check : TODO 
-	// Set Direction upon Team's Position
+	// Set Pass Mode & Direction Check & Calculate Ball's Action Values
+	// 1. Mode Check
+		// Set Pass Mode upon Ball's Z coord
+	// 2. Direction Check
+		// Set Direction upon Team's Position
 		// TOSS : Front(Back) / Left / Right
 		// PASS : Front / Back / Right / Left
-	Direction = FName(TEXT("Right"));
-	FString dir = Direction.ToString();
-	UE_LOG(LogTemp, Log, TEXT("Direction :: %s"), *dir);
-
 	// 3. Call Ball's Calculate values : TODO
-	float RemainingTimeToAction = 2.0f;
-	FVector ActionPos;
+	JudgePassMode();
+
 	TimingMax = RemainingTimeToAction;
 
 	// 4. Play Pass Anim
-	PlayPassAnimation(RemainingTimeToAction);
+	PlayPassAnimation();
 }
 
 void ABasePlayer::SetAttackMode()
 {
+	// Set Attack Mode & Direction & Calculate Ball's Action Values
 	// 1. Mode Check : TODO 
-	// Set Attack Mode upon Ball's Z coord
-	OffenceMode = EOffenceMode(FMath::RandRange((int32)EOffenceMode::OM_SPIKE, (int32)EOffenceMode::OM_FLOATING));
-
+		// Set Attack Mode upon Ball's Z coord
 	// 2. Direction Check : TODO 
 		// Floating : Front(Back) / Left / Right
-	Direction = FName(TEXT("Front"));
-	FString dir = Direction.ToString();
-	UE_LOG(LogTemp, Log, TEXT("Direction :: %s"), *dir);
-
-	// 3. Set SpikeMode if Spike,
-	SpikeMode = FName(TEXT("FullSpike"));
-
+	// 3. Set SpikeMode if Spike
+		// FullSpike / SemiSpike
 	// 4. Call Ball's Calculate values : TODO
-	float RemainingTimeToAction = 2.0f;
-	FVector ActionPos;
+	JudgeAttackMode();
+
 	TimingMax = RemainingTimeToAction;
 
 	// 5. Play Attack Anim
-	PlayAttackAnimation(RemainingTimeToAction);
+	PlayAttackAnimation();
 }
 
 void ABasePlayer::SetReceiveMode()
 {
+	// Set Receive Mode & Direction & Calculate Ball's Action Values
 	// 1. Mode Check : TODO 
-	// Set Receive Mode upon Ball's Z coord
-	DefenceMode = EDefenceMode(FMath::RandRange((int32)EDefenceMode::DM_DIG, (int32)EDefenceMode::DM_RECEIVE));
-
+		// Set Receive Mode upon Ball's Z coord
 	// 2. Direction Check : TODO 
 		// Dig : Front / Left / Right
 		// Receive : Front / Back / Right / Left
-	Direction = FName(TEXT("Front"));
-	FString dir = Direction.ToString();
-	UE_LOG(LogTemp, Log, TEXT("Direction :: %s"), *dir);
-
 	// 3. Call Ball's Calculate values
-	float RemainingTimeToAction = 2.0f;
-	FVector ActionPos;
+	JudgeReceiveMode();
+
 	TimingMax = RemainingTimeToAction;
 
 	// 4. Play Receive Anim
-	PlayReceiveAnimation(RemainingTimeToAction);
+	PlayReceiveAnimation();
 }
 
 void ABasePlayer::SetBlockMode()
 {
-	// 0. Mode Set
-	DefenceMode = EDefenceMode::DM_BLOCK;
-
-	// 1. Direction Check : TODO 
-	// Block : Front / Left / Right
-	Direction = FName(TEXT("Front"));
-	FString dir = Direction.ToString();
-	UE_LOG(LogTemp, Log, TEXT("Direction :: %s"), *dir);
+	// Set Block Mode & Direction
+	// 1. Mode Set
+	// 2. Direction Check : TODO 
+		// Block : Front / Left / Right
+	JudgeBlockMode();
 
 	// 2. Play Block Anim with 1.0 rate
 	PlayBlockAnimation();
 }
 
-void ABasePlayer::PlayServiceAnimation(float RemainingTimeToAction)
+void ABasePlayer::PlayServiceAnimation()
 {
 	float PlayRate = CalculatePlayRate(RemainingTimeToAction, ServiceMontage, ServiceMode);
 
 	PlayAnimMontage(ServiceMontage, PlayRate, ServiceMode);
 }
 
-void ABasePlayer::PlayPassAnimation(float RemainingTimeToAction)
+void ABasePlayer::PlayPassAnimation()
 {
 	float PlayRate;
 	switch (OffenceMode)
@@ -482,7 +457,7 @@ void ABasePlayer::PlayPassAnimation(float RemainingTimeToAction)
 	}
 }
 
-void ABasePlayer::PlayAttackAnimation(float RemainingTimeToAction)
+void ABasePlayer::PlayAttackAnimation()
 {
 	float PlayRate;
 
@@ -499,7 +474,7 @@ void ABasePlayer::PlayAttackAnimation(float RemainingTimeToAction)
 	}
 }
 
-void ABasePlayer::PlayReceiveAnimation(float RemainingTimeToAction)
+void ABasePlayer::PlayReceiveAnimation()
 {
 	float PlayRate;
 
