@@ -14,7 +14,6 @@ ABall::ABall()
 	SphereCollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Component"));
 	SetRootComponent(SphereCollisionComponent);
 	SphereCollisionComponent->SetSphereRadius(16.0f);
-	SphereCollisionComponent->SetSimulatePhysics(true);
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	MeshComponent->SetupAttachment(SphereCollisionComponent);
@@ -25,13 +24,13 @@ void ABall::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FVector start_pos = GetActorLocation();
-	FVector end_pos;
-	end_pos[0] = start_pos[0] + 400;
-	end_pos[1] = start_pos[1] - 1000;
-	end_pos[2] = 400;
+	//FVector start_pos = GetActorLocation();
+	//FVector end_pos;
+	//end_pos[0] = start_pos[0] + 400;
+	//end_pos[1] = start_pos[1] - 1000;
+	//end_pos[2] = 400;
 
-	ReceiveHit(1.0f, start_pos, end_pos);
+	//ReceiveHit(1.0f, start_pos, end_pos);
 }
 
 // Called every frame
@@ -39,11 +38,45 @@ void ABall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UpdateByBallState();
+
 	cur_time_ += DeltaTime;
 
 	DropInfo drop_info = GetDropInfo(400);
 
 	UE_LOG(LogTemp, Log, TEXT("Remain Time : %f"), drop_info.remain_time);
+}
+
+void ABall::UpdateByBallState()
+{
+	switch (ball_state_)
+	{
+	case EBallState::eNone:
+		break;
+	case EBallState::eAttached:
+		SphereCollisionComponent->SetSimulatePhysics(false);
+		break;
+
+	case EBallState::eFloatToService:
+		SphereCollisionComponent->SetSimulatePhysics(true);
+		break;
+
+	case EBallState::eStableSetted:
+		SphereCollisionComponent->SetSimulatePhysics(true);
+		break;
+
+	case EBallState::eTurnOver:
+		SphereCollisionComponent->SetSimulatePhysics(true);
+		break;
+
+	case EBallState::eMistake:
+		SphereCollisionComponent->SetSimulatePhysics(true);
+		break;
+
+	case EBallState::eDropped:
+		SphereCollisionComponent->SetSimulatePhysics(true);
+		break;
+	}
 }
 
 void ABall::SpikeHit(float power, const FVector& start_pos, const FVector& end_pos)

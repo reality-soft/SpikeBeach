@@ -8,6 +8,18 @@
 
 #include "Ball.generated.h"
 
+UENUM(BlueprintType)
+enum class EBallState : uint8
+{
+	eNone,
+	eAttached,
+	eFloatToService,
+	eStableSetted,
+	eTurnOver,
+	eMistake,
+	eDropped,
+};
+
 UCLASS()
 class SPIKEBEACH_API ABall : public AActor
 {
@@ -28,6 +40,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
 		UNiagaraSystem* ngsystem_landing_point_ = nullptr;
 
+	UPROPERTY(BlueprintReadWrite, Category = "BallState")
+		EBallState ball_state_ = EBallState::eNone;
 
 private:
 	float cur_time_ = 0.0f;
@@ -46,12 +60,14 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	void UpdateByBallState();
+
 
 	void SpikeHit(float power, const FVector& start_pos, const FVector& end_pos);
 	void ReceiveHit(float power, const FVector& start_pos, const FVector& end_pos);
 	void PredictHitRoute(const FVector& velocity, const FVector& start_pos);
 	DropInfo GetDropInfo(float height);
-	USphereComponent* GetSphereComp() { return SphereCollisionComponent; }
-
 	void SpikeHit(FVector direction_vector, FVector start_pos, FVector end_pos);
+
+	USphereComponent* GetSphereComp() { return SphereCollisionComponent; }
 };

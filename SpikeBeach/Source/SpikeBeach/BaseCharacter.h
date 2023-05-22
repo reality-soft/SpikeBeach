@@ -67,6 +67,10 @@ public:
 
 	// Properties
 
+public:
+	UPROPERTY(BlueprintReadWrite, Category = "Ball Attach Component")
+		class USceneComponent* ball_attachment_;
+
 #pragma region CHARACTER
 protected:
 	/* Guage Speed */

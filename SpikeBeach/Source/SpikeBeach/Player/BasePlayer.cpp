@@ -15,7 +15,6 @@
 ABasePlayer::ABasePlayer() : ABaseCharacter()
 {
 	SetCamera();
-
 	SetInputAction();
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 

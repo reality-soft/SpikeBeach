@@ -44,6 +44,33 @@ bool AVolleyballArenaBase::SetPlayerToTeam(ABasePlayer* player_to_add, ETeamName
 	return true;
 }
 
+void AVolleyballArenaBase::SetServiceTeam(ETeamName service_team, bool start_new_set)
+{
+	service_team_ = service_team;
+
+	if (start_new_set == false)
+		return;
+
+	switch (service_team)
+	{
+	case ETeamName::eReefSideTeam:
+		if (reef_side_team_.left_side_player)
+		{
+			arena_ball_->AttachToComponent(reef_side_team_.left_side_player->ball_attachment_, FAttachmentTransformRules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, true));
+			arena_ball_->ball_state_ = EBallState::eAttached;
+		}
+		break;
+
+	case ETeamName::eBeachSideTeam:
+		if (beach_side_team_.left_side_player)
+		{
+			arena_ball_->AttachToComponent(beach_side_team_.left_side_player->ball_attachment_, FAttachmentTransformRules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, true));
+			arena_ball_->ball_state_ = EBallState::eAttached;
+		}
+		break;
+	}
+}
+
 // Sets default values
 AVolleyballArenaBase::AVolleyballArenaBase()
 {
