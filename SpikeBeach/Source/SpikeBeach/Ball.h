@@ -30,5 +30,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SpikeHit(FVector direction_vector, FVector start_pos, FVector end_pos);
+#define MIN_POWER 500
+#define MAX_POWER 2000
+
+	void SpikeHit(float power, FVector start_pos, FVector end_pos);
+	void ReceiveHit(float power, FVector start_pos, FVector end_pos);
+	void PredictSpikePath(float power, FVector start_pos, FVector end_pos);
 };

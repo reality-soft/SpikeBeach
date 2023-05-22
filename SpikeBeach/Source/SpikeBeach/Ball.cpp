@@ -3,6 +3,7 @@
 
 #include "Ball.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ABall::ABall()
@@ -28,31 +29,49 @@ void ABall::BeginPlay()
 	FVector end_pos;
 	end_pos[0] = start_pos[0] + 650;
 	end_pos[1] = start_pos[1] - 1000;
-	end_pos[2] = start_pos[2] + 1200;
-
-	FVector direction_vector = end_pos - start_pos;
-	direction_vector.Normalize();
-
 	end_pos[2] = 0;
 
-	SpikeHit(direction_vector, start_pos, end_pos);
+	SpikeHit(1.0f, start_pos, end_pos);
 }
 
 // Called every frame
 void ABall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-void ABall::SpikeHit(FVector direction_vector, FVector start_pos, FVector end_pos)
+void ABall::SpikeHit(float power, FVector start_pos, FVector end_pos)
 {
-	int used_index = (fabs(direction_vector[0]) > fabs(direction_vector[1])) ? 0 : 1;
+	power = (0.9 - 0.7) * power + 0.7;
+	FVector velocity;
 
-	float total_time = sqrt(direction_vector[2] * (end_pos[used_index] - start_pos[used_index]) / (980.f * direction_vector[used_index]) + start_pos[2] / 980.f);
+	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
 
-	float k = (end_pos[used_index] - start_pos[used_index]) / (total_time * direction_vector[used_index]);
+	SphereCollisionComponent->SetAllPhysicsLinearVelocity(velocity, false);
+}
 
-	SphereCollisionComponent->AddImpulse(k * 11.5f * direction_vector);
+void ABall::ReceiveHit(float power, FVector start_pos, FVector end_pos)
+{
+	power = (0.7 - 0.3) * (1.0 - power) + 0.3;
+	FVector velocity;
+	
+	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
+
+	SphereCollisionComponent->SetAllPhysicsLinearVelocity(velocity, false);
+}
+
+void ABall::PredictSpikePath(float power, FVector start_pos, FVector end_pos)
+{
+	FVector velocity = (end_pos - start_pos) * power;
+
+	FPredictProjectilePathParams params;
+	params.bTraceWithChannel = true;
+	params.bTraceWithCollision = true;
+	params.LaunchVelocity = velocity;
+	params.StartLocation = start_pos;
+
+	FPredictProjectilePathResult result;
+
+	UGameplayStatics::PredictProjectilePath(SphereCollisionComponent, params, result);
 }
 
