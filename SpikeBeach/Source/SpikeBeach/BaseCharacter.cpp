@@ -49,11 +49,11 @@ void ABaseCharacter::Tick(float DeltaTime)
 	}
 
 	// Smoothing between Walk & Sprint
-	if (!bIsSprint && fabs(GetCharacterMovement()->GetMaxSpeed() - WalkSpeed) > FLT_EPSILON)
+	if (!bIsSprint && fabs(GetCharacterMovement()->MaxWalkSpeed - WalkSpeed) > 1.0f)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed - 300.0f * DeltaTime;
 	}
-	else if (!bIsSprint && fabs(GetCharacterMovement()->GetMaxSpeed() - WalkSpeed) <= FLT_EPSILON)
+	else if (!bIsSprint && fabs(GetCharacterMovement()->MaxWalkSpeed - WalkSpeed) <= 1.0f)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	}
