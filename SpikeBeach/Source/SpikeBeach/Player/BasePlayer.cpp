@@ -14,7 +14,7 @@
 // Sets default values
 ABasePlayer::ABasePlayer() : ABaseCharacter()
 {
-	SetCamera();
+	//SetCamera();
 	SetInputAction();
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
