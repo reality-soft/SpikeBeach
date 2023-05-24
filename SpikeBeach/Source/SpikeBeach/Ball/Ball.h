@@ -26,11 +26,15 @@ class SPIKEBEACH_API ABall : public AActor
 	GENERATED_BODY()
 private:
 	/** Sphere Collision Component */
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		class USphereComponent* SphereCollisionComponent;
 
 	/** Mesh Component */
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UProjectileMovementComponent* ProjectileMovementComponent;
+
+	/** Mesh Component */
+	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		class UStaticMeshComponent* MeshComponent;
 
 public:

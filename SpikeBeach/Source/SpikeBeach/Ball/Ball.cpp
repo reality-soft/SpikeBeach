@@ -3,6 +3,7 @@
 
 #include "Ball.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -17,20 +18,14 @@ ABall::ABall()
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	MeshComponent->SetupAttachment(SphereCollisionComponent);
+
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
 }
 
 // Called when the game starts or when spawned
 void ABall::BeginPlay()
 {
 	Super::BeginPlay();
-
-	FVector start_pos = GetActorLocation();
-	FVector end_pos;
-	end_pos[0] = start_pos[0];
-	end_pos[1] = start_pos[1] - 1500;
-	end_pos[2] = 300;
-
-	ReceiveHit(1.0f, start_pos, end_pos);
 }
 
 // Called every frame
@@ -41,10 +36,6 @@ void ABall::Tick(float DeltaTime)
 	UpdateByBallState();
 
 	cur_time_ += DeltaTime;
-
-	DropInfo drop_info = GetDropInfo(300);
-
-	UE_LOG(LogTemp, Log, TEXT("Remain Time : %f"), drop_info.remain_time);
 }
 
 void ABall::UpdateByBallState()
@@ -86,7 +77,8 @@ void ABall::SpikeHit(float power, const FVector& start_pos, const FVector& end_p
 
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
 
-	SphereCollisionComponent->SetAllPhysicsLinearVelocity(velocity, false);
+	ProjectileMovementComponent->Velocity = velocity;
+	//SphereCollisionComponent->SetAllPhysicsLinearVelocity(velocity, false);
 
 	// set drop data
 	cur_time_ = 0.0f;
@@ -102,7 +94,8 @@ void ABall::ReceiveHit(float power, const FVector& start_pos, const FVector& end
 	
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
 
-	SphereCollisionComponent->SetAllPhysicsLinearVelocity(velocity, false);
+	ProjectileMovementComponent->Velocity = velocity;
+	//SphereCollisionComponent->SetAllPhysicsLinearVelocity(velocity, false);
 
 	// set drop data
 	cur_time_ = 0.0f;
@@ -125,23 +118,25 @@ void ABall::PredictHitRoute(const FVector& velocity, const FVector& start_pos)
 
 DropInfo ABall::GetDropInfo(float dest_height)
 {
+	float gravity = -980.0f;
 	DropInfo drop_info;
-	
-	float a_2 = 980.0f;
-	float minus_b = init_velocity_[2];
-	float b_sqrd_minus_4ac_sqrt = sqrt(init_velocity_[2] * init_velocity_[2] - 1960.0f * (dest_height - start_pos_[2]));
+
+	float a_2 = gravity;
+	float minus_b = -init_velocity_[2];
+	float b_sqrd_minus_4ac_sqrt = sqrt(init_velocity_[2] * init_velocity_[2] -2 * gravity * (start_pos_[2] - dest_height));
 
 	float result1 = (minus_b + b_sqrd_minus_4ac_sqrt) / a_2;
 	float result2 = (minus_b - b_sqrd_minus_4ac_sqrt) / a_2;
 
-	float time_to_dest = (result1 > result2 ) ? result1 : result2;
-	
+	float time_to_dest = (result1 > result2) ? result1 : result2;
+
 	drop_info.drop_pos[0] = start_pos_[0] + time_to_dest * (init_velocity_[0]);
 	drop_info.drop_pos[1] = start_pos_[1] + time_to_dest * (init_velocity_[1]);
 	drop_info.drop_pos[2] = dest_height;
 
-	drop_info.remain_time = time_to_dest - cur_time_;
+	drop_info.remain_time = time_to_dest;// -cur_time_;
 
 	return drop_info;
+
 }
 
