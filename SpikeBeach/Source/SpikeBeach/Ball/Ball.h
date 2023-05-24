@@ -112,7 +112,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
 		FDropInfo GetDropInfo(float height);
 
-	DropInfo GetDropInfo(float height);
 	USphereComponent* GetSphereComp() { return SphereCollisionComponent; }
 	UProjectileMovementComponent* GetProjectileComp() { return ProjectileMovementComponent; }
 };
