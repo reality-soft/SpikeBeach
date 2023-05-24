@@ -1,9 +1,6 @@
 #pragma once
 #include "CoreMinimal.h"
+#include "Ball.generated.h"
 
-struct DropInfo
-{
-	FVector drop_pos;
-	float remain_time;
-};
+
 

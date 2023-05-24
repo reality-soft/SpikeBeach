@@ -2,10 +2,8 @@
 
 #pragma once
 
-#include "DropInfo.h"
 #include "GameFramework/Actor.h"
 #include "NiagaraComponent.h"
-
 #include "Ball.generated.h"
 
 UENUM(BlueprintType)
@@ -18,6 +16,21 @@ enum class EBallState : uint8
 	eTurnOver,
 	eMistake,
 	eDropped,
+};
+
+USTRUCT(BlueprintType)
+struct FDropInfo
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	FDropInfo()
+		: drop_pos(0)
+		, remain_time(0) {}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Info)
+		FVector drop_pos;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Info)
+		float remain_time;
 };
 
 UCLASS()
@@ -70,8 +83,10 @@ public:
 	void SpikeHit(float power, const FVector& start_pos, const FVector& end_pos);
 	void ReceiveHit(float power, const FVector& start_pos, const FVector& end_pos);
 	void PredictHitRoute(const FVector& velocity, const FVector& start_pos);
-	DropInfo GetDropInfo(float height);
 	void SpikeHit(FVector direction_vector, FVector start_pos, FVector end_pos);
+	UFUNCTION(BlueprintCallable, Category = BallFunc)
+		FDropInfo GetDropInfo(float height);
 
 	USphereComponent* GetSphereComp() { return SphereCollisionComponent; }
+	UProjectileMovementComponent* GetProjectileComp() { return ProjectileMovementComponent; }
 };
