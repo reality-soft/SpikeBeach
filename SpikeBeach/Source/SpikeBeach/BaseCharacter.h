@@ -49,19 +49,39 @@ public:
 		, Right(0)
 		, Front(0)
 		, Back(0)
+		, Spoon(0)
+		, Floating(0)
+		, Jump(0)
+		, FullSpike(0)
+		, SemiSpike(0)
 	{}
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Left)
+	// Direction
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Direction)
 		FVector Left;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Right)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Direction)
 		FVector Right;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Front)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Direction)
 		FVector Front;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Back)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Direction)
 		FVector Back;
+	// Service
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Service)
+		FVector Spoon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Service)
+		FVector Floating;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Service)
+		FVector Jump;
+	// Spike
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spike)
+		FVector FullSpike;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spike)
+		FVector SemiSpike;
 };
 
 
@@ -74,11 +94,28 @@ protected:
 	// Variables
 	bool	bIsClicking;
 	bool	bIsSprint;
+	bool	bIsMovingToAction;
 	float	Gauge;
 	float	TimingAccuracy;
 	float	TimingTimer;
 	float	TimingMax;
-
+protected:
+	UPROPERTY(BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TMap<FName, FVector> ServiceOffsetMap;
+	UPROPERTY(BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TMap<FName, FVector> ReceiveOffsetMap;
+	UPROPERTY(BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TMap<FName, FVector> DigOffsetMap;
+	UPROPERTY(BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TMap<FName, FVector> BlockOffsetMap;
+	UPROPERTY(BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TMap<FName, FVector> SpikeOffsetMap;
+	UPROPERTY(BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TMap<FName, FVector> FloatingOffsetMap;
+	UPROPERTY(BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TMap<FName, FVector> TossOffsetMap;
+	UPROPERTY(BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TMap<FName, FVector> PassOffsetMap;
 public:
 	bool GetIsClicking() { return bIsClicking; }
 
@@ -131,11 +168,17 @@ protected:
 
 #pragma endregion
 
-#pragma region BALL INFO
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = BallInfo, meta = (AllowPrivateAccess = "true"))
+#pragma region GAME(Company, Ball) INFO
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GameInfo, meta = (AllowPrivateAccess = "true"))
+		class AActor* Company;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GameInfo, meta = (AllowPrivateAccess = "true"))
+		class ABall* Ball;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GameInfo, meta = (AllowPrivateAccess = "true"))
 		float RemainingTimeToAction;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = BallInfo, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GameInfo, meta = (AllowPrivateAccess = "true"))
 		FVector ActionPos;
 #pragma endregion
 
@@ -228,14 +271,22 @@ protected:
 public:
 	UFUNCTION(BlueprintImplementableEvent, Category = Player)
 		void JudgeServiceMode();
-	UFUNCTION(BlueprintImplementableEvent, Category = Player)
-		void JudgePassMode();
-	UFUNCTION(BlueprintImplementableEvent, Category = Player)
-		void JudgeAttackMode();
-	UFUNCTION(BlueprintImplementableEvent, Category = Player)
-		void JudgeReceiveMode();
-	UFUNCTION(BlueprintImplementableEvent, Category = Player)
-		void JudgeBlockMode();
+	//UFUNCTION(BlueprintImplementableEvent, Category = Player)
+	//	void JudgePassMode();
+	//UFUNCTION(BlueprintImplementableEvent, Category = Player)
+	//	void JudgeAttackMode();
+	//UFUNCTION(BlueprintImplementableEvent, Category = Player)
+	//	void JudgeReceiveMode();
+	//UFUNCTION(BlueprintImplementableEvent, Category = Player)
+	//	void JudgeBlockMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		bool JudgePassMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		bool JudgeAttackMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		bool JudgeReceiveMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		bool JudgeBlockMode();
 
 protected:
 	void	SetServiceMode();
@@ -262,9 +313,21 @@ protected:
 
 protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Animation)
-	float GetMontageSectionLength(UAnimMontage* Montage, FName SectionName);
+		float GetMontageSectionLength(UAnimMontage* Montage, FName SectionName);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Animation)
+		float GetRequiredHeightFromOffset(const TMap<FName, FVector>& Map, FName name);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Character)
+		FName GetDirectionFromPlayer(FVector TargetPos);
+
 	/* To Play Animation in Accurate Timing, Calculate Play Rate */
 	float CalculatePlayRate(float TimeRemaining, UAnimMontage* Montage, FName SectionName);
 
+	/* Offset Rotate to Current Actor's Forward Vector */
+	FVector RotateOffsetToCurrentDirection(FVector Vector);
+
+	/* Move to Action Position : Set Speed to Action Pos through Remaining Time to Action */
+	void MoveToActionPos(FVector Offset);
 
 };
