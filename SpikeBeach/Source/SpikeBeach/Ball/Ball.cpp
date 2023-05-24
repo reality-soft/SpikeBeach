@@ -24,13 +24,13 @@ void ABall::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//FVector start_pos = GetActorLocation();
-	//FVector end_pos;
-	//end_pos[0] = start_pos[0] + 400;
-	//end_pos[1] = start_pos[1] - 1000;
-	//end_pos[2] = 400;
+	FVector start_pos = GetActorLocation();
+	FVector end_pos;
+	end_pos[0] = start_pos[0];
+	end_pos[1] = start_pos[1] - 1500;
+	end_pos[2] = 300;
 
-	//ReceiveHit(1.0f, start_pos, end_pos);
+	ReceiveHit(1.0f, start_pos, end_pos);
 }
 
 // Called every frame
@@ -42,7 +42,7 @@ void ABall::Tick(float DeltaTime)
 
 	cur_time_ += DeltaTime;
 
-	DropInfo drop_info = GetDropInfo(400);
+	DropInfo drop_info = GetDropInfo(300);
 
 	UE_LOG(LogTemp, Log, TEXT("Remain Time : %f"), drop_info.remain_time);
 }
@@ -127,9 +127,9 @@ DropInfo ABall::GetDropInfo(float dest_height)
 {
 	DropInfo drop_info;
 	
-	float a_2 = 980.0f * 2;
+	float a_2 = 980.0f;
 	float minus_b = init_velocity_[2];
-	float b_sqrd_minus_4ac_sqrt = sqrt(init_velocity_[2] * init_velocity_[2] - 4 * 980.0f * (dest_height - start_pos_[2]));
+	float b_sqrd_minus_4ac_sqrt = sqrt(init_velocity_[2] * init_velocity_[2] - 1960.0f * (dest_height - start_pos_[2]));
 
 	float result1 = (minus_b + b_sqrd_minus_4ac_sqrt) / a_2;
 	float result2 = (minus_b - b_sqrd_minus_4ac_sqrt) / a_2;
