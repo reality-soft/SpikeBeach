@@ -52,13 +52,33 @@ private:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
-		UNiagaraSystem* ngsystem_arc_trail_ = nullptr;
+		class UNiagaraSystem* ngsystem_arc_trail_;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
-		UNiagaraSystem* ngsystem_landing_point_ = nullptr;
+		class UNiagaraSystem* ngsystem_spline_track_;
 
-	UPROPERTY(BlueprintReadWrite, Category = "BallState")
-		EBallState ball_state_ = EBallState::eNone;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
+		class UNiagaraSystem* ngsystem_landing_point_;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
+		class UNiagaraSystem* ngsystem_sand_dust_;
+
+	// Spline Track
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spline Track")
+		class USplineComponent* spline_comp_;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spline Track")
+		TArray<FVector> spline_positions_;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Sand Dust")
+		FVector current_hit_floor_;
+
+	// Ball State
+	UPROPERTY(BlueprintReadOnly, Category = "Ball State")
+		EBallState current_ball_state_ = EBallState::eNone;
+
+	TQueue<EBallState> state_queue_;
+
 
 private:
 	float cur_time_ = 0.0f;
@@ -77,16 +97,22 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
 	void UpdateByBallState();
 
+	UFUNCTION(BlueprintCallable, Category = "Ball State")
+		bool PushAndUpdateBallState(EBallState state);
 
-	void SpikeHit(float power, const FVector& start_pos, const FVector& end_pos);
-	void ReceiveHit(float power, const FVector& start_pos, const FVector& end_pos);
-	void PredictHitRoute(const FVector& velocity, const FVector& start_pos);
-	void SpikeHit(FVector direction_vector, FVector start_pos, FVector end_pos);
+	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
+		FVector SpikeMovement(float power, const FVector& start_pos, const FVector& end_pos);
+	
+	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
+		FVector ReceiveMovement(float power, const FVector& start_pos, const FVector& end_pos);
+
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
 		FDropInfo GetDropInfo(float height);
 
+	DropInfo GetDropInfo(float height);
 	USphereComponent* GetSphereComp() { return SphereCollisionComponent; }
 	UProjectileMovementComponent* GetProjectileComp() { return ProjectileMovementComponent; }
 };

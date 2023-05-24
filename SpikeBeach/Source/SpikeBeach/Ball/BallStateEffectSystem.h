@@ -27,15 +27,21 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Effect System")
 		bool InitOwnerInstance(ABall* ball);
+
+	UFUNCTION(BlueprintCallable, Category = "Effect System")
+		void UpdateByBallState();
 
 	UFUNCTION(BlueprintCallable, Category = "Arc Trail")
 		void SpawnArcTrail();
 
-	UFUNCTION(BlueprintCallable, Category = "Landing Point")
-		void SpawnLandingPoint(FVector world_location);
+	UFUNCTION(BlueprintCallable, Category = "Sand Dust")
+		void SpawnSandDust();
+
+	UFUNCTION(BlueprintCallable, Category = "Spline Track")
+		bool CreateSplineTrack();
 
 	UFUNCTION(BlueprintCallable, Category = "Arc Trail")
 		void DestroyArcTrail();
@@ -55,15 +61,22 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Arc Trail")
 		void SetTrailColor_Wrong();
 
+	UFUNCTION(BlueprintCallable, Category = "Arc Trail")
+		void ClearNiagaraComps();
+
+
 public:
+	UPROPERTY(BlueprintReadWrite, Category = "EffectSystem")
+		ABall* owner_ball_ = nullptr;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Arc Trail")
 		UNiagaraComponent* ngcomp_arc_trail_ = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Landing Point")
 		UNiagaraComponent* ngcomp_landing_point_ = nullptr;
 
-	UPROPERTY(BlueprintReadWrite, Category = "EffectSystem")
-		ABall* owner_ball_ = nullptr;
+	UPROPERTY(BlueprintReadOnly, Category = "Spline Track")
+		TArray<UNiagaraComponent*> ngcomp_spline_tracks_;
 
 	//Trail Color Set
 public:

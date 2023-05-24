@@ -10,6 +10,7 @@ public class SpikeBeachEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
-		ExtraModuleNames.Add("SpikeBeach");
+        bLegacyPublicIncludePaths = false;
+        ExtraModuleNames.Add("SpikeBeach");
 	}
 }
