@@ -181,7 +181,7 @@ void ABaseCharacter::ServiceFloatingBall()
 	if (Ball)
 	{
 		// Detach From Hand
-		Ball->ball_state_ = EBallState::eFloatToService;
+		Ball->PushAndUpdateBallState(EBallState::eFloatToService);
 		FDetachmentTransformRules rule(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 		Ball->GetProjectileComp()->SetActive(true);
 		Ball->DetachFromActor(rule);
@@ -206,7 +206,7 @@ void ABaseCharacter::ServiceFloatingBall()
 			power = 0.8f;
 		}
 
-		Ball->ReceiveHit(power, StartPos, EndPos);
+		Ball->ReceiveMovement(power, StartPos, EndPos);
 	}
 }
 
@@ -221,15 +221,15 @@ void ABaseCharacter::ServiceHitBall()
 
 		if (ServiceMode == FName("Spoon"))
 		{
-			Ball->ReceiveHit(0.5, StartPos, EndPos);
+			Ball->ReceiveMovement(0.5, StartPos, EndPos);
 		}
 		if (ServiceMode == FName("Floating"))
 		{
-			Ball->ReceiveHit(0.3, StartPos, EndPos);
+			Ball->ReceiveMovement(0.3, StartPos, EndPos);
 		}
 		if (ServiceMode == FName("Jump"))
 		{
-			Ball->SpikeHit(0.1, StartPos, EndPos);
+			Ball->SpikeMovement(0.1, StartPos, EndPos);
 		}
 	}
 	
@@ -250,7 +250,7 @@ void ABaseCharacter::ReceiveBall()
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = Company->GetActorLocation();
 
-	Ball->ReceiveHit(1.2, StartPos, EndPos);
+	Ball->ReceiveMovement(1.2, StartPos, EndPos);
 
 	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;

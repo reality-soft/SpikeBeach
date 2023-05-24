@@ -29,7 +29,7 @@ ABall::ABall()
 void ABall::BeginPlay()
 {
 	Super::BeginPlay();
-	ReceiveHit(0.3f, GetActorLocation(), FVector(2000, 40, 20));
+	ReceiveMovement(0.3f, GetActorLocation(), FVector(2000, 810, 25));
 }
 
 // Called every frame
