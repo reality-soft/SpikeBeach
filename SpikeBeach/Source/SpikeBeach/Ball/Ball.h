@@ -2,9 +2,8 @@
 
 #pragma once
 
-#include "DropInfo.h"
 #include "GameFramework/Actor.h"
-
+#include "NiagaraComponent.h"
 #include "Ball.generated.h"
 
 UENUM(BlueprintType)
@@ -19,17 +18,36 @@ enum class EBallState : uint8
 	eDropped,
 };
 
+USTRUCT(BlueprintType)
+struct FDropInfo
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	FDropInfo()
+		: drop_pos(0)
+		, remain_time(0) {}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Info)
+		FVector drop_pos;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Info)
+		float remain_time;
+};
+
 UCLASS()
 class SPIKEBEACH_API ABall : public AActor
 {
 	GENERATED_BODY()
 private:
 	/** Sphere Collision Component */
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		class USphereComponent* SphereCollisionComponent;
 
 	/** Mesh Component */
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UProjectileMovementComponent* ProjectileMovementComponent;
+
+	/** Mesh Component */
+	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		class UStaticMeshComponent* MeshComponent;
 
 public:
@@ -90,8 +108,11 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
 		FVector ReceiveMovement(float power, const FVector& start_pos, const FVector& end_pos);
-	
+
+	UFUNCTION(BlueprintCallable, Category = BallFunc)
+		FDropInfo GetDropInfo(float height);
 
 	DropInfo GetDropInfo(float height);
 	USphereComponent* GetSphereComp() { return SphereCollisionComponent; }
+	UProjectileMovementComponent* GetProjectileComp() { return ProjectileMovementComponent; }
 };

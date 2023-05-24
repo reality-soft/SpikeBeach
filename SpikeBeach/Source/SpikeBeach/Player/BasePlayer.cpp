@@ -6,7 +6,9 @@
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"	
+#include "Kismet/KismetMathLibrary.h"
+#include "Math/Quat.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
@@ -14,7 +16,7 @@
 // Sets default values
 ABasePlayer::ABasePlayer() : ABaseCharacter()
 {
-	SetCamera();
+	//SetCamera();
 	SetInputAction();
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
@@ -26,6 +28,7 @@ void ABasePlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 
 	//Add Input Mapping Context
 	if (ACustomPlayerController* PlayerController = Cast<ACustomPlayerController>(Controller))
@@ -100,6 +103,10 @@ void ABasePlayer::SetInputAction()
 
 void ABasePlayer::Move(const FInputActionValue& Value)
 {
+	// If Moving to Action, Move Input disabled
+	if (bIsMovingToAction)
+		return;
+
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -146,13 +153,13 @@ void ABasePlayer::LClickTriggered(const FInputActionValue& Value)
 
 void ABasePlayer::LClickCompleted(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("LClick Complete"));
+	//UE_LOG(LogTemp, Log, TEXT("LClick Complete"));
 
 	bIsClicking = false;
 
 	TimingAccuracy = TimingTimer / TimingMax;
-	UE_LOG(LogTemp, Log, TEXT("TimingAccuracy : %f"), TimingAccuracy);
-	UE_LOG(LogTemp, Log, TEXT("TimingTimer : %f"), TimingTimer);
+	//UE_LOG(LogTemp, Log, TEXT("TimingAccuracy : %f"), TimingAccuracy);
+	//UE_LOG(LogTemp, Log, TEXT("TimingTimer : %f"), TimingTimer);
 }
 
 void ABasePlayer::RClickTriggered(const FInputActionValue& Value)
@@ -178,13 +185,13 @@ void ABasePlayer::RClickTriggered(const FInputActionValue& Value)
 
 void ABasePlayer::RClickCompleted(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("RClick Complete"));
+	//UE_LOG(LogTemp, Log, TEXT("RClick Complete"));
 
 	bIsClicking = false;
 
 	TimingAccuracy = TimingTimer / TimingMax;
-	UE_LOG(LogTemp, Log, TEXT("TimingAccuracy : %f"), TimingAccuracy);
-	UE_LOG(LogTemp, Log, TEXT("TimingTimer : %f"), TimingTimer);
+	//UE_LOG(LogTemp, Log, TEXT("TimingAccuracy : %f"), TimingAccuracy);
+	//UE_LOG(LogTemp, Log, TEXT("TimingTimer : %f"), TimingTimer);
 }
 
 void ABasePlayer::SprintTriggered(const FInputActionValue& Value)
@@ -207,5 +214,110 @@ void ABasePlayer::SprintCompleted(const FInputActionValue& Value)
 }
 
 
+void ABasePlayer::ServiceHitBall()
+{
+	ABaseCharacter::ServiceHitBall();
+	auto SocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("RightHand")));
+	auto ActorLocation = GetActorLocation();
+	auto Offset = SocketLocation - ActorLocation;
+
+	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), FVector(1.0f, 0.0f, 0.0f));
+	auto GeneralOffset = quat.RotateVector(Offset);
+
+	UE_LOG(LogTemp, Log, TEXT("Offset (%f, %f, %f)"), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
+	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
+}
+
+void ABasePlayer::ReceiveBall() 
+{
+	ABaseCharacter::ReceiveBall();
+	auto SocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("LeftLowerArm")));
+	auto ActorLocation = GetActorLocation();
+	auto Offset = SocketLocation - ActorLocation;
+	
+	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), FVector(1.0f, 0.0f, 0.0f));
+	auto GeneralOffset = quat.RotateVector(Offset);
+
+	UE_LOG(LogTemp, Log, TEXT("Receive %s, Offset (%f, %f, %f)"), *Direction.ToString(), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
+	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
+}
+
+void ABasePlayer::DigBall() 
+{
+	ABaseCharacter::DigBall();
+	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
+}
+
+void ABasePlayer::BlockBall()
+{
+	ABaseCharacter::BlockBall();
+	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
+}
+
+void ABasePlayer::TossBall()
+{
+	ABaseCharacter::TossBall();
+	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
+
+}
+
+void ABasePlayer::PassBall()
+{
+	ABaseCharacter::PassBall();
+	auto LeftSocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("LeftLowerArm")));
+	auto RightSocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("RightLowerArm")));
+	auto SocketLocation = (LeftSocketLocation + RightSocketLocation) / 2;
+	auto ActorLocation = GetActorLocation();
+	auto Offset = SocketLocation - ActorLocation;
+
+	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), FVector(1.0f, 0.0f, 0.0f));
+	auto GeneralOffset = quat.RotateVector(Offset);
+
+	UE_LOG(LogTemp, Log, TEXT("Pass %s, Offset (%f, %f, %f)"), *Direction.ToString(), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
+	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
+}
+
+void ABasePlayer::SpikeBall()
+{
+	ABaseCharacter::SpikeBall();
+	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
+}
+
+void ABasePlayer::FloatingBall()
+{
+	ABaseCharacter::FloatingBall();
+	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
+}
+
+void ABasePlayer::PlayServiceAnimation()
+{
+	ABaseCharacter::PlayServiceAnimation();
+	//state_ui_notices_.Enqueue(EStateUINotice::eStartedGauge_OffensiveType);
+}
+
+void ABasePlayer::PlayPassAnimation()
+{
+	ABaseCharacter::PlayPassAnimation();
+	//state_ui_notices_.Enqueue(EStateUINotice::eStartedGauge_StableType);
+}
+
+void ABasePlayer::PlayAttackAnimation()
+{
+	ABaseCharacter::PlayAttackAnimation();
+	//state_ui_notices_.Enqueue(EStateUINotice::eStartedGauge_OffensiveType);
+
+}
+
+void ABasePlayer::PlayReceiveAnimation()
+{
+	ABaseCharacter::PlayReceiveAnimation();
+	//state_ui_notices_.Enqueue(EStateUINotice::eStartedGauge_StableType);
+}
+
+void ABasePlayer::PlayBlockAnimation()
+{
+	ABaseCharacter::PlayBlockAnimation();
+	//state_ui_notices_.Enqueue(EStateUINotice::eStartedGauge_OffensiveType);
+}
 
 
