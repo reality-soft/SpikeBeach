@@ -17,6 +17,7 @@ ABaseCharacter::ABaseCharacter()
 	SetPlayerAttributes();
 	SetCapsuleComponent();
 	SetCharacterMovement();
+	LoadDataTable();
 }
 
 // Called when the game starts or when spawned
@@ -110,6 +111,21 @@ void ABaseCharacter::SetCharacterMovement()
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+}
+
+bool ABaseCharacter::LoadDataTable()
+{
+	static ConstructorHelpers::FObjectFinder<UDataTable> AnimOffsetDataObject(TEXT("/Game/Data/AnimationOffset.AnimationOffset"));
+	if (AnimOffsetDataObject.Succeeded())
+	{
+		AnimOffsetData = AnimOffsetDataObject.Object;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+		
 }
 
 void ABaseCharacter::ServiceFloatingBall()
@@ -262,6 +278,7 @@ void ABaseCharacter::PlayPassAnimation()
 		PlayAnimMontage(TossMontage, PlayRate, Direction);
 		break;
 	case EOffenceMode::OM_PASS:
+		auto PassOffset = AnimOffsetData->FindRow<FAnimationOffsetData>(FName(TEXT("Pass")), TEXT("Fail"));
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, PassMontage, Direction);
 		PlayAnimMontage(PassMontage, PlayRate, Direction);
 		break;
@@ -307,6 +324,16 @@ void ABaseCharacter::PlayBlockAnimation()
 	PlayAnimMontage(BlockMontage, 1.0f, Direction);
 }
 
+
+float ABaseCharacter::GetMontageSectionLength(UAnimMontage* Montage, FName SectionName)
+{
+	float StartTime, EndTime;
+
+	int32 SectionIndex = Montage->GetSectionIndex(SectionName);
+	Montage->GetSectionStartAndEndTime(SectionIndex, StartTime, EndTime);
+
+	return EndTime - StartTime;
+}
 
 float ABaseCharacter::CalculatePlayRate(float TimeRemaining, UAnimMontage* Montage, FName SectionName)
 {

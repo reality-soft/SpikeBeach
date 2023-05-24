@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "BaseCharacter.generated.h"
+#include "Engine/DataTable.h"
+#include "BaseCharacter.generated.h"	
 
 UENUM(BlueprintType)
 enum class EPlayerTurn : uint8
@@ -36,17 +37,33 @@ enum class EDefenceMode : uint8
 	COUNT,
 };
 
-enum class EStateUINotice
+USTRUCT(BlueprintType)
+struct FAnimationOffsetData : public FTableRowBase
 {
-	eStartedGauge_StableType,
-	eStartedGauge_OffensiveType,
+	GENERATED_USTRUCT_BODY()
 
-	eFinishedGauge_StableType,
-	eFinishedGauge_OffensiveType,
+public:
 
-	eUnshowedGauge_StableType,
-	eUnshowedGauge_OffensiveType,
+	FAnimationOffsetData()
+		: Left(0)
+		, Right(0)
+		, Front(0)
+		, Back(0)
+	{}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Left)
+		FVector Left;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Right)
+		FVector Right;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Front)
+		FVector Front;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Back)
+		FVector Back;
 };
+
 
 UCLASS()
 class SPIKEBEACH_API ABaseCharacter : public ACharacter
@@ -70,6 +87,9 @@ public:
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Ball Attach Component")
 		class USceneComponent* ball_attachment_;
+protected:
+	UPROPERTY(BlueprintReadOnly, Category = Animation)
+		class UDataTable* AnimOffsetData;
 
 #pragma region CHARACTER
 protected:
@@ -171,38 +191,39 @@ public:
 	void SetPlayerAttributes();
 	void SetCapsuleComponent();
 	void SetCharacterMovement();
+	bool LoadDataTable();
 
 protected:
 	/** Called From AnimNotify for Service */
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
 		void ServiceFloatingBall();
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
-		void ServiceHitBall();
+		virtual void ServiceHitBall();
 
 	// DEFENCE
 	/** Called From AnimNotify for Receive */
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
-		void ReceiveBall();
+		virtual void ReceiveBall();
 	/** Called From AnimNotify for Dig */
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
-		void DigBall();
+		virtual void DigBall();
 	/** Called From AnimNotify for Block */
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
-		void BlockBall();
+		virtual void BlockBall();
 
 	// OFFENCE
 	/** Called From AnimNotify for Toss */
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
-		void TossBall();
+		virtual void TossBall();
 	/** Called From AnimNotify for Pass */
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
-		void PassBall();
+		virtual void PassBall();
 	/** Called From AnimNotify for Spike */
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
-		void SpikeBall();
+		virtual void SpikeBall();
 	/** Called From AnimNotify for Floating */
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
-		void FloatingBall();
+		virtual void FloatingBall();
 
 public:
 	UFUNCTION(BlueprintImplementableEvent, Category = Player)
@@ -225,21 +246,23 @@ protected:
 
 protected:
 	/* Play Service(Floating/Spoon/Jump) Animation */
-	void PlayServiceAnimation();
+	virtual void PlayServiceAnimation();
 
 	/* Play Pass(Floating Pass / Toss) Animation */
-	void PlayPassAnimation();
+	virtual void PlayPassAnimation();
 
 	/* Play Attack(Spike/Floating Attack) Animation */
-	void PlayAttackAnimation();
+	virtual void PlayAttackAnimation();
 
 	/* Play Receive(Dig/Receive) Animation */
-	void PlayReceiveAnimation();
+	virtual void PlayReceiveAnimation();
 
 	/* Play Block Animation */
-	void PlayBlockAnimation();
+	virtual void PlayBlockAnimation();
 
 protected:
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Animation)
+	float GetMontageSectionLength(UAnimMontage* Montage, FName SectionName);
 	/* To Play Animation in Accurate Timing, Calculate Play Rate */
 	float CalculatePlayRate(float TimeRemaining, UAnimMontage* Montage, FName SectionName);
 

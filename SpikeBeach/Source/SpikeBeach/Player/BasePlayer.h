@@ -7,6 +7,17 @@
 #include "BasePlayer.generated.h"
 
 
+enum class EStateUINotice
+{
+	eStartedGauge_StableType,
+	eStartedGauge_OffensiveType,
+
+	eFinishedGauge_StableType,
+	eFinishedGauge_OffensiveType,
+
+	eUnshowedGauge_StableType,
+	eUnshowedGauge_OffensiveType,
+};
 
 UCLASS()
 class SPIKEBEACH_API ABasePlayer : public ABaseCharacter
@@ -114,5 +125,24 @@ protected:
 	/* Called for Sprint Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
 		void SprintCompleted(const FInputActionValue& Value);
+protected:
+	virtual void ServiceHitBall() override;
 
+// DEFENCE
+	virtual void ReceiveBall() override;
+	virtual void DigBall() override;
+	virtual void BlockBall() override;
+
+// OFFENCE
+	virtual void TossBall() override;
+	virtual void PassBall() override;
+	virtual void SpikeBall() override;
+	virtual void FloatingBall() override;
+
+protected:
+	virtual void PlayServiceAnimation() override;
+	virtual void PlayPassAnimation() override;
+	virtual void PlayAttackAnimation() override;
+	virtual void PlayReceiveAnimation() override;
+	virtual void PlayBlockAnimation() override;
 };
