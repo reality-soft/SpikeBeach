@@ -6,6 +6,7 @@
 #include "Components/SplineComponent.h"
 #include "NiagaraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "BallStateEffectSystem.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -55,26 +56,43 @@ void ABall::UpdateByBallState()
 			break;
 		case EBallState::eAttached:
 			SphereCollisionComponent->SetSimulatePhysics(false);
+			parent_effect_system_->ClearNiagaraComps();
+			parent_effect_system_->SetArcTrailSpawnRate(0);
 			break;
 
 		case EBallState::eFloatToService:
 			SphereCollisionComponent->SetSimulatePhysics(true);
+			parent_effect_system_->CreateSplineTrack();
+			parent_effect_system_->SetArcTrailSpawnRate(1500);
+			parent_effect_system_->SetTrailColor_Stable();
 			break;
 
 		case EBallState::eStableSetted:
 			SphereCollisionComponent->SetSimulatePhysics(true);
+			parent_effect_system_->CreateSplineTrack();
+			parent_effect_system_->SetTrailColor_Stable();
+			parent_effect_system_->SetArcTrailSpawnRate(3000);
 			break;
 
 		case EBallState::eTurnOver:
 			SphereCollisionComponent->SetSimulatePhysics(true);
+			parent_effect_system_->CreateSplineTrack();
+			parent_effect_system_->SetTrailColor_Offensive();
+			parent_effect_system_->SetArcTrailSpawnRate(3000);
 			break;
 
 		case EBallState::eMistake:
 			SphereCollisionComponent->SetSimulatePhysics(true);
+			parent_effect_system_->CreateSplineTrack();
+			parent_effect_system_->SetTrailColor_Wrong();
+			parent_effect_system_->SetArcTrailSpawnRate(3000);
 			break;
 
 		case EBallState::eDropped:
 			SphereCollisionComponent->SetSimulatePhysics(true);
+			parent_effect_system_->SetArcTrailSpawnRate(0);
+			parent_effect_system_->ClearNiagaraComps();
+			parent_effect_system_->SpawnSandDust();
 			break;
 		}
 	}
