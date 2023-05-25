@@ -79,6 +79,9 @@ public:
 
 	TQueue<EBallState> state_queue_;
 
+	UPROPERTY(BlueprintReadWrite, Category = "EffectSystem")
+		class UBallStateEffectSystem* parent_effect_system_;
+
 
 private:
 	float cur_time_ = 0.0f;

@@ -38,55 +38,6 @@ void UBallStateEffectSystem::TickComponent(float DeltaTime, ELevelTick TickType,
 	// ...
 }
 
-void UBallStateEffectSystem::UpdateByBallState()
-{
-	while (owner_ball_->state_queue_.IsEmpty() == false)
-	{
-		EBallState state = EBallState::eNone;
-		owner_ball_->state_queue_.Dequeue(state);
-
-		switch (state)
-		{
-		case EBallState::eNone:
-			break;
-		case EBallState::eAttached:
-			ClearNiagaraComps();
-			SetArcTrailSpawnRate(0);
-			break;
-
-		case EBallState::eFloatToService:
-			CreateSplineTrack();
-			SetArcTrailSpawnRate(1500);
-			SetTrailColor_Stable();
-			break;
-
-		case EBallState::eStableSetted:
-			CreateSplineTrack();
-			SetTrailColor_Stable();
-			SetArcTrailSpawnRate(3000);
-			break;
-
-		case EBallState::eTurnOver:
-			CreateSplineTrack();
-			SetTrailColor_Offensive();
-			SetArcTrailSpawnRate(3000);
-			break;
-
-		case EBallState::eMistake:
-			CreateSplineTrack();
-			SetTrailColor_Wrong();
-			SetArcTrailSpawnRate(3000);
-			break;
-
-		case EBallState::eDropped:
-			SetArcTrailSpawnRate(0);
-			ClearNiagaraComps();
-			SpawnSandDust();
-			break;
-		}
-	}
-}
-
 bool UBallStateEffectSystem::InitOwnerInstance(ABall* ball)
 {
 	owner_ball_ = ball;
