@@ -28,6 +28,7 @@ void ABasePlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//PlayerTurn = EPlayerTurn::PT_DEFENCE;
 
 	//Add Input Mapping Context
 	if (ACustomPlayerController* PlayerController = Cast<ACustomPlayerController>(Controller))
@@ -102,6 +103,10 @@ void ABasePlayer::SetInputAction()
 
 void ABasePlayer::Move(const FInputActionValue& Value)
 {
+	// If Moving to Action, Move Input disabled
+	if (bIsMovingToAction)
+		return;
+
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -212,6 +217,14 @@ void ABasePlayer::SprintCompleted(const FInputActionValue& Value)
 void ABasePlayer::ServiceHitBall()
 {
 	ABaseCharacter::ServiceHitBall();
+	auto SocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("RightHand")));
+	auto ActorLocation = GetActorLocation();
+	auto Offset = SocketLocation - ActorLocation;
+
+	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), FVector(1.0f, 0.0f, 0.0f));
+	auto GeneralOffset = quat.RotateVector(Offset);
+
+	UE_LOG(LogTemp, Log, TEXT("Offset (%f, %f, %f)"), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
 	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
 }
 
@@ -222,12 +235,13 @@ void ABasePlayer::ReceiveBall()
 	auto ActorLocation = GetActorLocation();
 	auto Offset = SocketLocation - ActorLocation;
 	
-	auto Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorForwardVector(), FVector(0.0f, 1.0f, 0.0f));
-	auto GeneralOffset = Rotator.RotateVector(Offset);
+	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), FVector(1.0f, 0.0f, 0.0f));
+	auto GeneralOffset = quat.RotateVector(Offset);
 
-	UE_LOG(LogTemp, Log, TEXT("Offset (%f, %f, %f)"), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
+	UE_LOG(LogTemp, Log, TEXT("Receive %s, Offset (%f, %f, %f)"), *Direction.ToString(), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
 	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
 }
+
 void ABasePlayer::DigBall() 
 {
 	ABaseCharacter::DigBall();
@@ -246,13 +260,15 @@ void ABasePlayer::TossBall()
 	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
 
 }
+
 void ABasePlayer::PassBall()
 {
 	ABaseCharacter::PassBall();
-	auto SocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("LeftLowerArm")));
-	auto MeshLocation = GetMesh()->GetComponentLocation();
+	auto LeftSocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("LeftLowerArm")));
+	auto RightSocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("RightLowerArm")));
+	auto SocketLocation = (LeftSocketLocation + RightSocketLocation) / 2;
 	auto ActorLocation = GetActorLocation();
-	auto Offset = SocketLocation - MeshLocation;
+	auto Offset = SocketLocation - ActorLocation;
 
 	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), FVector(1.0f, 0.0f, 0.0f));
 	auto GeneralOffset = quat.RotateVector(Offset);
@@ -260,11 +276,13 @@ void ABasePlayer::PassBall()
 	UE_LOG(LogTemp, Log, TEXT("Pass %s, Offset (%f, %f, %f)"), *Direction.ToString(), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
 	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
 }
+
 void ABasePlayer::SpikeBall()
 {
 	ABaseCharacter::SpikeBall();
 	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
 }
+
 void ABasePlayer::FloatingBall()
 {
 	ABaseCharacter::FloatingBall();
@@ -282,7 +300,6 @@ void ABasePlayer::PlayPassAnimation()
 	ABaseCharacter::PlayPassAnimation();
 	//state_ui_notices_.Enqueue(EStateUINotice::eStartedGauge_StableType);
 }
-
 
 void ABasePlayer::PlayAttackAnimation()
 {

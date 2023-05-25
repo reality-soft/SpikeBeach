@@ -3,6 +3,8 @@
 
 #include "Ball.h"
 #include "Components/SphereComponent.h"
+#include "Components/SplineComponent.h"
+#include "NiagaraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -19,6 +21,7 @@ ABall::ABall()
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	MeshComponent->SetupAttachment(SphereCollisionComponent);
 
+	spline_comp_ = CreateDefaultSubobject<USplineComponent>(TEXT("Spline Component"));
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
 }
 
@@ -26,6 +29,7 @@ ABall::ABall()
 void ABall::BeginPlay()
 {
 	Super::BeginPlay();
+	//ReceiveMovement(0.3f, GetActorLocation(), FVector(2000, 810, 25));
 }
 
 // Called every frame
@@ -40,86 +44,83 @@ void ABall::Tick(float DeltaTime)
 
 void ABall::UpdateByBallState()
 {
-	switch (ball_state_)
+	while (state_queue_.IsEmpty() == false)
 	{
-	case EBallState::eNone:
-		break;
-	case EBallState::eAttached:
-		SphereCollisionComponent->SetSimulatePhysics(false);
-		break;
+		EBallState state = EBallState::eNone;
+		state_queue_.Dequeue(state);
 
-	case EBallState::eFloatToService:
-		SphereCollisionComponent->SetSimulatePhysics(true);
-		break;
+		switch (state)
+		{
+		case EBallState::eNone:
+			break;
+		case EBallState::eAttached:
+			ProjectileMovementComponent->SetActive(false);
+			break;
 
-	case EBallState::eStableSetted:
-		SphereCollisionComponent->SetSimulatePhysics(true);
-		break;
+		case EBallState::eFloatToService:
+			break;
 
-	case EBallState::eTurnOver:
-		SphereCollisionComponent->SetSimulatePhysics(true);
-		break;
+		case EBallState::eStableSetted:
+			break;
 
-	case EBallState::eMistake:
-		SphereCollisionComponent->SetSimulatePhysics(true);
-		break;
+		case EBallState::eTurnOver:
+			break;
 
-	case EBallState::eDropped:
-		SphereCollisionComponent->SetSimulatePhysics(true);
-		break;
+		case EBallState::eMistake:
+			break;
+
+		case EBallState::eDropped:
+			break;
+		}
 	}
 }
 
-void ABall::SpikeHit(float power, const FVector& start_pos, const FVector& end_pos)
+FVector ABall::SpikeMovement(float power, const FVector& start_pos, const FVector& end_pos)
 {
 	power = (0.9 - 0.7) * power + 0.7;
 	FVector velocity;
 
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
 
+	ProjectileMovementComponent->SetUpdatedComponent(GetRootComponent());
 	ProjectileMovementComponent->Velocity = velocity;
-	//SphereCollisionComponent->SetAllPhysicsLinearVelocity(velocity, false);
 
 	// set drop data
 	cur_time_ = 0.0f;
 	start_pos_ = start_pos;
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
+
+	PushAndUpdateBallState(EBallState::eTurnOver);
+
+	return velocity;
 }
 
-void ABall::ReceiveHit(float power, const FVector& start_pos, const FVector& end_pos)
+FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVector& end_pos)
 {
-	power = (0.7 - 0.3) * (1.0 - power) + 0.3;
+	power = (0.7 - 0.2) * (1.0 - power) + 0.2;
 	FVector velocity;
 	
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
 
+	ProjectileMovementComponent->SetUpdatedComponent(GetRootComponent());
 	ProjectileMovementComponent->Velocity = velocity;
-	//SphereCollisionComponent->SetAllPhysicsLinearVelocity(velocity, false);
 
 	// set drop data
 	cur_time_ = 0.0f;
 	start_pos_ = start_pos;
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
+
+	PushAndUpdateBallState(EBallState::eStableSetted);
+
+	return velocity;
 }
 
-void ABall::PredictHitRoute(const FVector& velocity, const FVector& start_pos)
-{
-	FPredictProjectilePathParams params;
-	params.bTraceWithChannel = true;
-	params.bTraceWithCollision = true;
-	params.LaunchVelocity = velocity;
-	params.StartLocation = start_pos;
-
-	FPredictProjectilePathResult result;
-	UGameplayStatics::PredictProjectilePath(SphereCollisionComponent, params, result);
-}
-
-DropInfo ABall::GetDropInfo(float dest_height)
+FDropInfo ABall::GetDropInfo(float dest_height)
 {
 	float gravity = -980.0f;
-	DropInfo drop_info;
+	FDropInfo drop_info;
 
 	float a_2 = gravity;
 	float minus_b = -init_velocity_[2];
@@ -134,9 +135,20 @@ DropInfo ABall::GetDropInfo(float dest_height)
 	drop_info.drop_pos[1] = start_pos_[1] + time_to_dest * (init_velocity_[1]);
 	drop_info.drop_pos[2] = dest_height;
 
-	drop_info.remain_time = time_to_dest;// -cur_time_;
+	drop_info.remain_time = time_to_dest - cur_time_;
 
 	return drop_info;
 
+}
+
+bool ABall::PushAndUpdateBallState(EBallState state)
+{
+	if (current_ball_state_ == state)
+		return false;
+
+	current_ball_state_ = state;
+	state_queue_.Enqueue(state);
+
+	return true;
 }
 

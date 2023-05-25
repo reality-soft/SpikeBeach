@@ -57,7 +57,7 @@ void AVolleyballArenaBase::SetServiceTeam(ETeamName service_team, bool start_new
 		if (reef_side_team_.left_side_player)
 		{
 			arena_ball_->AttachToComponent(reef_side_team_.left_side_player->ball_attachment_, FAttachmentTransformRules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, true));
-			arena_ball_->ball_state_ = EBallState::eAttached;
+			arena_ball_->PushAndUpdateBallState(EBallState::eAttached);
 		}
 		break;
 
@@ -65,7 +65,7 @@ void AVolleyballArenaBase::SetServiceTeam(ETeamName service_team, bool start_new
 		if (beach_side_team_.left_side_player)
 		{
 			arena_ball_->AttachToComponent(beach_side_team_.left_side_player->ball_attachment_, FAttachmentTransformRules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, true));
-			arena_ball_->ball_state_ = EBallState::eAttached;
+			arena_ball_->PushAndUpdateBallState(EBallState::eAttached);
 		}
 		break;
 	}

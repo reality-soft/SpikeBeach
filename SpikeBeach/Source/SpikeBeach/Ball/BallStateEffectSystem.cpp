@@ -2,6 +2,11 @@
 
 
 #include "BallStateEffectSystem.h"
+#include "Kismet/GameplayStatics.h"
+#include "Math/Vector.h"
+
+#include "Components/SplineComponent.h"
+#include "Components/SplineMeshComponent.h"
 #include "Components/SphereComponent.h"
 
 // Sets default values for this component's properties
@@ -33,6 +38,55 @@ void UBallStateEffectSystem::TickComponent(float DeltaTime, ELevelTick TickType,
 	// ...
 }
 
+void UBallStateEffectSystem::UpdateByBallState()
+{
+	while (owner_ball_->state_queue_.IsEmpty() == false)
+	{
+		EBallState state = EBallState::eNone;
+		owner_ball_->state_queue_.Dequeue(state);
+
+		switch (state)
+		{
+		case EBallState::eNone:
+			break;
+		case EBallState::eAttached:
+			ClearNiagaraComps();
+			SetArcTrailSpawnRate(0);
+			break;
+
+		case EBallState::eFloatToService:
+			CreateSplineTrack();
+			SetArcTrailSpawnRate(1500);
+			SetTrailColor_Stable();
+			break;
+
+		case EBallState::eStableSetted:
+			CreateSplineTrack();
+			SetTrailColor_Stable();
+			SetArcTrailSpawnRate(3000);
+			break;
+
+		case EBallState::eTurnOver:
+			CreateSplineTrack();
+			SetTrailColor_Offensive();
+			SetArcTrailSpawnRate(3000);
+			break;
+
+		case EBallState::eMistake:
+			CreateSplineTrack();
+			SetTrailColor_Wrong();
+			SetArcTrailSpawnRate(3000);
+			break;
+
+		case EBallState::eDropped:
+			SetArcTrailSpawnRate(0);
+			ClearNiagaraComps();
+			SpawnSandDust();
+			break;
+		}
+	}
+}
+
 bool UBallStateEffectSystem::InitOwnerInstance(ABall* ball)
 {
 	owner_ball_ = ball;
@@ -59,15 +113,12 @@ void UBallStateEffectSystem::SpawnArcTrail()
 	}
 }
 
-void UBallStateEffectSystem::SpawnLandingPoint(FVector world_location)
+void UBallStateEffectSystem::SpawnSandDust()
 {
-	if (!owner_ball_ && !owner_ball_->ngsystem_landing_point_)
+	if (owner_ball_->ngsystem_sand_dust_ == nullptr)
 		return;
 
-	if (ngcomp_arc_trail_ != nullptr)
-		DestroyLandingPoint();	
-	
-	ngcomp_landing_point_ = UNiagaraFunctionLibrary::SpawnSystemAtLocation(owner_ball_->GetWorld(), owner_ball_->ngsystem_arc_trail_, world_location, FRotator(0.f), FVector(1.0f), false);
+	UNiagaraComponent* ngcomp_sand_dust = UNiagaraFunctionLibrary::SpawnSystemAtLocation(owner_ball_->GetWorld(), owner_ball_->ngsystem_sand_dust_, owner_ball_->current_hit_floor_, FRotator(0.f), FVector(1.0f));
 }
 
 void UBallStateEffectSystem::DestroyArcTrail()
@@ -121,4 +172,76 @@ void UBallStateEffectSystem::SetTrailColor_Wrong()
 		ngcomp_arc_trail_->SetNiagaraVariableLinearColor(FString("SubColor"), subcolor_wrong_);
 		ngcomp_arc_trail_->SetNiagaraVariableLinearColor(FString("MainColor"), maincolor_wrong_);
 	}
+}
+
+void UBallStateEffectSystem::ClearNiagaraComps()
+{
+	if (ngcomp_spline_tracks_.Num() > 0)
+	{
+		for (auto ng_spline : ngcomp_spline_tracks_)
+		{
+			if (ng_spline && ng_spline->IsActive())
+			{
+				ng_spline->DestroyComponent();
+				ng_spline = nullptr;
+			}
+		}
+		ngcomp_spline_tracks_.Empty();
+	}
+
+	if (ngcomp_landing_point_ && ngcomp_landing_point_->IsActive())
+	{
+		ngcomp_landing_point_->DestroyComponent();
+		ngcomp_landing_point_ = nullptr;
+	}
+}
+
+bool UBallStateEffectSystem::CreateSplineTrack()
+{
+	if (owner_ball_							 == nullptr ||
+		owner_ball_->spline_comp_			 == nullptr || 
+		owner_ball_->ngsystem_spline_track_  == nullptr ||
+		owner_ball_->ngsystem_landing_point_ == nullptr)
+		return false; 
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> trace_types;
+	TArray<AActor*, FDefaultAllocator> ignore_actors;
+	trace_types.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
+	ignore_actors.Add(owner_ball_);
+
+	FHitResult hit_result;
+	TArray<FVector> path_positions;
+	FVector dest_position;
+
+	bool success = UGameplayStatics::Blueprint_PredictProjectilePath_ByObjectType(
+		owner_ball_->GetWorld(), hit_result, path_positions, dest_position,
+		owner_ball_->GetActorLocation(), owner_ball_->GetVelocity(), true, owner_ball_->GetSphereComp()->GetScaledSphereRadius(),
+		trace_types, true, ignore_actors, EDrawDebugTrace::None, 0.0f, 20.0f, 10.f);
+
+	if (!success)
+		return false;
+
+	for (int32 index = 0; index < path_positions.Num(); ++index)
+	{
+		owner_ball_->spline_comp_->AddSplinePointAtIndex(path_positions[index], index, ESplineCoordinateSpace::World, true);
+	}
+	
+	owner_ball_->spline_comp_->SetSplinePointType(path_positions.Max(),ESplinePointType::CurveClamped, true);
+	owner_ball_->spline_positions_ = path_positions;
+
+	for (int32 index = 0; index < path_positions.Num() - 2; ++index)
+	{
+		UNiagaraComponent* ngcomp_spline_track = UNiagaraFunctionLibrary::SpawnSystemAtLocation(owner_ball_->GetWorld(), owner_ball_->ngsystem_spline_track_, path_positions[index], FRotator(0.f), FVector(1.0f), false);
+
+		FVector step_dir = path_positions[index + 1] - path_positions[index];
+		float pitch = FRotationMatrix::MakeFromX(step_dir).Rotator().Pitch / 360.0f * -1.0f;
+		float yaw = FRotationMatrix::MakeFromZ(step_dir).Rotator().Yaw / 360.0f;
+		ngcomp_spline_track->SetNiagaraVariableVec3("Vector", FVector(pitch, 0.0f, yaw));
+
+		ngcomp_spline_tracks_.Add(ngcomp_spline_track);
+	}
+
+	ngcomp_landing_point_ = UNiagaraFunctionLibrary::SpawnSystemAtLocation(owner_ball_->GetWorld(), owner_ball_->ngsystem_landing_point_, dest_position, FRotator(0.f), FVector(1.0f), false);
+
+	return true;
 }
