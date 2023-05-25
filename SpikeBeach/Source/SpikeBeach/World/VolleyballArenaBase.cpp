@@ -3,7 +3,7 @@
 
 #include "VolleyballArenaBase.h"
 
-bool AVolleyballArenaBase::SetPlayerToTeam(ABasePlayer* player_to_add, ETeamName team_to_add, EPlayerPosition player_position)
+bool AVolleyballArenaBase::SetPlayerToTeam(ABaseCharacter* player_to_add, ETeamName team_to_add, EPlayerPosition player_position)
 {
 	if (!player_to_add)
 		return false;

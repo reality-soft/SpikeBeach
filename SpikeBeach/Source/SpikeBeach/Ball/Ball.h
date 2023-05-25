@@ -83,11 +83,15 @@ public:
 		class UBallStateEffectSystem* parent_effect_system_;
 
 
-private:
-	float cur_time_ = 0.0f;
-	FVector start_pos_;
-	FVector end_pos_;
-	FVector init_velocity_;
+public:
+	UPROPERTY(BlueprintReadOnly, Category = DropInfo)
+		float cur_time_ = 0.0f;
+	UPROPERTY(BlueprintReadOnly, Category = DropInfo)
+		FVector start_pos_;
+	UPROPERTY(BlueprintReadOnly, Category = DropInfo)
+		FVector end_pos_;
+	UPROPERTY(BlueprintReadOnly, Category = DropInfo)
+		FVector init_velocity_;
 
 public:	
 	// Sets default values for this actor's properties
