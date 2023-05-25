@@ -29,7 +29,7 @@ ABall::ABall()
 void ABall::BeginPlay()
 {
 	Super::BeginPlay();
-	ReceiveMovement(0.3f, GetActorLocation(), FVector(2000, 810, 25));
+	//ReceiveMovement(0.3f, GetActorLocation(), FVector(2000, 810, 25));
 }
 
 // Called every frame
@@ -54,27 +54,22 @@ void ABall::UpdateByBallState()
 		case EBallState::eNone:
 			break;
 		case EBallState::eAttached:
-			SphereCollisionComponent->SetSimulatePhysics(false);
+			ProjectileMovementComponent->SetActive(false);
 			break;
 
 		case EBallState::eFloatToService:
-			SphereCollisionComponent->SetSimulatePhysics(true);
 			break;
 
 		case EBallState::eStableSetted:
-			SphereCollisionComponent->SetSimulatePhysics(true);
 			break;
 
 		case EBallState::eTurnOver:
-			SphereCollisionComponent->SetSimulatePhysics(true);
 			break;
 
 		case EBallState::eMistake:
-			SphereCollisionComponent->SetSimulatePhysics(true);
 			break;
 
 		case EBallState::eDropped:
-			SphereCollisionComponent->SetSimulatePhysics(true);
 			break;
 		}
 	}
