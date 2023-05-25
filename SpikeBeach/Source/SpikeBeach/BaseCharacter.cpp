@@ -464,14 +464,14 @@ void ABaseCharacter::SetBlockMode()
 void ABaseCharacter::PlayServiceAnimation()
 {
 	float PlayRate = CalculatePlayRate(RemainingTimeToAction, ServiceMontage, ServiceMode);
-	is_montage_started_ = false;
+	is_montage_started_ = true;
 	PlayAnimMontage(ServiceMontage, PlayRate, ServiceMode);
 }
 
 void ABaseCharacter::PlayPassAnimation()
 {
 	float PlayRate;
-	is_montage_started_ = false;
+	is_montage_started_ = true;
 	switch (OffenceMode)
 	{
 	case EOffenceMode::OM_TOSS:
@@ -492,7 +492,7 @@ void ABaseCharacter::PlayPassAnimation()
 void ABaseCharacter::PlayAttackAnimation()
 {
 	float PlayRate;
-	is_montage_started_ = false;
+	is_montage_started_ = true;
 	switch (OffenceMode)
 	{
 	case EOffenceMode::OM_SPIKE:
@@ -513,7 +513,7 @@ void ABaseCharacter::PlayAttackAnimation()
 void ABaseCharacter::PlayReceiveAnimation()
 {
 	float PlayRate;
-	is_montage_started_ = false;
+	is_montage_started_ = true;
 	switch (DefenceMode)
 	{
 	case EDefenceMode::DM_DIG:
@@ -533,7 +533,7 @@ void ABaseCharacter::PlayReceiveAnimation()
 
 void ABaseCharacter::PlayBlockAnimation()
 {
-	is_montage_started_ = false;
+	is_montage_started_ = true;
 	PlayAnimMontage(BlockMontage, 1.0f, Direction);
 }
 
