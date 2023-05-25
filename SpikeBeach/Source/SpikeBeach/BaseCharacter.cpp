@@ -434,7 +434,7 @@ void ABaseCharacter::SetPassMode()
 
 void ABaseCharacter::SetAttackMode()
 {
-	if (JudgeAttackMode())
+	if (!JudgeAttackMode())
 		return;
 
 	TimingMax = RemainingTimeToAction;
