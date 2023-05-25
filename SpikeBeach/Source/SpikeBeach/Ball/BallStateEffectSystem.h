@@ -31,9 +31,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Effect System")
 		bool InitOwnerInstance(ABall* ball);
 
-	UFUNCTION(BlueprintCallable, Category = "Effect System")
-		void UpdateByBallState();
-
 	UFUNCTION(BlueprintCallable, Category = "Arc Trail")
 		void SpawnArcTrail();
 

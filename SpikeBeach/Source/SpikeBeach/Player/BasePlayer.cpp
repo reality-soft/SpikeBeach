@@ -28,7 +28,7 @@ void ABasePlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerTurn = EPlayerTurn::PT_DEFENCE;
+	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 
 	//Add Input Mapping Context
 	if (ACustomPlayerController* PlayerController = Cast<ACustomPlayerController>(Controller))
