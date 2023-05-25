@@ -125,6 +125,10 @@ protected:
 	/* Called for Sprint Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
 		void SprintCompleted(const FInputActionValue& Value);
+
+protected:
+	void MontageEnded() override;
+
 protected:
 	virtual void ServiceHitBall() override;
 

@@ -104,7 +104,7 @@ void ABasePlayer::SetInputAction()
 void ABasePlayer::Move(const FInputActionValue& Value)
 {
 	// If Moving to Action, Move Input disabled
-	if (!is_montage_started_)
+	if (is_montage_started_)
 		return;
 
 	// input is a Vector2D
@@ -211,6 +211,12 @@ void ABasePlayer::SprintCompleted(const FInputActionValue& Value)
 	bIsSprint = false;
 
 	//GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+}
+
+void ABasePlayer::MontageEnded()
+{
+	is_montage_started_ = false;
+	is_montage_ended_ = true;
 }
 
 
