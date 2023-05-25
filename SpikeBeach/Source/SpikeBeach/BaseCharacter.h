@@ -37,6 +37,22 @@ enum class EDefenceMode : uint8
 	COUNT,
 };
 
+UENUM(BlueprintType)
+enum class EFrontBack : uint8
+{
+	FRONT,
+	BACK,
+	COUNT,
+};
+
+UENUM(BlueprintType)
+enum class ELeftRight : uint8
+{
+	LEFT,
+	RIGHT,
+	COUNT,
+};
+
 USTRUCT(BlueprintType)
 struct FAnimationOffsetData : public FTableRowBase
 {
@@ -98,6 +114,12 @@ protected:
 	float	TimingAccuracy;
 	float	TimingTimer;
 	float	TimingMax;
+
+	UPROPERTY(BlueprintReadWrite, Category = Location, meta = (AllowPrivateAccess = "true"))
+		EFrontBack front_back_;
+	UPROPERTY(BlueprintReadWrite, Category = Location, meta = (AllowPrivateAccess = "true"))
+		ELeftRight left_right_;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	TMap<FName, FVector> ServiceOffsetMap;
