@@ -28,7 +28,7 @@ void ABasePlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//PlayerTurn = EPlayerTurn::PT_DEFENCE;
+	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 
 	//Add Input Mapping Context
 	if (ACustomPlayerController* PlayerController = Cast<ACustomPlayerController>(Controller))
@@ -104,7 +104,7 @@ void ABasePlayer::SetInputAction()
 void ABasePlayer::Move(const FInputActionValue& Value)
 {
 	// If Moving to Action, Move Input disabled
-	if (bIsMovingToAction)
+	if (!is_montage_started_)
 		return;
 
 	// input is a Vector2D

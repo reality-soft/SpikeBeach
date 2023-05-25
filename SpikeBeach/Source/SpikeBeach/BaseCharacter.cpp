@@ -92,7 +92,6 @@ void ABaseCharacter::SetPlayerAttributes()
 
 	bIsClicking = false;
 	bIsSprint = false; 
-	bIsMovingToAction = false;
 
 	Gauge = 0.0f;
 	TimingAccuracy = 0.0f;
@@ -244,7 +243,6 @@ void ABaseCharacter::ServiceHitBall()
 void ABaseCharacter::DigBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Dig Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
@@ -257,7 +255,6 @@ void ABaseCharacter::ReceiveBall()
 
 	Ball->ReceiveMovement(1.2, StartPos, EndPos);
 
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
@@ -270,28 +267,24 @@ void ABaseCharacter::BlockBall()
 void ABaseCharacter::TossBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Toss Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::PassBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Pass Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::SpikeBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Spike Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
 void ABaseCharacter::FloatingBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Floating Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
@@ -609,8 +602,6 @@ FVector ABaseCharacter::RotateOffsetToCurrentDirection(FVector Vector)
 
 void ABaseCharacter::MoveToActionPos(FVector Offset)
 {
-	bIsMovingToAction = true;
-
 	Offset = RotateOffsetToCurrentDirection(Offset);
 
 	// Set Destination to Action

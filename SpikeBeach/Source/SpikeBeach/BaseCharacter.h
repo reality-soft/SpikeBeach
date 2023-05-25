@@ -94,7 +94,6 @@ protected:
 	// Variables
 	bool	bIsClicking;
 	bool	bIsSprint;
-	bool	bIsMovingToAction;
 	float	Gauge;
 	float	TimingAccuracy;
 	float	TimingTimer;
