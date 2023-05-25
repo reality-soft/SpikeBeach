@@ -34,10 +34,10 @@ public:
 		ETeamName team_name = ETeamName::eNone;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Team")
-		ABasePlayer* right_side_player = nullptr;
+		ABaseCharacter* right_side_player = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Team")
-		ABasePlayer* left_side_player = nullptr;
+		ABaseCharacter* left_side_player = nullptr;
 };
 
 UCLASS()
