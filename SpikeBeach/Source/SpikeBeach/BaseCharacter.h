@@ -175,6 +175,16 @@ protected:
 		class UAnimMontage* FloatingMontage;
 #pragma endregion
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	bool is_montage_started_ = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	bool is_montage_ended_ = false;
+
+protected:
+	UFUNCTION(BlueprintCallable, Category = Player)
+		void MontageEnded();
+
 public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
@@ -238,11 +248,16 @@ public:
 		void JudgeBlockMode();
 
 protected:
-	void	SetServiceMode();
-	void	SetPassMode();
-	void	SetAttackMode();
-	void	SetReceiveMode();
-	void	SetBlockMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		void SetServiceMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		void SetPassMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		void SetAttackMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		void SetReceiveMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		void SetBlockMode();
 
 protected:
 	/* Play Service(Floating/Spoon/Jump) Animation */
@@ -265,6 +280,4 @@ protected:
 	float GetMontageSectionLength(UAnimMontage* Montage, FName SectionName);
 	/* To Play Animation in Accurate Timing, Calculate Play Rate */
 	float CalculatePlayRate(float TimeRemaining, UAnimMontage* Montage, FName SectionName);
-
-
 };
