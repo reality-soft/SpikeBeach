@@ -297,19 +297,24 @@ protected:
 
 protected:
 	/* Play Service(Floating/Spoon/Jump) Animation */
-	virtual void PlayServiceAnimation();
+	UFUNCTION(BlueprintCallable, Category = Animation)
+		virtual void PlayServiceAnimation();
 
 	/* Play Pass(Floating Pass / Toss) Animation */
-	virtual void PlayPassAnimation();
+	UFUNCTION(BlueprintCallable, Category = Animation)
+		virtual void PlayPassAnimation();
 
 	/* Play Attack(Spike/Floating Attack) Animation */
-	virtual void PlayAttackAnimation();
+	UFUNCTION(BlueprintCallable, Category = Animation)
+		virtual void PlayAttackAnimation();
 
 	/* Play Receive(Dig/Receive) Animation */
-	virtual void PlayReceiveAnimation();
+	UFUNCTION(BlueprintCallable, Category = Animation)
+		virtual void PlayReceiveAnimation();
 
 	/* Play Block Animation */
-	virtual void PlayBlockAnimation();
+	UFUNCTION(BlueprintCallable, Category = Animation)
+		virtual void PlayBlockAnimation();
 
 protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Animation)
