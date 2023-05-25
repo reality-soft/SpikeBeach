@@ -61,7 +61,6 @@ void ABall::UpdateByBallState()
 			break;
 
 		case EBallState::eFloatToService:
-			parent_effect_system_->CreateSplineTrack();
 			parent_effect_system_->SetArcTrailSpawnRate(1500);
 			parent_effect_system_->SetTrailColor_Stable();
 			break;
@@ -129,8 +128,8 @@ FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVec
 	start_pos_ = start_pos;
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
-
-	PushAndUpdateBallState(EBallState::eStableSetted);
+	if(current_ball_state_ != EBallState::eFloatToService)
+		PushAndUpdateBallState(EBallState::eStableSetted);
 
 	return velocity;
 }
