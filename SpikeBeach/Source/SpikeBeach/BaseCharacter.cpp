@@ -10,6 +10,12 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 
+void ABaseCharacter::MontageStarted()
+{
+	is_montage_started_ = true;
+	is_montage_ended_ = false;
+}
+
 void ABaseCharacter::MontageEnded()
 {
 	is_montage_ended_ = true;
@@ -456,15 +462,15 @@ void ABaseCharacter::SetBlockMode()
 
 void ABaseCharacter::PlayServiceAnimation()
 {
+	MontageStarted();
 	float PlayRate = CalculatePlayRate(RemainingTimeToAction, ServiceMontage, ServiceMode);
-	is_montage_started_ = true;
 	PlayAnimMontage(ServiceMontage, PlayRate, ServiceMode);
 }
 
 void ABaseCharacter::PlayPassAnimation()
 {
+	MontageStarted();
 	float PlayRate;
-	is_montage_started_ = true;
 	switch (OffenceMode)
 	{
 	case EOffenceMode::OM_TOSS:
@@ -484,8 +490,8 @@ void ABaseCharacter::PlayPassAnimation()
 
 void ABaseCharacter::PlayAttackAnimation()
 {
+	MontageStarted();
 	float PlayRate;
-	is_montage_started_ = true;
 	switch (OffenceMode)
 	{
 	case EOffenceMode::OM_SPIKE:
@@ -505,8 +511,8 @@ void ABaseCharacter::PlayAttackAnimation()
 
 void ABaseCharacter::PlayReceiveAnimation()
 {
+	MontageStarted();
 	float PlayRate;
-	is_montage_started_ = true;
 	switch (DefenceMode)
 	{
 	case EDefenceMode::DM_DIG:
@@ -526,7 +532,7 @@ void ABaseCharacter::PlayReceiveAnimation()
 
 void ABaseCharacter::PlayBlockAnimation()
 {
-	is_montage_started_ = true;
+	MontageStarted();
 	PlayAnimMontage(BlockMontage, 1.0f, Direction);
 }
 

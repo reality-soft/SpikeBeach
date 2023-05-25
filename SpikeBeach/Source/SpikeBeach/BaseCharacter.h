@@ -225,7 +225,9 @@ protected:
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = Player)
-		void MontageEnded();
+		void MontageStarted();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		virtual void MontageEnded();
 
 public:
 	// Sets default values for this character's properties
