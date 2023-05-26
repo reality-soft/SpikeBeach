@@ -33,6 +33,15 @@ public:
 		float remain_time;
 };
 
+USTRUCT(BlueprintType)
+struct FPredictInfo
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	bool b_hit_land;
+	FVector destination;
+};
+
 UCLASS()
 class SPIKEBEACH_API ABall : public AActor
 {
@@ -78,7 +87,7 @@ public:
 		EBallState current_ball_state_ = EBallState::eNone;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ball State")
-		FHitResult current_predict_;
+		FPredictInfo current_predict_;
 
 	TQueue<EBallState> state_queue_;
 
@@ -114,28 +123,28 @@ public:
 		bool PushAndUpdateBallState(EBallState state);
 
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
-		FVector SpikeMovement(float power, const FVector& start_pos, const FVector& end_pos);
+		FVector SpikeMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state);
 	
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
-		FVector ReceiveMovement(float power, const FVector& start_pos, const FVector& end_pos);
+		FVector ReceiveMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state);
 
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
-		FVector TossMovement(float power, const FVector& start_pos, const FVector& end_pos);
+		FVector TossMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state);
 
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
-		FVector DigMovement(float power, const FVector& start_pos, const FVector& end_pos);
+		FVector DigMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state);
 
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
-		FVector FloatingMovement(float power, const FVector& start_pos, const FVector& end_pos);
+		FVector FloatingMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state);
 
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
-		FVector SpoonServiceMovement(float power, const FVector& start_pos, const FVector& end_pos);
+		FVector SpoonServiceMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state);
 
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
-		FVector JumpServiceMovement(float power, const FVector& start_pos, const FVector& end_pos);
+		FVector JumpServiceMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state);
 
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
-		FVector FloatingServiceMovement(float power, const FVector& start_pos, const FVector& end_pos);
+		FVector FloatingServiceMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state);
 
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
 		FDropInfo GetDropInfo(float height);
