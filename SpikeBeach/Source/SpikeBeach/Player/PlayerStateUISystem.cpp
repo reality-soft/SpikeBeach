@@ -39,6 +39,15 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	timer_manager_.Tick(DeltaTime);
 
+	if (target_player_->GetTimmingAccurancy() > 0.001f)
+	{
+		if (target_player_->GetPlayerMode() == "ReadyStable")
+			player_state_ui_->FillStableRG(target_player_->GetTimmingAccurancy());
+
+		if (target_player_->GetPlayerMode() == "ReadyOffensive")
+			player_state_ui_->FillOffensiveRG(target_player_->GetTimmingAccurancy());
+	}
+
 	while (!target_player_->state_ui_notices_.IsEmpty())
 	{
 		EStateUINotice out_notice;
@@ -46,24 +55,14 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 		switch (out_notice)
 		{
-		case EStateUINotice::eStartedGauge_StableType:
-			player_state_ui_->FillStableRG(DeltaTime * spike_proficiency);
-			break;
-
 		case EStateUINotice::eFinishedGauge_StableType:
-			player_state_ui_->LossStableRG();
-			break;
-
-		case EStateUINotice::eUnshowedGauge_StableType:
 			player_state_ui_->UnshowStableRG();
 			break;
+		case EStateUINotice::eFinishedGauge_OffensiveType:
+			player_state_ui_->UnshowOffensiveRG();
+			break;
 		}
-	}
-
-
-
-	
-	
+	}	
 
 	// Set Receive RG Position
 	if (player_state_ui_ && player_state_ui_->stable_rg_img_->GetVisibility() == ESlateVisibility::Visible)

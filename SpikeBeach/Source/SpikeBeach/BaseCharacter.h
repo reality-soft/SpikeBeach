@@ -106,6 +106,9 @@ class SPIKEBEACH_API ABaseCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+public:
+	float GetTimmingAccurancy() { return TimingAccuracy; }
+
 protected:
 	// Variables
 	bool	bIsClicking;
@@ -188,7 +191,7 @@ protected:
 		FName Direction;
 
 #pragma endregion
-
+protected:
 #pragma region GAME(Company, Ball) INFO
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GameInfo, meta = (AllowPrivateAccess = "true"))
 		class AActor* Company;
@@ -320,6 +323,9 @@ public:
 		bool JudgeReceiveMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
 		bool JudgeBlockMode();
+
+	UFUNCTION(BlueprintCallable, Category = Player)
+		FString GetPlayerMode();
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = Player)

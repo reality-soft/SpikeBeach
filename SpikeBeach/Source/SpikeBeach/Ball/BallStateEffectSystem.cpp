@@ -180,7 +180,7 @@ bool UBallStateEffectSystem::CreateSplineTrack()
 
 	bool success = UGameplayStatics::Blueprint_PredictProjectilePath_ByObjectType(
 		owner_ball_->GetWorld(), hit_result, path_positions, dest_position,
-		owner_ball_->GetActorLocation(), owner_ball_->GetVelocity(), true, owner_ball_->GetSphereComp()->GetScaledSphereRadius(),
+		owner_ball_->GetActorLocation(), owner_ball_->init_velocity_, true, owner_ball_->GetSphereComp()->GetScaledSphereRadius(),
 		trace_types, true, ignore_actors, EDrawDebugTrace::None, 0.0f, 20.0f, 10.f);
 
 	if (!success)
@@ -198,7 +198,7 @@ bool UBallStateEffectSystem::CreateSplineTrack()
 		}
 	}
 
-	owner_ball_->current_predict_.destination = dest_position;
+	owner_ball_->current_predict_.destination = hit_result.Location;// dest_position;
 
 	for (int32 index = 0; index < path_positions.Num(); ++index)
 	{

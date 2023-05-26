@@ -156,7 +156,11 @@ void ABasePlayer::LClickCompleted(const FInputActionValue& Value)
 
 	bIsClicking = false;
 
-	TimingAccuracy = TimingTimer / TimingMax;
+	if (1.2f > TimingAccuracy && TimingAccuracy > 0.8f)
+	{
+
+	}
+
 	//UE_LOG(LogTemp, Log, TEXT("TimingAccuracy : %f"), TimingAccuracy);
 	//UE_LOG(LogTemp, Log, TEXT("TimingTimer : %f"), TimingTimer);
 }
@@ -188,7 +192,6 @@ void ABasePlayer::RClickCompleted(const FInputActionValue& Value)
 
 	bIsClicking = false;
 
-	TimingAccuracy = TimingTimer / TimingMax;
 	//UE_LOG(LogTemp, Log, TEXT("TimingAccuracy : %f"), TimingAccuracy);
 	//UE_LOG(LogTemp, Log, TEXT("TimingTimer : %f"), TimingTimer);
 }
@@ -230,7 +233,7 @@ void ABasePlayer::ServiceHitBall()
 	auto GeneralOffset = quat.RotateVector(Offset);
 
 	UE_LOG(LogTemp, Log, TEXT("Offset (%f, %f, %f)"), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
-	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
+	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
 }
 
 void ABasePlayer::ReceiveBall() 
@@ -244,25 +247,25 @@ void ABasePlayer::ReceiveBall()
 	auto GeneralOffset = quat.RotateVector(Offset);
 
 	UE_LOG(LogTemp, Log, TEXT("Receive %s, Offset (%f, %f, %f)"), *Direction.ToString(), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
-	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
+	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
 }
 
 void ABasePlayer::DigBall() 
 {
 	ABaseCharacter::DigBall();
-	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
+	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
 }
 
 void ABasePlayer::BlockBall()
 {
 	ABaseCharacter::BlockBall();
-	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
+	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
 }
 
 void ABasePlayer::TossBall()
 {
 	ABaseCharacter::TossBall();
-	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
+	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
 
 }
 
@@ -279,50 +282,45 @@ void ABasePlayer::PassBall()
 	auto GeneralOffset = quat.RotateVector(Offset);
 
 	UE_LOG(LogTemp, Log, TEXT("Pass %s, Offset (%f, %f, %f)"), *Direction.ToString(), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
-	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
+	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
 }
 
 void ABasePlayer::SpikeBall()
 {
 	ABaseCharacter::SpikeBall();
-	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
+	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
 }
 
 void ABasePlayer::FloatingBall()
 {
 	ABaseCharacter::FloatingBall();
-	//state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
+	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
 }
 
 void ABasePlayer::PlayServiceAnimation()
 {
 	ABaseCharacter::PlayServiceAnimation();
-	//state_ui_notices_.Enqueue(EStateUINotice::eStartedGauge_OffensiveType);
 }
 
 void ABasePlayer::PlayPassAnimation()
 {
 	ABaseCharacter::PlayPassAnimation();
-	//state_ui_notices_.Enqueue(EStateUINotice::eStartedGauge_StableType);
 }
 
 void ABasePlayer::PlayAttackAnimation()
 {
 	ABaseCharacter::PlayAttackAnimation();
-	//state_ui_notices_.Enqueue(EStateUINotice::eStartedGauge_OffensiveType);
 
 }
 
 void ABasePlayer::PlayReceiveAnimation()
 {
 	ABaseCharacter::PlayReceiveAnimation();
-	//state_ui_notices_.Enqueue(EStateUINotice::eStartedGauge_StableType);
 }
 
 void ABasePlayer::PlayBlockAnimation()
 {
 	ABaseCharacter::PlayBlockAnimation();
-	//state_ui_notices_.Enqueue(EStateUINotice::eStartedGauge_OffensiveType);
 }
 
 
