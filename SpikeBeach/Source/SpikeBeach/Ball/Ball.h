@@ -77,6 +77,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Ball State")
 		EBallState current_ball_state_ = EBallState::eNone;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Ball State")
+		FHitResult current_predict_;
+
 	TQueue<EBallState> state_queue_;
 
 	UPROPERTY(BlueprintReadWrite, Category = "EffectSystem")
