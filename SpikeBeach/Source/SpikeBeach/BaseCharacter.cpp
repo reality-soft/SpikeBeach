@@ -54,6 +54,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 		// Timing To Accuracy
 		TimingTimer += DeltaTime;
+		TimingAccuracy = TimingTimer / TimingMax;
 	}
 	else
 	{
@@ -458,6 +459,36 @@ void ABaseCharacter::SetBlockMode()
 		return;
 
 	PlayBlockAnimation();
+}
+
+FString ABaseCharacter::GetPlayerMode()
+{
+	TArray<FString> player_modes =
+	{
+		"ReadyStable",
+		"ReadyOffensive"
+	};
+
+	if (PlayerTurn == EPlayerTurn::PT_SERVICE)
+	{
+		return player_modes[1];
+	}
+
+	if (PlayerTurn == EPlayerTurn::PT_DEFENCE)
+	{
+		return player_modes[0];
+	}
+	if (PlayerTurn == EPlayerTurn::PT_OFFENCE)
+	{
+		switch (OffenceMode)
+		{
+		case EOffenceMode::OM_SPIKE :
+			return player_modes[1];
+		default:
+			return player_modes[0];
+		}
+	}
+	return "";
 }
 
 void ABaseCharacter::PlayServiceAnimation()

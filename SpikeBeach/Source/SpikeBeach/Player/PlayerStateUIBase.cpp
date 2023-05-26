@@ -9,6 +9,7 @@ bool UPlayerStateUIBase::InitReceiveRGInstances(UImage* img, USizeBox* size, UMa
 	stable_rg_img_ = img;
 	stable_rg_size_ = size;
 	stable_rg_mi_ = mi;
+	stable_rg_img_->SetVisibility(ESlateVisibility::Hidden);
 
 	return (stable_rg_img_ && stable_rg_size_ && stable_rg_mi_) ? true : false;
 }
@@ -18,6 +19,7 @@ bool UPlayerStateUIBase::InitSpikeRGInstances(UImage* img, USizeBox* size, UMate
 	offensive_rg_img_ = img;
 	offensive_rg_size_ = size;
 	offensive_rg_mi_ = mi;
+	offensive_rg_img_->SetVisibility(ESlateVisibility::Hidden);
 
 	return (offensive_rg_img_ && offensive_rg_size_ && offensive_rg_mi_) ? true : false;
 }
@@ -31,11 +33,12 @@ void UPlayerStateUIBase::FillStableRG(float fill_value)
 void UPlayerStateUIBase::FillOffensiveRG(float fill_value)
 {
 	offensive_rg_mi_->SetScalarParameterValue("AnimPhase", fill_value);
-	stable_rg_img_->SetVisibility(ESlateVisibility::Visible);
+	offensive_rg_img_->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UPlayerStateUIBase::LossStableRG()
 {
+	
 }
 
 void UPlayerStateUIBase::LossOffensiveRG()
