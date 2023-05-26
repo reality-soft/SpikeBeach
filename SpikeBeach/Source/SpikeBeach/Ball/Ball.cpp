@@ -6,6 +6,7 @@
 #include "Components/SplineComponent.h"
 #include "NiagaraComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "BallStateEffectSystem.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -29,7 +30,7 @@ ABall::ABall()
 void ABall::BeginPlay()
 {
 	Super::BeginPlay();
-	ReceiveHit(0.3f, GetActorLocation(), FVector(2000, 40, 20));
+	//ReceiveMovement(0.3f, GetActorLocation(), FVector(2000, 810, 25));
 }
 
 // Called every frame
@@ -54,27 +55,38 @@ void ABall::UpdateByBallState()
 		case EBallState::eNone:
 			break;
 		case EBallState::eAttached:
-			SphereCollisionComponent->SetSimulatePhysics(false);
+			parent_effect_system_->ClearNiagaraComps();
+			parent_effect_system_->SetArcTrailSpawnRate(0);
+			ProjectileMovementComponent->SetActive(false);
 			break;
 
 		case EBallState::eFloatToService:
-			SphereCollisionComponent->SetSimulatePhysics(true);
+			parent_effect_system_->SetArcTrailSpawnRate(1500);
+			parent_effect_system_->SetTrailColor_Stable();
 			break;
 
 		case EBallState::eStableSetted:
-			SphereCollisionComponent->SetSimulatePhysics(true);
+			parent_effect_system_->CreateSplineTrack();
+			parent_effect_system_->SetTrailColor_Stable();
+			parent_effect_system_->SetArcTrailSpawnRate(3000);
 			break;
 
 		case EBallState::eTurnOver:
-			SphereCollisionComponent->SetSimulatePhysics(true);
+			parent_effect_system_->CreateSplineTrack();
+			parent_effect_system_->SetTrailColor_Offensive();
+			parent_effect_system_->SetArcTrailSpawnRate(3000);
 			break;
 
 		case EBallState::eMistake:
-			SphereCollisionComponent->SetSimulatePhysics(true);
+			parent_effect_system_->CreateSplineTrack();
+			parent_effect_system_->SetTrailColor_Wrong();
+			parent_effect_system_->SetArcTrailSpawnRate(3000);
 			break;
 
 		case EBallState::eDropped:
-			SphereCollisionComponent->SetSimulatePhysics(true);
+			parent_effect_system_->SetArcTrailSpawnRate(0);
+			parent_effect_system_->ClearNiagaraComps();
+			parent_effect_system_->SpawnSandDust();
 			break;
 		}
 	}
@@ -116,8 +128,8 @@ FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVec
 	start_pos_ = start_pos;
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
-
-	PushAndUpdateBallState(EBallState::eStableSetted);
+	if(current_ball_state_ != EBallState::eFloatToService)
+		PushAndUpdateBallState(EBallState::eStableSetted);
 
 	return velocity;
 }

@@ -10,6 +10,17 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 
+void ABaseCharacter::MontageStarted()
+{
+	is_montage_started_ = true;
+	is_montage_ended_ = false;
+}
+
+void ABaseCharacter::MontageEnded()
+{
+	is_montage_ended_ = true;
+}
+
 // Sets default values
 ABaseCharacter::ABaseCharacter()
 {
@@ -87,7 +98,6 @@ void ABaseCharacter::SetPlayerAttributes()
 
 	bIsClicking = false;
 	bIsSprint = false; 
-	bIsMovingToAction = false;
 
 	Gauge = 0.0f;
 	TimingAccuracy = 0.0f;
@@ -181,7 +191,7 @@ void ABaseCharacter::ServiceFloatingBall()
 	if (Ball)
 	{
 		// Detach From Hand
-		Ball->ball_state_ = EBallState::eFloatToService;
+		Ball->PushAndUpdateBallState(EBallState::eFloatToService);
 		FDetachmentTransformRules rule(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 		Ball->GetProjectileComp()->SetActive(true);
 		Ball->DetachFromActor(rule);
@@ -206,7 +216,7 @@ void ABaseCharacter::ServiceFloatingBall()
 			power = 0.8f;
 		}
 
-		Ball->ReceiveHit(power, StartPos, EndPos);
+		Ball->ReceiveMovement(power, StartPos, EndPos);
 	}
 }
 
@@ -221,15 +231,15 @@ void ABaseCharacter::ServiceHitBall()
 
 		if (ServiceMode == FName("Spoon"))
 		{
-			Ball->ReceiveHit(0.5, StartPos, EndPos);
+			Ball->ReceiveMovement(0.5, StartPos, EndPos);
 		}
 		if (ServiceMode == FName("Floating"))
 		{
-			Ball->ReceiveHit(0.3, StartPos, EndPos);
+			Ball->ReceiveMovement(0.3, StartPos, EndPos);
 		}
 		if (ServiceMode == FName("Jump"))
 		{
-			Ball->SpikeHit(0.1, StartPos, EndPos);
+			Ball->SpikeMovement(0.1, StartPos, EndPos);
 		}
 	}
 	
@@ -239,7 +249,6 @@ void ABaseCharacter::ServiceHitBall()
 void ABaseCharacter::DigBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Dig Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
@@ -250,9 +259,8 @@ void ABaseCharacter::ReceiveBall()
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = Company->GetActorLocation();
 
-	Ball->ReceiveHit(1.2, StartPos, EndPos);
+	Ball->ReceiveMovement(1.2, StartPos, EndPos);
 
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
@@ -265,28 +273,24 @@ void ABaseCharacter::BlockBall()
 void ABaseCharacter::TossBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Toss Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::PassBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Pass Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::SpikeBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Spike Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
 void ABaseCharacter::FloatingBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Floating Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
@@ -430,7 +434,7 @@ void ABaseCharacter::SetPassMode()
 
 void ABaseCharacter::SetAttackMode()
 {
-	if (JudgeAttackMode())
+	if (!JudgeAttackMode())
 		return;
 
 	TimingMax = RemainingTimeToAction;
@@ -458,15 +462,15 @@ void ABaseCharacter::SetBlockMode()
 
 void ABaseCharacter::PlayServiceAnimation()
 {
+	MontageStarted();
 	float PlayRate = CalculatePlayRate(RemainingTimeToAction, ServiceMontage, ServiceMode);
-
 	PlayAnimMontage(ServiceMontage, PlayRate, ServiceMode);
 }
 
 void ABaseCharacter::PlayPassAnimation()
 {
+	MontageStarted();
 	float PlayRate;
-
 	switch (OffenceMode)
 	{
 	case EOffenceMode::OM_TOSS:
@@ -486,6 +490,7 @@ void ABaseCharacter::PlayPassAnimation()
 
 void ABaseCharacter::PlayAttackAnimation()
 {
+	MontageStarted();
 	float PlayRate;
 	switch (OffenceMode)
 	{
@@ -506,6 +511,7 @@ void ABaseCharacter::PlayAttackAnimation()
 
 void ABaseCharacter::PlayReceiveAnimation()
 {
+	MontageStarted();
 	float PlayRate;
 	switch (DefenceMode)
 	{
@@ -526,6 +532,7 @@ void ABaseCharacter::PlayReceiveAnimation()
 
 void ABaseCharacter::PlayBlockAnimation()
 {
+	MontageStarted();
 	PlayAnimMontage(BlockMontage, 1.0f, Direction);
 }
 
@@ -601,8 +608,6 @@ FVector ABaseCharacter::RotateOffsetToCurrentDirection(FVector Vector)
 
 void ABaseCharacter::MoveToActionPos(FVector Offset)
 {
-	bIsMovingToAction = true;
-
 	Offset = RotateOffsetToCurrentDirection(Offset);
 
 	// Set Destination to Action

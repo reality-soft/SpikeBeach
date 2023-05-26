@@ -37,6 +37,22 @@ enum class EDefenceMode : uint8
 	COUNT,
 };
 
+UENUM(BlueprintType)
+enum class EFrontBack : uint8
+{
+	FRONT,
+	BACK,
+	COUNT,
+};
+
+UENUM(BlueprintType)
+enum class ELeftRight : uint8
+{
+	LEFT,
+	RIGHT,
+	COUNT,
+};
+
 USTRUCT(BlueprintType)
 struct FAnimationOffsetData : public FTableRowBase
 {
@@ -94,11 +110,16 @@ protected:
 	// Variables
 	bool	bIsClicking;
 	bool	bIsSprint;
-	bool	bIsMovingToAction;
 	float	Gauge;
 	float	TimingAccuracy;
 	float	TimingTimer;
 	float	TimingMax;
+
+	UPROPERTY(BlueprintReadWrite, Category = Location, meta = (AllowPrivateAccess = "true"))
+		EFrontBack front_back_;
+	UPROPERTY(BlueprintReadWrite, Category = Location, meta = (AllowPrivateAccess = "true"))
+		ELeftRight left_right_;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	TMap<FName, FVector> ServiceOffsetMap;
@@ -218,6 +239,18 @@ protected:
 		class UAnimMontage* FloatingMontage;
 #pragma endregion
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	bool is_montage_started_ = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	bool is_montage_ended_ = false;
+
+protected:
+	UFUNCTION(BlueprintCallable, Category = Player)
+		void MontageStarted();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		virtual void MontageEnded();
+
 public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
@@ -289,27 +322,37 @@ public:
 		bool JudgeBlockMode();
 
 protected:
-	void	SetServiceMode();
-	void	SetPassMode();
-	void	SetAttackMode();
-	void	SetReceiveMode();
-	void	SetBlockMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		void SetServiceMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		void SetPassMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		void SetAttackMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		void SetReceiveMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		void SetBlockMode();
 
 protected:
 	/* Play Service(Floating/Spoon/Jump) Animation */
-	virtual void PlayServiceAnimation();
+	UFUNCTION(BlueprintCallable, Category = Animation)
+		virtual void PlayServiceAnimation();
 
 	/* Play Pass(Floating Pass / Toss) Animation */
-	virtual void PlayPassAnimation();
+	UFUNCTION(BlueprintCallable, Category = Animation)
+		virtual void PlayPassAnimation();
 
 	/* Play Attack(Spike/Floating Attack) Animation */
-	virtual void PlayAttackAnimation();
+	UFUNCTION(BlueprintCallable, Category = Animation)
+		virtual void PlayAttackAnimation();
 
 	/* Play Receive(Dig/Receive) Animation */
-	virtual void PlayReceiveAnimation();
+	UFUNCTION(BlueprintCallable, Category = Animation)
+		virtual void PlayReceiveAnimation();
 
 	/* Play Block Animation */
-	virtual void PlayBlockAnimation();
+	UFUNCTION(BlueprintCallable, Category = Animation)
+		virtual void PlayBlockAnimation();
 
 protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Animation)
