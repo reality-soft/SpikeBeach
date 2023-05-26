@@ -10,6 +10,17 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 
+void ABaseCharacter::MontageStarted()
+{
+	is_montage_started_ = true;
+	is_montage_ended_ = false;
+}
+
+void ABaseCharacter::MontageEnded()
+{
+	is_montage_ended_ = true;
+}
+
 // Sets default values
 ABaseCharacter::ABaseCharacter()
 {
@@ -87,7 +98,6 @@ void ABaseCharacter::SetPlayerAttributes()
 
 	bIsClicking = false;
 	bIsSprint = false; 
-	bIsMovingToAction = false;
 
 	Gauge = 0.0f;
 	TimingAccuracy = 0.0f;
@@ -239,7 +249,6 @@ void ABaseCharacter::ServiceHitBall()
 void ABaseCharacter::DigBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Dig Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
@@ -252,7 +261,6 @@ void ABaseCharacter::ReceiveBall()
 
 	Ball->ReceiveMovement(1.2, StartPos, EndPos);
 
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
@@ -265,28 +273,24 @@ void ABaseCharacter::BlockBall()
 void ABaseCharacter::TossBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Toss Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::PassBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Pass Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::SpikeBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Spike Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
 void ABaseCharacter::FloatingBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Floating Ball"));
-	bIsMovingToAction = false;
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
@@ -430,7 +434,7 @@ void ABaseCharacter::SetPassMode()
 
 void ABaseCharacter::SetAttackMode()
 {
-	if (JudgeAttackMode())
+	if (!JudgeAttackMode())
 		return;
 
 	TimingMax = RemainingTimeToAction;
@@ -458,15 +462,15 @@ void ABaseCharacter::SetBlockMode()
 
 void ABaseCharacter::PlayServiceAnimation()
 {
+	MontageStarted();
 	float PlayRate = CalculatePlayRate(RemainingTimeToAction, ServiceMontage, ServiceMode);
-
 	PlayAnimMontage(ServiceMontage, PlayRate, ServiceMode);
 }
 
 void ABaseCharacter::PlayPassAnimation()
 {
+	MontageStarted();
 	float PlayRate;
-
 	switch (OffenceMode)
 	{
 	case EOffenceMode::OM_TOSS:
@@ -486,6 +490,7 @@ void ABaseCharacter::PlayPassAnimation()
 
 void ABaseCharacter::PlayAttackAnimation()
 {
+	MontageStarted();
 	float PlayRate;
 	switch (OffenceMode)
 	{
@@ -506,6 +511,7 @@ void ABaseCharacter::PlayAttackAnimation()
 
 void ABaseCharacter::PlayReceiveAnimation()
 {
+	MontageStarted();
 	float PlayRate;
 	switch (DefenceMode)
 	{
@@ -526,6 +532,7 @@ void ABaseCharacter::PlayReceiveAnimation()
 
 void ABaseCharacter::PlayBlockAnimation()
 {
+	MontageStarted();
 	PlayAnimMontage(BlockMontage, 1.0f, Direction);
 }
 
@@ -601,8 +608,6 @@ FVector ABaseCharacter::RotateOffsetToCurrentDirection(FVector Vector)
 
 void ABaseCharacter::MoveToActionPos(FVector Offset)
 {
-	bIsMovingToAction = true;
-
 	Offset = RotateOffsetToCurrentDirection(Offset);
 
 	// Set Destination to Action

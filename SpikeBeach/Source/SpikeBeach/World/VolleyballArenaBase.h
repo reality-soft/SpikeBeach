@@ -34,10 +34,10 @@ public:
 		ETeamName team_name = ETeamName::eNone;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Team")
-		ABasePlayer* right_side_player = nullptr;
+		ABaseCharacter* right_side_player = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Team")
-		ABasePlayer* left_side_player = nullptr;
+		ABaseCharacter* left_side_player = nullptr;
 };
 
 UCLASS()
@@ -55,15 +55,21 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "BallSystem")
 		ABall* arena_ball_ = nullptr;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BallSystem")
+		class USphereComponent* sphere_component;
+
 	UPROPERTY(BlueprintReadOnly, Category = "BallSystem")
 		ETeamName service_team_ = ETeamName::eNone;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Team")
-		bool SetPlayerToTeam(ABasePlayer* player_to_add, ETeamName team_to_add, EPlayerPosition player_position);
+		bool SetPlayerToTeam(ABaseCharacter* player_to_add, ETeamName team_to_add, EPlayerPosition player_position);
 
 	UFUNCTION(BlueprintCallable, Category = "BallSystem")
 		void SetServiceTeam(ETeamName service_team, bool start_new_set);
+
+	UFUNCTION(BlueprintCallable, Category = "BallSystem")
+		void UpdateBallTrigger();
 
 public:
 	// Sets default values for this actor's properties

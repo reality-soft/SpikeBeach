@@ -77,17 +77,24 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Ball State")
 		EBallState current_ball_state_ = EBallState::eNone;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Ball State")
+		FHitResult current_predict_;
+
 	TQueue<EBallState> state_queue_;
 
 	UPROPERTY(BlueprintReadWrite, Category = "EffectSystem")
 		class UBallStateEffectSystem* parent_effect_system_;
 
 
-private:
-	float cur_time_ = 0.0f;
-	FVector start_pos_;
-	FVector end_pos_;
-	FVector init_velocity_;
+public:
+	UPROPERTY(BlueprintReadOnly, Category = DropInfo)
+		float cur_time_ = 0.0f;
+	UPROPERTY(BlueprintReadOnly, Category = DropInfo)
+		FVector start_pos_;
+	UPROPERTY(BlueprintReadOnly, Category = DropInfo)
+		FVector end_pos_;
+	UPROPERTY(BlueprintReadOnly, Category = DropInfo)
+		FVector init_velocity_;
 
 public:	
 	// Sets default values for this actor's properties

@@ -109,22 +109,26 @@ protected:
 		void Move(const FInputActionValue& Value);
 	/* Called for LClick Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
-		void LClickTriggered(const FInputActionValue& Value);
+		virtual void LClickTriggered(const FInputActionValue& Value);
 	/* Called for LClick Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
-		void LClickCompleted(const FInputActionValue& Value);
+		virtual void LClickCompleted(const FInputActionValue& Value);
 	/* Called for LClick Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
-		void RClickTriggered(const FInputActionValue& Value);
+		virtual void RClickTriggered(const FInputActionValue& Value);
 	/* Called for LClick Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
-		void RClickCompleted(const FInputActionValue& Value);
+		virtual void RClickCompleted(const FInputActionValue& Value);
 	/* Called for Sprint Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
 		void SprintTriggered(const FInputActionValue& Value);
 	/* Called for Sprint Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
 		void SprintCompleted(const FInputActionValue& Value);
+
+protected:
+	void MontageEnded() override;
+
 protected:
 	virtual void ServiceHitBall() override;
 
