@@ -79,15 +79,6 @@ AVolleyballArenaBase::AVolleyballArenaBase()
 
 	reef_side_team_.team_name = ETeamName::eReefSideTeam;
 	beach_side_team_.team_name = ETeamName::eBeachSideTeam;
-
-	sphere_component = CreateDefaultSubobject<USphereComponent>(TEXT("BallTrigger"));
-	if (sphere_component)
-	{
-		sphere_component->InitSphereRadius(100.f);
-		sphere_component->SetVisibility(true);
-		sphere_component->SetHiddenInGame(false);
-		sphere_component->SetActive(false);
-	}
 }
 
 // Called when the game starts or when spawned
@@ -107,16 +98,21 @@ void AVolleyballArenaBase::Tick(float DeltaTime)
 
 void AVolleyballArenaBase::UpdateBallTrigger()
 {
+	if (ball_trigger_ == nullptr)
+		return;
+
 	if (arena_ball_->current_ball_state_ == EBallState::eDropped)
 	{
-		sphere_component->SetActive(false);
+		ball_trigger_->SetActive(false);
+		return;
 	}
-	if (arena_ball_->current_predict_.bBlockingHit)
+	if (arena_ball_->current_predict_.b_hit_land)
 	{
-		if (arena_ball_->current_predict_.GetActor()->ActorHasTag("Land"))
-		{
-			sphere_component->SetWorldLocation(arena_ball_->current_predict_.Location);
-			sphere_component->SetActive(true);
-		}
+		ball_trigger_->SetWorldLocation(arena_ball_->current_predict_.destination);
+		ball_trigger_->SetActive(true);
+		ball_trigger_->SetVisibility(true);
+		ball_trigger_->SetHiddenInGame(false);
+		ball_trigger_->SetSphereRadius(100.0f);
+		return;
 	}
 }

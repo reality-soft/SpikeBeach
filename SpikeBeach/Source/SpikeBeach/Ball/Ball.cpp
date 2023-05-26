@@ -92,7 +92,7 @@ void ABall::UpdateByBallState()
 	}
 }
 
-FVector ABall::SpikeMovement(float power, const FVector& start_pos, const FVector& end_pos)
+FVector ABall::SpikeMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
 	power = (0.9 - 0.7) * power + 0.7;
 	FVector velocity;
@@ -107,13 +107,13 @@ FVector ABall::SpikeMovement(float power, const FVector& start_pos, const FVecto
 	start_pos_ = start_pos;
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
-
-	PushAndUpdateBallState(EBallState::eTurnOver);
+	
+	PushAndUpdateBallState(ball_state);
 
 	return velocity;
 }
 
-FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVector& end_pos)
+FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
 	power = (0.7 - 0.2) * (1.0 - power) + 0.2;
 	FVector velocity;
@@ -129,12 +129,12 @@ FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVec
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
-	PushAndUpdateBallState(EBallState::eStableSetted);
+	PushAndUpdateBallState(ball_state);
 
 	return velocity;
 }
 
-FVector ABall::TossMovement(float power, const FVector& start_pos, const FVector& end_pos)
+FVector ABall::TossMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
 	power = (0.7 - 0.2) * (1.0 - power) + 0.2;
 	FVector velocity;
@@ -150,12 +150,12 @@ FVector ABall::TossMovement(float power, const FVector& start_pos, const FVector
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
-	PushAndUpdateBallState(EBallState::eStableSetted);
+	PushAndUpdateBallState(ball_state);
 
 	return velocity;
 }
 
-FVector ABall::FloatingMovement(float power, const FVector& start_pos, const FVector& end_pos)
+FVector ABall::FloatingMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
 	power = (0.7 - 0.2) * (1.0 - power) + 0.2;
 	FVector velocity;
@@ -171,12 +171,12 @@ FVector ABall::FloatingMovement(float power, const FVector& start_pos, const FVe
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
-	PushAndUpdateBallState(EBallState::eStableSetted);
+	PushAndUpdateBallState(ball_state);
 
 	return velocity;
 }
 
-FVector ABall::DigMovement(float power, const FVector& start_pos, const FVector& end_pos)
+FVector ABall::DigMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
 	power = (0.7 - 0.5) * (1.0 - power) + 0.2;
 	FVector velocity;
@@ -192,12 +192,12 @@ FVector ABall::DigMovement(float power, const FVector& start_pos, const FVector&
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
-	PushAndUpdateBallState(EBallState::eStableSetted);
+	PushAndUpdateBallState(ball_state);
 
 	return velocity;
 }
 
-FVector ABall::JumpServiceMovement(float power, const FVector& start_pos, const FVector& end_pos)
+FVector ABall::JumpServiceMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
 	power = (0.7 - 0.5) * power + 0.5;
 	FVector velocity;
@@ -213,12 +213,12 @@ FVector ABall::JumpServiceMovement(float power, const FVector& start_pos, const 
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
-	PushAndUpdateBallState(EBallState::eTurnOver);
+	PushAndUpdateBallState(ball_state);
 
 	return velocity;
 }
 
-FVector ABall::FloatingServiceMovement(float power, const FVector& start_pos, const FVector& end_pos)
+FVector ABall::FloatingServiceMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
 	power = (0.5 - 0.4) * power + 0.4;
 	FVector velocity;
@@ -234,12 +234,12 @@ FVector ABall::FloatingServiceMovement(float power, const FVector& start_pos, co
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
-	PushAndUpdateBallState(EBallState::eTurnOver);
+	PushAndUpdateBallState(ball_state);
 
 	return velocity;
 }
 
-FVector ABall::SpoonServiceMovement(float power, const FVector& start_pos, const FVector& end_pos)
+FVector ABall::SpoonServiceMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
 	power = (0.4 - 0.3) * power + 0.3;
 	FVector velocity;
@@ -255,7 +255,7 @@ FVector ABall::SpoonServiceMovement(float power, const FVector& start_pos, const
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
-	PushAndUpdateBallState(EBallState::eTurnOver);
+	PushAndUpdateBallState(ball_state);
 
 	return velocity;
 }
