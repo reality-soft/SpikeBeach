@@ -153,7 +153,7 @@ bool UBallStateEffectSystem::CreateSplineTrack()
 		owner_ball_->spline_comp_			 == nullptr || 
 		owner_ball_->ngsystem_spline_track_  == nullptr ||
 		owner_ball_->ngsystem_landing_point_ == nullptr)
-		return false; 
+		return false;
 
 	TArray<TEnumAsByte<EObjectTypeQuery>> trace_types;
 	TArray<AActor*, FDefaultAllocator> ignore_actors;
@@ -169,9 +169,11 @@ bool UBallStateEffectSystem::CreateSplineTrack()
 		owner_ball_->GetActorLocation(), owner_ball_->GetVelocity(), true, owner_ball_->GetSphereComp()->GetScaledSphereRadius(),
 		trace_types, true, ignore_actors, EDrawDebugTrace::None, 0.0f, 20.0f, 10.f);
 
+	owner_ball_->current_predict_ = hit_result;
+
 	if (!success)
 		return false;
-
+	
 	for (int32 index = 0; index < path_positions.Num(); ++index)
 	{
 		owner_ball_->spline_comp_->AddSplinePointAtIndex(path_positions[index], index, ESplineCoordinateSpace::World, true);

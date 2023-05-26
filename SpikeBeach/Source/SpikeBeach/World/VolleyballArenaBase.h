@@ -55,6 +55,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "BallSystem")
 		ABall* arena_ball_ = nullptr;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BallSystem")
+		class USphereComponent* sphere_component;
+
 	UPROPERTY(BlueprintReadOnly, Category = "BallSystem")
 		ETeamName service_team_ = ETeamName::eNone;
 
@@ -64,6 +67,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "BallSystem")
 		void SetServiceTeam(ETeamName service_team, bool start_new_set);
+
+	UFUNCTION(BlueprintCallable, Category = "BallSystem")
+		void UpdateBallTrigger();
 
 public:
 	// Sets default values for this actor's properties
