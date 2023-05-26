@@ -55,8 +55,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "BallSystem")
 		ABall* arena_ball_ = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BallSystem")
-		class USphereComponent* sphere_component;
+	UPROPERTY(BlueprintReadWrite, Category = "BallSystem")
+		class USphereComponent* ball_trigger_;
 
 	UPROPERTY(BlueprintReadOnly, Category = "BallSystem")
 		ETeamName service_team_ = ETeamName::eNone;

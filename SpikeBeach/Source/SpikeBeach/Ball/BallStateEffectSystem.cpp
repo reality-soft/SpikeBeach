@@ -155,6 +155,20 @@ bool UBallStateEffectSystem::CreateSplineTrack()
 		owner_ball_->ngsystem_landing_point_ == nullptr)
 		return false;
 
+	if (ngcomp_landing_point_)
+	{
+		ngcomp_landing_point_->DestroyComponent();
+		ngcomp_landing_point_ = nullptr;
+	}
+	for (UNiagaraComponent* ngcomp : ngcomp_spline_tracks_)
+	{
+		if (ngcomp)
+		{
+			ngcomp->DestroyComponent();
+			ngcomp = nullptr;
+		}
+	}
+
 	TArray<TEnumAsByte<EObjectTypeQuery>> trace_types;
 	TArray<AActor*, FDefaultAllocator> ignore_actors;
 	trace_types.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
@@ -169,11 +183,23 @@ bool UBallStateEffectSystem::CreateSplineTrack()
 		owner_ball_->GetActorLocation(), owner_ball_->GetVelocity(), true, owner_ball_->GetSphereComp()->GetScaledSphereRadius(),
 		trace_types, true, ignore_actors, EDrawDebugTrace::None, 0.0f, 20.0f, 10.f);
 
-	owner_ball_->current_predict_ = hit_result;
-
 	if (!success)
 		return false;
-	
+
+	if (hit_result.GetActor())
+	{
+		if (hit_result.GetActor()->ActorHasTag("Land"))
+		{
+			owner_ball_->current_predict_.b_hit_land = true;
+		}
+		else
+		{
+			owner_ball_->current_predict_.b_hit_land = false;
+		}
+	}
+
+	owner_ball_->current_predict_.destination = dest_position;
+
 	for (int32 index = 0; index < path_positions.Num(); ++index)
 	{
 		owner_ball_->spline_comp_->AddSplinePointAtIndex(path_positions[index], index, ESplineCoordinateSpace::World, true);

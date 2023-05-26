@@ -216,7 +216,7 @@ void ABaseCharacter::ServiceFloatingBall()
 			power = 0.8f;
 		}
 
-		Ball->ReceiveMovement(power, StartPos, EndPos);
+		Ball->ReceiveMovement(power, StartPos, EndPos, EBallState::eFloatToService);
 	}
 }
 
@@ -231,15 +231,15 @@ void ABaseCharacter::ServiceHitBall()
 
 		if (ServiceMode == FName("Spoon"))
 		{
-			Ball->ReceiveMovement(0.5, StartPos, EndPos);
+			Ball->SpoonServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
 		}
 		if (ServiceMode == FName("Floating"))
 		{
-			Ball->ReceiveMovement(0.3, StartPos, EndPos);
+			Ball->FloatingServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
 		}
 		if (ServiceMode == FName("Jump"))
 		{
-			Ball->SpikeMovement(0.1, StartPos, EndPos);
+			Ball->JumpServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
 		}
 	}
 	
@@ -259,7 +259,7 @@ void ABaseCharacter::ReceiveBall()
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = Company->GetActorLocation();
 
-	Ball->ReceiveMovement(1.2, StartPos, EndPos);
+	Ball->ReceiveMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
