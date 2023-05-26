@@ -116,6 +116,24 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
 		FVector ReceiveMovement(float power, const FVector& start_pos, const FVector& end_pos);
 
+	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
+		FVector TossMovement(float power, const FVector& start_pos, const FVector& end_pos);
+
+	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
+		FVector DigMovement(float power, const FVector& start_pos, const FVector& end_pos);
+
+	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
+		FVector FloatingMovement(float power, const FVector& start_pos, const FVector& end_pos);
+
+	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
+		FVector SpoonServiceMovement(float power, const FVector& start_pos, const FVector& end_pos);
+
+	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
+		FVector JumpServiceMovement(float power, const FVector& start_pos, const FVector& end_pos);
+
+	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
+		FVector FloatingServiceMovement(float power, const FVector& start_pos, const FVector& end_pos);
+
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
 		FDropInfo GetDropInfo(float height);
 

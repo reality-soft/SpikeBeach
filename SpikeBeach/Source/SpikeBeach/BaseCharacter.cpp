@@ -231,15 +231,15 @@ void ABaseCharacter::ServiceHitBall()
 
 		if (ServiceMode == FName("Spoon"))
 		{
-			Ball->ReceiveMovement(0.5, StartPos, EndPos);
+			Ball->SpoonServiceMovement(1.0, StartPos, EndPos);
 		}
 		if (ServiceMode == FName("Floating"))
 		{
-			Ball->ReceiveMovement(0.3, StartPos, EndPos);
+			Ball->FloatingServiceMovement(1.0, StartPos, EndPos);
 		}
 		if (ServiceMode == FName("Jump"))
 		{
-			Ball->SpikeMovement(0.1, StartPos, EndPos);
+			Ball->JumpServiceMovement(1.0, StartPos, EndPos);
 		}
 	}
 	
