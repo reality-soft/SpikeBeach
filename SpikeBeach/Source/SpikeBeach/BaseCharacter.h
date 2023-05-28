@@ -113,10 +113,12 @@ protected:
 	// Variables
 	bool	bIsClicking;
 	bool	bIsSprint;
-	float	Gauge;
 	float	TimingAccuracy;
 	float	TimingTimer;
 	float	TimingMax;
+
+	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+		bool bIsInBallTrigger;
 
 	UPROPERTY(BlueprintReadWrite, Category = Location, meta = (AllowPrivateAccess = "true"))
 		EFrontBack front_back_;
@@ -154,10 +156,6 @@ protected:
 
 #pragma region CHARACTER
 protected:
-	/* Guage Speed */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Speed, meta = (AllowPrivateAccess = "true"))
-		float GaugeSpeed;
-
 	/* Walk Speed */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Speed, meta = (AllowPrivateAccess = "true"))
 		float WalkSpeed;
@@ -261,16 +259,18 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	void SetSuperSettings();
 	void SetPlayerAttributes();
 	void SetCapsuleComponent();
 	void SetCharacterMovement();
 	bool LoadDataTable();
+
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+	void TimingCalculateIfClick(float DeltaTime);
+	void SmoothingWalkRun(float DeltaTime);
+	
 
 protected:
 	/** Called From AnimNotify for Service */
