@@ -6,12 +6,22 @@
 #include "Blueprint/UserWidget.h"
 #include "UMG/Public/Components/Image.h"
 #include "UMG/Public/Components/SizeBox.h"
+#include "UMG/Public/Components/TextBlock.h"
 
 #include "PlayerStateUIBase.generated.h"
 
 /**
  * 
  */
+UENUM()
+enum class EStateWidgets
+{
+	eStableRG,
+	eOffensiveRG,
+	eLClickGuide,
+	eRClickGuide
+};
+
 UCLASS()
 class SPIKEBEACH_API UPlayerStateUIBase : public UUserWidget
 {
@@ -19,55 +29,91 @@ class SPIKEBEACH_API UPlayerStateUIBase : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Stable Gauge")
-		bool InitReceiveRGInstances(UImage* img, USizeBox* size, UMaterialInstanceDynamic* mi);
+		bool InitReceiveRGInstances(UWidget* parent_widget, UImage* img, UMaterialInstanceDynamic* mi);
 
 	UFUNCTION(BlueprintCallable, Category = "Offensive Gauge")
-		bool InitSpikeRGInstances(UImage* img, USizeBox* size, UMaterialInstanceDynamic* mi);
+		bool InitSpikeRGInstances(UWidget* parent_widget, UImage* img, UMaterialInstanceDynamic* mi);
 
-protected:
-	FTimerHandle timer_handle_;
-	FTimerManager timer_manager_;
+	UFUNCTION(BlueprintCallable, Category = "Controll Guide")
+		bool InitLClickGuideInstances(UWidget* parent_widget, UImage* img, UWidgetAnimation* anim, UTextBlock* text);
+
+	UFUNCTION(BlueprintCallable, Category = "Controll Guide")
+		bool InitRClickGuideInstances(UWidget* parent_widget, UImage* img, UWidgetAnimation* anim, UTextBlock* text);
 
 public:
+	// Gauges
 	UPROPERTY(BlueprintReadOnly, Category = "Stable Gauge")
-		UImage* stable_rg_img_ = nullptr;
+		UWidget* stable_rg_parent_ = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Stable Gauge")
-		USizeBox* stable_rg_size_ = nullptr;
+		UImage* stable_rg_img_ = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Stable Gauge")
 		UMaterialInstanceDynamic* stable_rg_mi_ = nullptr;
 
 
 	UPROPERTY(BlueprintReadOnly, Category = "Offensive Gauge")
-		UImage* offensive_rg_img_ = nullptr;
+		UWidget* offensive_rg_parent_ = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Offensive Gauge")
-		USizeBox* offensive_rg_size_ = nullptr;
+		UImage* offensive_rg_img_ = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Offensive Gauge")
 		UMaterialInstanceDynamic* offensive_rg_mi_ = nullptr;
 
+
+	// Controll Guide
+	UPROPERTY(BlueprintReadOnly, Category = "Controll Guide")
+		UWidget* lclick_guide_parent_ = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Controll Guide")
+		UImage* lclick_guide_img_ = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Controll Guide")
+		UWidgetAnimation* lclick_guide_anim_ = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Controll Guide")
+		UTextBlock* lclick_guide_text_ = nullptr;
+
+
+	UPROPERTY(BlueprintReadOnly, Category = "Controll Guide")
+		UWidget* rclick_guide_parent_ = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Controll Guide")
+		UImage* rclick_guide_img_ = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Controll Guide")
+		UWidgetAnimation* rclick_guide_anim_ = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Controll Guide")
+		UTextBlock* rclick_guide_text_ = nullptr;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Animation")
+		void SetStateUIVisible(EStateWidgets state_widget, bool visiblity);
+
+	UFUNCTION(BlueprintCallable, Category = "Render Control")
+		void RenderControl();
+
+	UFUNCTION(BlueprintCallable, Category = "Stable Gauge")
 		void FillStableRG(float fill_value);
 
-	UFUNCTION(BlueprintCallable, Category = "Animation")
-		void LossStableRG();
-
-	UFUNCTION(BlueprintCallable, Category = "Animation")
-		void UnshowStableRG();
-
-	UFUNCTION(BlueprintCallable, Category = "Animation")
+	UFUNCTION(BlueprintCallable, Category = "Offensive Gauge")
 		void FillOffensiveRG(float fill_value);
 
-	UFUNCTION(BlueprintCallable, Category = "Animation")
+	UFUNCTION(BlueprintCallable, Category = "Stable Gauge")
+		void LossStableRG();
+
+	UFUNCTION(BlueprintCallable, Category = "Offensive Gauge")
 		void LossOffensiveRG();
 
-	UFUNCTION(BlueprintCallable, Category = "Animation")
-		void UnshowOffensiveRG();
+	UFUNCTION(BlueprintCallable, Category = "Control Guide")
+		void ActiveLClickGuide(FText text);
+
+	UFUNCTION(BlueprintCallable, Category = "Control Guide")
+		void ActiveRClickGuide(FText text);
 
 public:
-
-
+	bool stable_rg_activation_ = false;
+	bool offensive_rg_activation_ = false;
 };
