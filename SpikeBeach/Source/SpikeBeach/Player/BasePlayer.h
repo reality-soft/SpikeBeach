@@ -9,14 +9,18 @@
 
 enum class EStateUINotice
 {
-	eStartedGauge_StableType,
-	eStartedGauge_OffensiveType,
+	eActivateUI_StableRG,
+	eActivateUI_OffensiveRG,
 
-	eFinishedGauge_StableType,
-	eFinishedGauge_OffensiveType,
+	eActivateUI_LClick_To_Service,
+	eActivateUI_LClick_To_Receive,
+	eActivateUI_LClick_To_Attack,
 
-	eUnshowedGauge_StableType,
-	eUnshowedGauge_OffensiveType,
+	eActivateUI_RClick_To_Pass,
+	eActivateUI_RClick_To_Block,
+
+	eCloseUI_ReadyGauge,
+	eCloseUI_ClickGuide,
 };
 
 UCLASS()
@@ -27,13 +31,6 @@ class SPIKEBEACH_API ABasePlayer : public ABaseCharacter
 
 #pragma region Component
 
-	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class USpringArmComponent* CameraBoom;
-
-	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class UCameraComponent* FollowCamera;
 
 #pragma endregion
 
@@ -57,6 +54,10 @@ class SPIKEBEACH_API ABasePlayer : public ABaseCharacter
 	/** Sprint Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* SprintAction;
+
+	/** Camera Length Control */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* CameraLengthControl;
 #pragma endregion
 
 
@@ -87,15 +88,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
-	void SetCamera();
 	void SetInputAction();
 
 #pragma region GETTER
 public:
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 #pragma endregion
 
 #pragma region SETTER

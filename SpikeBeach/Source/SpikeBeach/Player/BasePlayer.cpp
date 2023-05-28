@@ -16,7 +16,6 @@
 // Sets default values
 ABasePlayer::ABasePlayer() : ABaseCharacter()
 {
-	//SetCamera();
 	SetInputAction();
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
@@ -37,6 +36,8 @@ void ABasePlayer::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_LClick_To_Service);
 }
 
 // Called every frame
@@ -67,22 +68,6 @@ void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ABasePlayer::SprintCompleted);
 	}
 
-}
-
-void ABasePlayer::SetCamera()
-{
-	// Create a camera boom (pulls in towards the player if there is a collision)
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character
-	CameraBoom->SocketOffset = FVector(0.0f, 0.0f, 150.0f);
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-
-	// Create a follow camera
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->SetRelativeRotation({ -10.f, 0.f, 0.f });
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 }
 
 void ABasePlayer::SetInputAction()
@@ -136,13 +121,16 @@ void ABasePlayer::LClickTriggered(const FInputActionValue& Value)
 		switch (PlayerTurn)
 		{
 		case EPlayerTurn::PT_SERVICE:
+			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
 			SetServiceMode();
 			break;
 		case EPlayerTurn::PT_DEFENCE:
+			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_StableRG);
 			SetReceiveMode();
 			OffenceMode = EOffenceMode::OM_NONE;
 			break;
 		case EPlayerTurn::PT_OFFENCE:
+			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
 			SetAttackMode();
 			DefenceMode = EDefenceMode::DM_NONE;
 			break;
@@ -174,10 +162,12 @@ void ABasePlayer::RClickTriggered(const FInputActionValue& Value)
 		switch (PlayerTurn)
 		{
 		case EPlayerTurn::PT_DEFENCE:
+			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
 			SetBlockMode();
 			OffenceMode = EOffenceMode::OM_NONE;
 			break;
 		case EPlayerTurn::PT_OFFENCE:
+			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_StableRG);
 			SetPassMode();
 			DefenceMode = EDefenceMode::DM_NONE;
 			break;
@@ -233,7 +223,7 @@ void ABasePlayer::ServiceHitBall()
 	auto GeneralOffset = quat.RotateVector(Offset);
 
 	UE_LOG(LogTemp, Log, TEXT("Offset (%f, %f, %f)"), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
-	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
+	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::ReceiveBall() 
@@ -247,25 +237,25 @@ void ABasePlayer::ReceiveBall()
 	auto GeneralOffset = quat.RotateVector(Offset);
 
 	UE_LOG(LogTemp, Log, TEXT("Receive %s, Offset (%f, %f, %f)"), *Direction.ToString(), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
-	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
+	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::DigBall() 
 {
 	ABaseCharacter::DigBall();
-	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
+	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::BlockBall()
 {
 	ABaseCharacter::BlockBall();
-	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
+	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::TossBall()
 {
 	ABaseCharacter::TossBall();
-	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
+	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 
 }
 
@@ -282,19 +272,19 @@ void ABasePlayer::PassBall()
 	auto GeneralOffset = quat.RotateVector(Offset);
 
 	UE_LOG(LogTemp, Log, TEXT("Pass %s, Offset (%f, %f, %f)"), *Direction.ToString(), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
-	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_StableType);
+	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::SpikeBall()
 {
 	ABaseCharacter::SpikeBall();
-	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
+	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::FloatingBall()
 {
 	ABaseCharacter::FloatingBall();
-	state_ui_notices_.Enqueue(EStateUINotice::eFinishedGauge_OffensiveType);
+	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::PlayServiceAnimation()

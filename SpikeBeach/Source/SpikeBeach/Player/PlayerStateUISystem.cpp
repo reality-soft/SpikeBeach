@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "PlayerStateUISystem.h"
 #include "BasePlayer.h"
 
@@ -18,8 +18,6 @@ void UPlayerStateUISystem::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-
 }
 
 
@@ -33,20 +31,34 @@ bool UPlayerStateUISystem::InitInstances(ABasePlayer* player_, UCapsuleComponent
 	return (target_player_ && player_capsule_ && player_controller_ && player_state_ui_) ? true : false;
 }
 
+bool UPlayerStateUISystem::InitRenderTransforms()
+{
+	return false;
+}
+
+FVector2D UPlayerStateUISystem::GetPlayerPosOnScreen()
+{
+	FVector2D player_screen_pos;
+	player_controller_->ProjectWorldLocationToScreen(target_player_->GetActorLocation(), player_screen_pos);
+	return player_screen_pos;
+}
+
 // Called every frame
 void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	timer_manager_.Tick(DeltaTime);
 
-	if (target_player_->GetTimmingAccurancy() > 0.001f)
+	if (player_pos_setted_ == false)
 	{
-		if (target_player_->GetPlayerMode() == "ReadyStable")
-			player_state_ui_->FillStableRG(target_player_->GetTimmingAccurancy());
-
-		if (target_player_->GetPlayerMode() == "ReadyOffensive")
-			player_state_ui_->FillOffensiveRG(target_player_->GetTimmingAccurancy());
+		auto pos = GetPlayerPosOnScreen();
+		if (!pos.IsNearlyZero())
+		{
+			player_pos_current_tick_ = pos;
+			player_pos_setted_ = true;
+		}
 	}
+
 
 	while (!target_player_->state_ui_notices_.IsEmpty())
 	{
@@ -55,24 +67,61 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 		switch (out_notice)
 		{
-		case EStateUINotice::eFinishedGauge_StableType:
-			player_state_ui_->UnshowStableRG();
+			// Update About Gauge
+		case EStateUINotice::eActivateUI_StableRG:
+			player_state_ui_->stable_rg_activation_ = true;
+			player_state_ui_->SetStateUIVisible(EStateWidgets::eStableRG, true);
 			break;
-		case EStateUINotice::eFinishedGauge_OffensiveType:
-			player_state_ui_->UnshowOffensiveRG();
+		case EStateUINotice::eActivateUI_OffensiveRG:
+			player_state_ui_->offensive_rg_activation_ = true;
+			player_state_ui_->SetStateUIVisible(EStateWidgets::eOffensiveRG, true);
+			break;
+		case EStateUINotice::eCloseUI_ReadyGauge:
+			player_state_ui_->stable_rg_activation_ = false;
+			player_state_ui_->offensive_rg_activation_ = false;
+			player_state_ui_->SetStateUIVisible(EStateWidgets::eStableRG, false);
+			player_state_ui_->SetStateUIVisible(EStateWidgets::eOffensiveRG, false);
+			player_state_ui_->LossStableRG();
+			player_state_ui_->LossOffensiveRG();
+			break;
+
+			// Update About L Click Guide
+		case EStateUINotice::eActivateUI_LClick_To_Service:
+			player_state_ui_->ActiveLClickGuide(text_service_);
+			player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
+			break;
+		case EStateUINotice::eActivateUI_LClick_To_Receive:
+			player_state_ui_->ActiveLClickGuide(text_receive_);
+			player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
+			break;
+		case EStateUINotice::eActivateUI_LClick_To_Attack:
+			player_state_ui_->ActiveLClickGuide(text_attack_);
+			player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
+			break;
+
+			// Update About R Click Guide
+		case EStateUINotice::eActivateUI_RClick_To_Pass:
+			player_state_ui_->ActiveRClickGuide(text_pass_);
+			player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
+			break;
+		case EStateUINotice::eActivateUI_RClick_To_Block:
+			player_state_ui_->ActiveRClickGuide(text_block_);
+			player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
 			break;
 		}
-	}	
-
-	// Set Receive RG Position
-	if (player_state_ui_ && player_state_ui_->stable_rg_img_->GetVisibility() == ESlateVisibility::Visible)
-	{
-		player_state_ui_->stable_rg_img_->SetRenderTranslation(player_screen_pos_ + receive_rg_local_);
 	}
 
-	// Set Spike RG Position
-	if (player_state_ui_ && player_state_ui_->offensive_rg_img_->GetVisibility() == ESlateVisibility::Visible)
+	player_state_ui_->FillStableRG(target_player_->GetTimmingAccurancy());
+	player_state_ui_->FillOffensiveRG(target_player_->GetTimmingAccurancy());
+
+	if (player_pos_setted_)
 	{
-		player_state_ui_->offensive_rg_img_->SetRenderTranslation(player_screen_pos_ + spike_rg_local_);
+		FVector2D dir = player_pos_last_tick_ - player_pos_current_tick_;
+		player_pos_current_tick_ += dir * 0.05;
+
+		player_state_ui_->stable_rg_parent_->SetRenderTranslation(player_pos_current_tick_ + ready_gauge_local_);
+		player_state_ui_->offensive_rg_parent_->SetRenderTranslation(player_pos_current_tick_ + ready_gauge_local_);
+		player_state_ui_->lclick_guide_parent_->SetRenderTranslation(player_pos_current_tick_ + lclick_guide_local_);
+		player_state_ui_->rclick_guide_parent_->SetRenderTranslation(player_pos_current_tick_ + rclick_guide_local_);
 	}
 }
