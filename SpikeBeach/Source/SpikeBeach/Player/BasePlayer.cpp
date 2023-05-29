@@ -7,6 +7,7 @@
 #include "../World/VolleyballGame.h"
 #include "CustomPlayerController.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"	
@@ -248,29 +249,36 @@ void ABasePlayer::MontageEnded()
 
 void ABasePlayer::ServiceHitBall()
 {
-	ABaseCharacter::ServiceHitBall();
-	auto SocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("RightHand")));
-	auto ActorLocation = GetActorLocation();
-	auto Offset = SocketLocation - ActorLocation;
+	UE_LOG(LogTemp, Log, TEXT("Service : Hit Ball"));
 
-	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), FVector(1.0f, 0.0f, 0.0f));
-	auto GeneralOffset = quat.RotateVector(Offset);
+	if (Ball)
+	{
+		FVector StartPos = Ball->GetActorLocation();
+		FVector EndPos = GetEnemyTeam()->ball_cursor_->GetComponentLocation();
 
-	UE_LOG(LogTemp, Log, TEXT("Offset (%f, %f, %f)"), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
+		if (ServiceMode == FName("Spoon"))
+		{
+			Ball->SpoonServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
+		}
+		if (ServiceMode == FName("Floating"))
+		{
+			Ball->FloatingServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
+		}
+		if (ServiceMode == FName("Jump"))
+		{
+			Ball->JumpServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
+		}
+	}
+
+	PlayerTurn = EPlayerTurn::PT_DEFENCE;
+
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::ReceiveBall() 
 {
 	ABaseCharacter::ReceiveBall();
-	auto SocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("LeftLowerArm")));
-	auto ActorLocation = GetActorLocation();
-	auto Offset = SocketLocation - ActorLocation;
 	
-	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), FVector(1.0f, 0.0f, 0.0f));
-	auto GeneralOffset = quat.RotateVector(Offset);
-
-	UE_LOG(LogTemp, Log, TEXT("Receive %s, Offset (%f, %f, %f)"), *Direction.ToString(), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
@@ -296,16 +304,6 @@ void ABasePlayer::TossBall()
 void ABasePlayer::PassBall()
 {
 	ABaseCharacter::PassBall();
-	auto LeftSocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("LeftLowerArm")));
-	auto RightSocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("RightLowerArm")));
-	auto SocketLocation = (LeftSocketLocation + RightSocketLocation) / 2;
-	auto ActorLocation = GetActorLocation();
-	auto Offset = SocketLocation - ActorLocation;
-
-	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), FVector(1.0f, 0.0f, 0.0f));
-	auto GeneralOffset = quat.RotateVector(Offset);
-
-	UE_LOG(LogTemp, Log, TEXT("Pass %s, Offset (%f, %f, %f)"), *Direction.ToString(), GeneralOffset.X, GeneralOffset.Y, GeneralOffset.Z);
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
@@ -323,6 +321,7 @@ void ABasePlayer::FloatingBall()
 
 void ABasePlayer::PlayServiceAnimation()
 {
+	CanControlBallCursor = false;
 	ABaseCharacter::PlayServiceAnimation();
 }
 

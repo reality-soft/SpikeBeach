@@ -159,6 +159,9 @@ protected:
 		class AVolleyBallTeam* my_team_;
 
 	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+		class AVolleyBallTeam* ememy_team_;
+
+	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 		EPlayerPosition MyCourtPosition;
 
 	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
@@ -256,6 +259,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GameInfo, meta = (AllowPrivateAccess = "true"))
 		FVector ActionPos;
+public:
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
+		class AVolleyballArenaBase* arena_;
 #pragma endregion
 
 #pragma region Animation
@@ -297,6 +303,7 @@ protected:
 #pragma region GETTER
 	public:
 		AVolleyBallTeam* GetMyTeam() { return my_team_; }
+		AVolleyBallTeam* GetEnemyTeam();
 #pragma endregion
 
 #pragma region SETTER
