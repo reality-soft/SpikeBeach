@@ -28,6 +28,14 @@ private:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
 		ABaseCharacter* left_side_player = nullptr;
+
+public:
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
+		class UBoxComponent* team_box_;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
+		class UCapsuleComponent* ball_cursor_;
+
 private:
 	// SCORE
 	UINT score_win_set;
@@ -43,13 +51,15 @@ public:
 		bool AddPlayerToTeam(ABaseCharacter* player) {
 		if (left_side_player == nullptr)
 		{
-			left_side_player = player;	
+			left_side_player = player;
+			left_side_player->SetMyTeam(this);
 			return true;
 		}
 
 		if (right_side_player == nullptr)
 		{
 			right_side_player = player;
+			right_side_player->SetMyTeam(this);
 			return true;
 		}
 
@@ -73,11 +83,17 @@ public:
 		left_side_player = temp;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Game Play")
+		void UpdateBallCursor(FVector2D cursor);
+
 	UFUNCTION(BlueprintCallable)
 		ABaseCharacter* GetLeftSidePlayer() { return left_side_player; }
 
 	UFUNCTION(BlueprintCallable)
 		ABaseCharacter* GetRightSidePlayer() { return right_side_player; }
+
+	UFUNCTION(BlueprintCallable)
+		ECourtName GetCourtName() { return court; }
 
 protected:
 	// Called when the game starts or when spawned

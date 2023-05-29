@@ -21,9 +21,15 @@ private:
 public:
 	UFUNCTION(BlueprintCallable)
 		void SetCourtTeam(ECourtName court, AVolleyBallTeam* team) { TeamPlayingVolleyBall[(int)court] = team; }
-	class AVolleyBallTeam* GetCourtTeam(ECourtName court) { return TeamPlayingVolleyBall[(int)court]; }
-	ECourtName GetServiceCourt() { return service_court; }
-	void SetServiceCourt(ECourtName court) { service_court = court; }
+
+	UFUNCTION(BlueprintCallable)
+		class AVolleyBallTeam* GetCourtTeam(ECourtName court) { return TeamPlayingVolleyBall[(int)court]; }
+
+	UFUNCTION(BlueprintCallable)
+		ECourtName GetServiceCourt() { return service_court; }
+
+	UFUNCTION(BlueprintCallable)
+		void SetServiceCourt(ECourtName court) { service_court = court; }
 public:	
 	// Sets default values for this component's properties
 	UVolleyBallGame();
