@@ -3,9 +3,11 @@
 
 #include "BaseCharacter.h"
 #include "Ball/Ball.h"
+#include "World/VolleyballArenaBase.h"
 #include "GameFramework/Controller.h"
 #include "Math/UnrealMathUtility.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -47,23 +49,29 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bIsClicking)
-	{
-		// Gauge To Power
-		Gauge = Gauge < 100.0f ? Gauge + DeltaTime * GaugeSpeed : 100.0f;
+	TimingCalculateIfClick(DeltaTime);
 
+	SmoothingWalkRun(DeltaTime);
+}
+
+void ABaseCharacter::TimingCalculateIfClick(float DeltaTime)
+{
+	if (bIsClicking && TimingMax > 0.0f)
+	{
 		// Timing To Accuracy
 		TimingTimer += DeltaTime;
 		TimingAccuracy = TimingTimer / TimingMax;
 	}
 	else
 	{
-		Gauge = 0;
 		TimingAccuracy = -1.0f;
 		TimingTimer = 0.0f;
-		TimingMax = 0.0f;
+		TimingMax = -1.0f;
 	}
+}
 
+void ABaseCharacter::SmoothingWalkRun(float DeltaTime)
+{
 	// Smoothing between Walk & Sprint
 	if (!bIsSprint && fabs(GetCharacterMovement()->MaxWalkSpeed - WalkSpeed) > 1.0f)
 	{
@@ -87,8 +95,6 @@ void ABaseCharacter::SetPlayerAttributes()
 {
 	PlayerTurn = EPlayerTurn::PT_SERVICE;
 
-	GaugeSpeed = 100.0f;
-
 	WalkSpeed = 500.0f;
 	SprintSpeed = 700.0f;
 
@@ -100,7 +106,6 @@ void ABaseCharacter::SetPlayerAttributes()
 	bIsClicking = false;
 	bIsSprint = false; 
 
-	Gauge = 0.0f;
 	TimingAccuracy = 0.0f;
 	TimingTimer = 0.0f;
 	TimingMax = 0.0f;
@@ -297,16 +302,24 @@ void ABaseCharacter::FloatingBall()
 
 bool ABaseCharacter::JudgePassMode()
 {
-	// 1. Set Direction
-	if (!Company)
+	if (!bIsInBallTrigger || !Company)
 		return false;
 
+	float TimeToPlayAnim = 0;
+
+	// 1. Set Direction
 	Direction = GetDirectionFromPlayer(Company->GetActorLocation());
 
 	// 2. Check If Toss is Possible
 	FName FilterName = Direction == FName("Back") ? FName("Front") : Direction;
 	float RequiredHeight = GetRequiredHeightFromOffset(TossOffsetMap, FilterName);
 	auto DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+	// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
+	TimeToPlayAnim = TossMontage->GetSectionLength(TossMontage->GetSectionIndex(Direction));
+
+	if (DropInfo.remain_time > TimeToPlayAnim)
+		return false;
 
 	if (DropInfo.remain_time > 0.0f)
 	{
@@ -316,9 +329,15 @@ bool ABaseCharacter::JudgePassMode()
 		return true;
 	}
 
-	// 3. Check If Pass is Possible
+	// 4. Check If Pass is Possible
 	RequiredHeight = GetRequiredHeightFromOffset(PassOffsetMap, Direction);
 	DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+	// 5. If Remaining Time to Arrive is more than AnimTime, Waiting
+	TimeToPlayAnim = PassMontage->GetSectionLength(PassMontage->GetSectionIndex(Direction));
+
+	if (DropInfo.remain_time > TimeToPlayAnim)
+		return false;
 
 	if (DropInfo.remain_time > 0.0f)
 	{
@@ -333,12 +352,23 @@ bool ABaseCharacter::JudgePassMode()
 
 bool ABaseCharacter::JudgeAttackMode()
 {
+	if (!bIsInBallTrigger || !Company)
+		return false;
+
+	float TimeToPlayAnim = 0;
+
 	// 1. Set Spike
 	SpikeMode = FName("FullSpike");
 
 	// 2. Check If Spike is Possible
 	float RequiredHeight = GetRequiredHeightFromOffset(SpikeOffsetMap, SpikeMode);
 	auto DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+	// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
+	TimeToPlayAnim = SpikeMontage->GetSectionLength(SpikeMontage->GetSectionIndex(SpikeMode));
+
+	if (DropInfo.remain_time > TimeToPlayAnim)
+		return false;
 
 	if (DropInfo.remain_time > 0.0f)
 	{
@@ -348,12 +378,18 @@ bool ABaseCharacter::JudgeAttackMode()
 		return true;
 	}
 
-	// 3. Set Direction to Enemy's Court: 
+	// 4. Set Direction to Enemy's Court : TODO
 	Direction = FName("Front");
 
-	// 4. Check If Floating is Possible
+	// 5. Check If Floating is Possible
 	RequiredHeight = GetRequiredHeightFromOffset(FloatingOffsetMap, Direction);
 	DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+	// 6. If Remaining Time to Arrive is more than AnimTime, Waiting
+	TimeToPlayAnim = FloatingMontage->GetSectionLength(FloatingMontage->GetSectionIndex(Direction));
+
+	if (DropInfo.remain_time > TimeToPlayAnim)
+		return false;
 
 	if (DropInfo.remain_time > 0.0f)
 	{
@@ -368,15 +404,23 @@ bool ABaseCharacter::JudgeAttackMode()
 
 bool ABaseCharacter::JudgeReceiveMode()
 {
-	// 1. Set Direction
-	if (!Company)
+	if (!bIsInBallTrigger || !Company)
 		return false;
 
+	float TimeToPlayAnim = 0;
+
+	// 1. Set Direction
 	Direction = GetDirectionFromPlayer(Company->GetActorLocation());
 
 	// 2. Check If Receive is Possible
 	float RequiredHeight = GetRequiredHeightFromOffset(ReceiveOffsetMap, Direction);
 	auto DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+	// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
+	TimeToPlayAnim = ReceiveMontage->GetSectionLength(ReceiveMontage->GetSectionIndex(Direction));
+
+	if (DropInfo.remain_time > TimeToPlayAnim)
+		return false;
 
 	if (DropInfo.remain_time > 0.0f)
 	{
@@ -386,9 +430,15 @@ bool ABaseCharacter::JudgeReceiveMode()
 		return true;
 	}
 
-	// 3. Check If Dig is Possible
+	// 4. Check If Dig is Possible
 	RequiredHeight = GetRequiredHeightFromOffset(DigOffsetMap, FName("Front"));
 	DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+	// 5. If Remaining Time to Arrive is more than AnimTime, Waiting
+	TimeToPlayAnim = DigMontage->GetSectionLength(DigMontage->GetSectionIndex(Direction));
+
+	if (DropInfo.remain_time > TimeToPlayAnim)
+		return false;
 
 	if (DropInfo.remain_time > 0.0f)
 	{
@@ -647,3 +697,4 @@ void ABaseCharacter::MoveToActionPos(FVector Offset)
 	// TODO : Set Speed To Destination
 	SetActorLocation(Destination);
 }
+

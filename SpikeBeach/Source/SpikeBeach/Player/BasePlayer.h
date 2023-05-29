@@ -27,13 +27,7 @@ UCLASS()
 class SPIKEBEACH_API ABasePlayer : public ABaseCharacter
 {
 	GENERATED_BODY()
-
-
-#pragma region Component
-
-
-#pragma endregion
-
+private:
 #pragma region Input
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -58,6 +52,11 @@ class SPIKEBEACH_API ABasePlayer : public ABaseCharacter
 	/** Camera Length Control */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* CameraLengthControl;
+
+	/** Ball Cursor Control */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* BallCursorControl;
+
 #pragma endregion
 
 
@@ -121,6 +120,9 @@ protected:
 	/* Called for Sprint Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
 		void SprintCompleted(const FInputActionValue& Value);
+	/* Called for MouseXY Input*/
+	UFUNCTION(BlueprintCallable, Category = Input)
+		void BallCursorTriggered(const FInputActionValue& Value);
 
 protected:
 	void MontageEnded() override;
@@ -145,4 +147,18 @@ protected:
 	virtual void PlayAttackAnimation() override;
 	virtual void PlayReceiveAnimation() override;
 	virtual void PlayBlockAnimation() override;
+
+
+public:
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
+		bool CanControlBallCursor = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
+		FVector2D ball_cursor_value_;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
+		class  AVolleyballArenaBase* arena_;
+
+	UFUNCTION(BlueprintCallAble, Category = "Game Play")
+		void ClearBallCursor();
 };

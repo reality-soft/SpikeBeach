@@ -55,21 +55,33 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "BallSystem")
 		ABall* arena_ball_ = nullptr;
 
-	UPROPERTY(BlueprintReadWrite, Category = "BallSystem")
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
 		class USphereComponent* ball_trigger_;
 
-	UPROPERTY(BlueprintReadOnly, Category = "BallSystem")
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
+		class UCapsuleComponent* ball_cursor_;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
+		class UBoxComponent* reef_team_box_;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
+		class UBoxComponent* beach_team_box_;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Play")
 		ETeamName service_team_ = ETeamName::eNone;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Team")
 		bool SetPlayerToTeam(ABaseCharacter* player_to_add, ETeamName team_to_add, EPlayerPosition player_position);
 
-	UFUNCTION(BlueprintCallable, Category = "BallSystem")
+	UFUNCTION(BlueprintCallable, Category = "Team")
 		void SetServiceTeam(ETeamName service_team, bool start_new_set);
 
-	UFUNCTION(BlueprintCallable, Category = "BallSystem")
+	UFUNCTION(BlueprintCallable, Category = "Game Play")
 		void UpdateBallTrigger();
+
+	UFUNCTION(BlueprintCallable, Category = "Game Play")
+		void UpdateBallCursor(ETeamName agaist_team, FVector2D cursor);
 
 public:
 	// Sets default values for this actor's properties

@@ -36,7 +36,7 @@ public:
 USTRUCT(BlueprintType)
 struct FPredictInfo
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 public:
 	bool b_hit_land;
 	FVector destination;

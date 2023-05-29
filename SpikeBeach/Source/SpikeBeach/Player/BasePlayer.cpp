@@ -2,6 +2,7 @@
 
 
 #include "BasePlayer.h"
+#include "../World/VolleyballArenaBase.h"
 #include "CustomPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
@@ -11,7 +12,6 @@
 #include "Math/Quat.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-
 
 // Sets default values
 ABasePlayer::ABasePlayer() : ABaseCharacter()
@@ -66,6 +66,9 @@ void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		// Sprint
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ABasePlayer::SprintTriggered);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ABasePlayer::SprintCompleted);
+
+		// Ball Cursor
+		EnhancedInputComponent->BindAction(BallCursorControl, ETriggerEvent::Triggered, this, &ABasePlayer::BallCursorTriggered);
 	}
 
 }
@@ -205,6 +208,35 @@ void ABasePlayer::SprintCompleted(const FInputActionValue& Value)
 	//GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
+void ABasePlayer::BallCursorTriggered(const FInputActionValue& Value)
+{
+	if (CanControlBallCursor == false || arena_ == nullptr)
+		return;
+
+	ball_cursor_value_.X += Value.Get<FInputActionValue::Axis2D>().X * 0.01f;
+	ball_cursor_value_.Y += Value.Get<FInputActionValue::Axis2D>().Y * 0.01f;
+
+	ball_cursor_value_.X = std::min(ball_cursor_value_.X,  1.0);
+	ball_cursor_value_.X = std::max(ball_cursor_value_.X, -1.0);
+												 
+	ball_cursor_value_.Y = std::min(ball_cursor_value_.Y,  1.0);
+	ball_cursor_value_.Y = std::max(ball_cursor_value_.Y, -1.0);
+
+	ETeamName agains_team = ETeamName::eNone;
+
+	//switch (arena_->GetPlayerTeam(this))
+	//{
+	//case ETeamName::eReefSideTeam:
+	//	agains_team = ETeamName::eBeachSideTeam;
+	//	break;
+	//case ETeamName::eBeachSideTeam:
+	//	agains_team = ETeamName::eReefSideTeam;
+	//	break;
+	//}
+	agains_team = ETeamName::eReefSideTeam;
+	arena_->UpdateBallCursor(agains_team, ball_cursor_value_);
+}
+
 void ABasePlayer::MontageEnded()
 {
 	is_montage_started_ = false;
@@ -314,3 +346,8 @@ void ABasePlayer::PlayBlockAnimation()
 }
 
 
+void ABasePlayer::ClearBallCursor()
+{
+	ball_cursor_value_.X = 0;
+	ball_cursor_value_.Y = 0;
+}
