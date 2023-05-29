@@ -46,6 +46,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Arc Trail")
 		void DestroyArcTrail();
 
+	UFUNCTION(BlueprintCallable, Category = "Arc Trail")
+		void SpawnLandingPoint();
+
 	UFUNCTION(BlueprintCallable, Category = "Landing Point")
 		void DestroyLandingPoint();
 
