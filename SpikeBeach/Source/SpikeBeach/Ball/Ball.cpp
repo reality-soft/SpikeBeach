@@ -108,6 +108,7 @@ FVector ABall::SpikeMovement(float power, const FVector& start_pos, const FVecto
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 	
+	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
 	return velocity;
@@ -129,6 +130,7 @@ FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVec
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
+	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
 	return velocity;
@@ -150,6 +152,7 @@ FVector ABall::TossMovement(float power, const FVector& start_pos, const FVector
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
+	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
 	return velocity;
@@ -171,6 +174,7 @@ FVector ABall::FloatingMovement(float power, const FVector& start_pos, const FVe
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
+	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
 	return velocity;
@@ -192,6 +196,7 @@ FVector ABall::DigMovement(float power, const FVector& start_pos, const FVector&
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
+	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
 	return velocity;
@@ -213,6 +218,7 @@ FVector ABall::JumpServiceMovement(float power, const FVector& start_pos, const 
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
+	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
 	return velocity;
@@ -234,6 +240,7 @@ FVector ABall::FloatingServiceMovement(float power, const FVector& start_pos, co
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
+	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
 	return velocity;
@@ -255,6 +262,7 @@ FVector ABall::SpoonServiceMovement(float power, const FVector& start_pos, const
 	end_pos_ = end_pos;
 	init_velocity_ = velocity;
 
+	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
 	return velocity;
@@ -302,12 +310,12 @@ void ABall::CheckTurnChanged()
 		return;
 	}
 
-	int time_to_dest = (810 - start_pos_[1]) / init_velocity_[1];
+	float time_to_dest = (810.0f - start_pos_[1]) / init_velocity_[1];
 
 	// height check
 	float gravity = -980.0f;
-	float height = start_pos_[2] + init_velocity_[2] * time_to_dest + 0.5 * gravity * time_to_dest * time_to_dest;
-	if (height < 285.0f) {
+	float height = start_pos_[2] + init_velocity_[2] * time_to_dest + 0.5f * gravity * time_to_dest * time_to_dest;
+	if (height < 205.0f) {
 		return;
 	}
 
@@ -317,5 +325,5 @@ void ABall::CheckTurnChanged()
 		return;
 	}
 
-	MyEventDispatcher.Broadcast();
+	TurnChangeDelegate.Broadcast();
 }

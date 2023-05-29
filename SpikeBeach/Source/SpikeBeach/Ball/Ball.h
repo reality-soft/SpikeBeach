@@ -108,7 +108,7 @@ public:
 
 public:
 	DECLARE_EVENT(ABall, FAttackChange)
-		FAttackChange MyEventDispatcher;
+		FAttackChange TurnChangeDelegate;
 
 public:	
 	// Sets default values for this actor's properties

@@ -39,6 +39,8 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	TurnChangeEvent.AddUObject(this, &ABaseCharacter::HandleTurnChange);
+
 	bUseControllerRotationYaw = false;
 }
 
@@ -694,5 +696,9 @@ void ABaseCharacter::MoveToActionPos(FVector Offset)
 
 	// TODO : Set Speed To Destination
 	SetActorLocation(Destination);
+}
+
+void ABaseCharacter::HandleTurnChange()
+{
 }
 

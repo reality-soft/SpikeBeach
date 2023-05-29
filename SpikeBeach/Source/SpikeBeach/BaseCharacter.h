@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Engine/DataTable.h"
+#include "Delegates.h"
 #include "BaseCharacter.generated.h"	
 
 UENUM(BlueprintType)
@@ -108,6 +109,10 @@ class SPIKEBEACH_API ABaseCharacter : public ACharacter
 
 public:
 	float GetTimmingAccurancy() { return TimingAccuracy; }
+
+public:
+	DECLARE_EVENT(ABaseCharacter, FAttackChange)
+		FAttackChange TurnChangeEvent;
 
 protected:
 	// Variables
@@ -379,4 +384,6 @@ protected:
 	/* Move to Action Position : Set Speed to Action Pos through Remaining Time to Action */
 	void MoveToActionPos(FVector Offset);
 
+private:
+	void HandleTurnChange();
 };
