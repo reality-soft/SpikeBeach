@@ -4,6 +4,7 @@
 
 #include "GameFramework/Actor.h"
 #include "NiagaraComponent.h"
+#include "../Delegates.h"
 #include "Ball.generated.h"
 
 UENUM(BlueprintType)
@@ -38,8 +39,10 @@ struct FPredictInfo
 {
 	GENERATED_BODY()
 public:
-	bool b_hit_land;
-	FVector destination;
+	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		bool b_hit_land; 
+	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		FVector destination;
 };
 
 UCLASS()
@@ -105,6 +108,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = DropInfo)
 		FVector init_velocity_;
 
+public:
+	DECLARE_EVENT(ABall, FAttackChange)
+		FAttackChange TurnChangeDelegate;
+
 public:	
 	// Sets default values for this actor's properties
 	ABall();
@@ -118,6 +125,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void UpdateByBallState();
+	void CheckTurnChanged();
 
 	UFUNCTION(BlueprintCallable, Category = "Ball State")
 		bool PushAndUpdateBallState(EBallState state);
