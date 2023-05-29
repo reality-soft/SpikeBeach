@@ -41,8 +41,12 @@ struct FPredictInfo
 public:
 	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		bool b_hit_land; 
+
 	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		FVector destination;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Spline Track")
+		TArray<FVector> spline_positions_;
 };
 
 UCLASS()
@@ -67,9 +71,6 @@ public:
 		class UNiagaraSystem* ngsystem_arc_trail_;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
-		class UNiagaraSystem* ngsystem_spline_track_;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
 		class UNiagaraSystem* ngsystem_landing_point_;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
@@ -78,9 +79,6 @@ public:
 	// Spline Track
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spline Track")
 		class USplineComponent* spline_comp_;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spline Track")
-		TArray<FVector> spline_positions_;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Sand Dust")
 		FVector current_hit_floor_;
@@ -153,6 +151,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
 		FVector FloatingServiceMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state);
+
+	UFUNCTION(BlueprintCallable, Category = "Ball System")
+		void PredictPath();
 
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
 		FDropInfo GetDropInfo(float height);

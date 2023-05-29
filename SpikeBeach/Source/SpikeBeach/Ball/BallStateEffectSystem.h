@@ -37,8 +37,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Sand Dust")
 		void SpawnSandDust();
 
-	UFUNCTION(BlueprintCallable, Category = "Spline Track")
-		bool CreateSplineTrack();
+	UFUNCTION(BlueprintImplementableEvent, Category = "Spline Track")
+		void EventCreateSplineTrack(const USplineComponent* spline_comp, const TArray<FVector>& path_positions);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Spline Track")
+		void EventClearSplineTrack();
 
 	UFUNCTION(BlueprintCallable, Category = "Arc Trail")
 		void DestroyArcTrail();
@@ -58,10 +61,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Arc Trail")
 		void SetTrailColor_Wrong();
 
-	UFUNCTION(BlueprintCallable, Category = "Arc Trail")
-		void ClearNiagaraComps();
-
-
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "EffectSystem")
 		ABall* owner_ball_ = nullptr;
@@ -71,9 +70,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Landing Point")
 		UNiagaraComponent* ngcomp_landing_point_ = nullptr;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Spline Track")
-		TArray<UNiagaraComponent*> ngcomp_spline_tracks_;
 
 	//Trail Color Set
 public:
