@@ -37,10 +37,12 @@ public:
 USTRUCT(BlueprintType)
 struct FPredictInfo
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 public:
-	bool b_hit_land;
-	FVector destination;
+	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		bool b_hit_land; 
+	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		FVector destination;
 };
 
 UCLASS()
