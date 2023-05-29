@@ -139,7 +139,7 @@ protected:
 	float	TimingMax;
 
 	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
-		ECourtName MyCourtName;
+		class AVolleyBallTeam* my_team_;
 
 	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 		EPlayerPosition MyCourtPosition;
@@ -175,7 +175,6 @@ public:
 	
 public:
 	void SetServiceMode(FName mode) { ServiceMode = mode; }
-	void SetMyCourt(ECourtName name) { MyCourtName = name; }
 	void SetMyCourtPosition(EPlayerPosition pos) { MyCourtPosition = pos; }
 	
 	// Properties
@@ -276,11 +275,12 @@ protected:
 
 #pragma region GETTER
 	public:
-		
+		AVolleyBallTeam* GetMyTeam() { return my_team_; }
 #pragma endregion
 
 #pragma region SETTER
 	public:
+		void SetMyTeam(AVolleyBallTeam* team) { my_team_ = team; }
 		void SetPlayerTurn(EPlayerTurn turn) { PlayerTurn = turn; }
 #pragma endregion
 

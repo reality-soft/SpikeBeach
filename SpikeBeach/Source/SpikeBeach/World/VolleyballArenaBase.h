@@ -27,12 +27,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "BallSystem")
 		void SetServiceTeam(ECourtName service_team);
 
+	UFUNCTION(BlueprintCallable, Category = "BallSystem")
+		ECourtName GetPlayerTeam(ABaseCharacter* player);
 
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
 		void UpdateBallTrigger();
-
-	UFUNCTION(BlueprintCallable, Category = "Game Play")
-		void UpdateBallCursor(ETeamName agaist_team, FVector2D cursor);
 
 public:
 	// Sets default values for this actor's properties
