@@ -4,6 +4,7 @@
 
 #include "GameFramework/Actor.h"
 #include "NiagaraComponent.h"
+#include "../Delegates.h"
 #include "Ball.generated.h"
 
 UENUM(BlueprintType)
@@ -105,6 +106,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = DropInfo)
 		FVector init_velocity_;
 
+public:
+	DECLARE_EVENT(ABall, FAttackChange)
+		FAttackChange MyEventDispatcher;
+
 public:	
 	// Sets default values for this actor's properties
 	ABall();
@@ -118,6 +123,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void UpdateByBallState();
+	void CheckTurnChanged();
 
 	UFUNCTION(BlueprintCallable, Category = "Ball State")
 		bool PushAndUpdateBallState(EBallState state);

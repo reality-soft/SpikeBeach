@@ -295,3 +295,27 @@ bool ABall::PushAndUpdateBallState(EBallState state)
 	return true;
 }
 
+void ABall::CheckTurnChanged() 
+{
+	// never reach net
+	if ((start_pos_[1] > 810.0f && init_velocity_[1] > 0.0f) || (start_pos_[1] < 810.0f && init_velocity_[1] < 0.0f)) {
+		return;
+	}
+
+	int time_to_dest = (810 - start_pos_[1]) / init_velocity_[1];
+
+	// height check
+	float gravity = -980.0f;
+	float height = start_pos_[2] + init_velocity_[2] * time_to_dest + 0.5 * gravity * time_to_dest * time_to_dest;
+	if (height < 285.0f) {
+		return;
+	}
+
+	// horizontal_coord_check
+	float horizontal_coord = start_pos_[0] + init_velocity_[0] * time_to_dest;
+	if (horizontal_coord < 1610.0f || 2370.0f < horizontal_coord) {
+		return;
+	}
+
+	MyEventDispatcher.Broadcast();
+}
