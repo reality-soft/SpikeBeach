@@ -3,6 +3,8 @@
 
 #include "BasePlayer.h"
 #include "../World/VolleyballArenaBase.h"
+#include "../World/VolleyballTeam.h"
+#include "../World/VolleyballGame.h"
 #include "CustomPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
@@ -210,7 +212,7 @@ void ABasePlayer::SprintCompleted(const FInputActionValue& Value)
 
 void ABasePlayer::BallCursorTriggered(const FInputActionValue& Value)
 {
-	if (CanControlBallCursor == false || arena_ == nullptr)
+	if (CanControlBallCursor == false)
 		return;
 
 	ball_cursor_value_.X += Value.Get<FInputActionValue::Axis2D>().X * 0.01f;
@@ -222,19 +224,19 @@ void ABasePlayer::BallCursorTriggered(const FInputActionValue& Value)
 	ball_cursor_value_.Y = std::min(ball_cursor_value_.Y,  1.0);
 	ball_cursor_value_.Y = std::max(ball_cursor_value_.Y, -1.0);
 
-	ETeamName agains_team = ETeamName::eNone;
+	ECourtName agains_team;
 
-	//switch (arena_->GetPlayerTeam(this))
-	//{
-	//case ETeamName::eReefSideTeam:
-	//	agains_team = ETeamName::eBeachSideTeam;
-	//	break;
-	//case ETeamName::eBeachSideTeam:
-	//	agains_team = ETeamName::eReefSideTeam;
-	//	break;
-	//}
-	agains_team = ETeamName::eReefSideTeam;
-	arena_->UpdateBallCursor(agains_team, ball_cursor_value_);
+	switch (GetMyTeam()->GetCourtName())
+	{
+	case ECourtName::eReefSideTeam:
+		agains_team = ECourtName::eBeachSideTeam;
+		break;
+	case ECourtName::eBeachSideTeam:
+		agains_team = ECourtName::eReefSideTeam;
+		break;
+	}
+
+	arena_->game_playing_->GetCourtTeam(agains_team)->UpdateBallCursor(ball_cursor_value_);
 }
 
 void ABasePlayer::MontageEnded()
