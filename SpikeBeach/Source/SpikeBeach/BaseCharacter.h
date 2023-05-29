@@ -183,6 +183,7 @@ public:
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Ball Attach Component")
 		class USceneComponent* ball_attachment_;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Animation)
 		class UDataTable* AnimOffsetData;

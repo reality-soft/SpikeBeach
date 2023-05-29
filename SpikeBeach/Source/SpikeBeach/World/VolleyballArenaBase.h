@@ -17,7 +17,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "BallSystem")
 		ABall* arena_ball_ = nullptr;
 
-	UPROPERTY(BlueprintReadWrite, Category = "BallSystem")
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
 		class USphereComponent* ball_trigger_;
 
 	UPROPERTY(BlueprintReadWrite, Category = "VolleyBallGame")
@@ -27,8 +27,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "BallSystem")
 		void SetServiceTeam(ECourtName service_team);
 
-	UFUNCTION(BlueprintCallable, Category = "BallSystem")
+
+	UFUNCTION(BlueprintCallable, Category = "Game Play")
 		void UpdateBallTrigger();
+
+	UFUNCTION(BlueprintCallable, Category = "Game Play")
+		void UpdateBallCursor(ETeamName agaist_team, FVector2D cursor);
 
 public:
 	// Sets default values for this actor's properties

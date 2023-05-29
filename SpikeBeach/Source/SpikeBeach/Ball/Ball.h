@@ -37,7 +37,7 @@ public:
 USTRUCT(BlueprintType)
 struct FPredictInfo
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 public:
 	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		bool b_hit_land; 

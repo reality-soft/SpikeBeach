@@ -181,24 +181,23 @@ bool UBallStateEffectSystem::CreateSplineTrack()
 	bool success = UGameplayStatics::Blueprint_PredictProjectilePath_ByObjectType(
 		owner_ball_->GetWorld(), hit_result, path_positions, dest_position,
 		owner_ball_->GetActorLocation(), owner_ball_->init_velocity_, true, owner_ball_->GetSphereComp()->GetScaledSphereRadius(),
-		trace_types, true, ignore_actors, EDrawDebugTrace::None, 0.0f, 20.0f, 10.f);
+		trace_types, true, ignore_actors, EDrawDebugTrace::None, 0.0f, 5.0f, 10.f);
 
 	if (!success)
 		return false;
 
-	if (hit_result.GetActor())
+	if (hit_result.bBlockingHit)
 	{
 		if (hit_result.GetActor()->ActorHasTag("Land"))
 		{
 			owner_ball_->current_predict_.b_hit_land = true;
+			owner_ball_->current_predict_.destination = hit_result.Location;
 		}
 		else
 		{
 			owner_ball_->current_predict_.b_hit_land = false;
 		}
 	}
-
-	owner_ball_->current_predict_.destination = hit_result.Location;// dest_position;
 
 	for (int32 index = 0; index < path_positions.Num(); ++index)
 	{
@@ -208,19 +207,26 @@ bool UBallStateEffectSystem::CreateSplineTrack()
 	owner_ball_->spline_comp_->SetSplinePointType(path_positions.Max(),ESplinePointType::CurveClamped, true);
 	owner_ball_->spline_positions_ = path_positions;
 
+
 	for (int32 index = 0; index < path_positions.Num() - 2; ++index)
 	{
 		UNiagaraComponent* ngcomp_spline_track = UNiagaraFunctionLibrary::SpawnSystemAtLocation(owner_ball_->GetWorld(), owner_ball_->ngsystem_spline_track_, path_positions[index], FRotator(0.f), FVector(1.0f), false);
 
-		FVector step_dir = path_positions[index + 1] - path_positions[index];
-		float pitch = FRotationMatrix::MakeFromX(step_dir).Rotator().Pitch / 360.0f * -1.0f;
-		float yaw = FRotationMatrix::MakeFromZ(step_dir).Rotator().Yaw / 360.0f;
-		ngcomp_spline_track->SetNiagaraVariableVec3("Vector", FVector(pitch, 0.0f, yaw));
+		FVector start_pos = path_positions[index];
+		FVector start_tan = owner_ball_->spline_comp_->GetTangentAtSplinePoint(index, ESplineCoordinateSpace::World);
+		FVector end_pos = path_positions[index + 1];
+		FVector end_tan = owner_ball_->spline_comp_->GetTangentAtSplinePoint(index + 1, ESplineCoordinateSpace::World);
+
+		ngcomp_spline_track->SetNiagaraVariableVec3("StartPosition", start_pos);
+		ngcomp_spline_track->SetNiagaraVariableVec3("StartTangent", start_pos + start_tan * 0.5);
+
+		ngcomp_spline_track->SetNiagaraVariableVec3("EndPosition", end_pos);
+		ngcomp_spline_track->SetNiagaraVariableVec3("EndTangent", end_pos - end_tan * 0.5);
 
 		ngcomp_spline_tracks_.Add(ngcomp_spline_track);
 	}
 
-	ngcomp_landing_point_ = UNiagaraFunctionLibrary::SpawnSystemAtLocation(owner_ball_->GetWorld(), owner_ball_->ngsystem_landing_point_, dest_position, FRotator(0.f), FVector(1.0f), false);
+	ngcomp_landing_point_ = UNiagaraFunctionLibrary::SpawnSystemAtLocation(owner_ball_->GetWorld(), owner_ball_->ngsystem_landing_point_, owner_ball_->current_predict_.destination, FRotator(0.f), FVector(1.0f), false);
 
 	return true;
 }

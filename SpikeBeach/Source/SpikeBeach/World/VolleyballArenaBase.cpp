@@ -1,7 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "VolleyballArenaBase.h"
+#include "kismet/GameplayStatics.h"
 #include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "VolleyBallTeam.h"
 #include "VolleyBallGame.h"
 
@@ -80,4 +83,37 @@ void AVolleyballArenaBase::UpdateBallTrigger()
 		ball_trigger_->SetSphereRadius(100.0f);
 		return;
 	}
+}
+
+void AVolleyballArenaBase::UpdateBallCursor(ETeamName agaist_team, FVector2D cursor)
+{
+	if (reef_team_box_ == nullptr ||
+		beach_team_box_ == nullptr)
+		return;
+
+	FVector box_extend;
+	FVector cursor_3D_pos;
+
+	switch (agaist_team)
+	{
+	case ETeamName::eReefSideTeam:
+		box_extend = reef_team_box_->GetScaledBoxExtent();
+		box_extend.Y *= -1.0f;
+		cursor_3D_pos = reef_team_box_->GetComponentLocation();
+		break;
+	case ETeamName::eBeachSideTeam:
+		box_extend = beach_team_box_->GetScaledBoxExtent();
+		box_extend.X *= -1.0f;
+		cursor_3D_pos = beach_team_box_->GetComponentLocation();
+		break;
+	}
+
+	float X_local = box_extend.X * cursor.X;
+	float Y_local = box_extend.Y * cursor.Y;
+
+	FVector local_3D_pos(X_local, Y_local, 100.0f);
+
+	ball_cursor_->SetWorldLocation(cursor_3D_pos + local_3D_pos);
+	ball_cursor_->SetVisibility(true);
+	ball_cursor_->SetHiddenInGame(false);
 }
