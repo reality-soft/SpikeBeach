@@ -53,6 +53,22 @@ enum class ELeftRight : uint8
 	COUNT,
 };
 
+UENUM(BlueprintType)
+enum class ECourtName : uint8
+{
+	eReefSideTeam,
+	eBeachSideTeam,
+	COURT_COUNT,
+};
+
+UENUM(BlueprintType)
+enum class EPlayerPosition : uint8
+{
+	eRightSidePlayer,
+	eLeftSidePlayer,
+	POSITION_COUNT,
+};
+
 USTRUCT(BlueprintType)
 struct FAnimationOffsetData : public FTableRowBase
 {
@@ -118,7 +134,14 @@ protected:
 	float	TimingMax;
 
 	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+		ECourtName MyCourtName;
+
+	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+		EPlayerPosition MyCourtPosition;
+
+	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 		bool bIsInBallTrigger;
+
 
 	UPROPERTY(BlueprintReadWrite, Category = Location, meta = (AllowPrivateAccess = "true"))
 		EFrontBack front_back_;
@@ -144,7 +167,12 @@ protected:
 	TMap<FName, FVector> PassOffsetMap;
 public:
 	bool GetIsClicking() { return bIsClicking; }
-
+	
+public:
+	void SetServiceMode(FName mode) { ServiceMode = mode; }
+	void SetMyCourt(ECourtName name) { MyCourtName = name; }
+	void SetMyCourtPosition(EPlayerPosition pos) { MyCourtPosition = pos; }
+	
 	// Properties
 
 public:
@@ -239,6 +267,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
 		class UAnimMontage* FloatingMontage;
 #pragma endregion
+
+#pragma region GETTER
+	public:
+		
+#pragma endregion
+
+#pragma region SETTER
+	public:
+		void SetPlayerTurn(EPlayerTurn turn) { PlayerTurn = turn; }
+#pragma endregion
+
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
