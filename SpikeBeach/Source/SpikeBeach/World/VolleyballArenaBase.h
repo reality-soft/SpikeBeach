@@ -23,6 +23,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "VolleyBallGame")
 		class UVolleyBallGame* game_playing_;
 
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "BallSystem")
 		void SetServiceTeam(ECourtName service_team);

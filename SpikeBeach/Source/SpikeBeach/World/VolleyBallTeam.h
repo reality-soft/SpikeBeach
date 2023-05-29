@@ -34,9 +34,18 @@ public:
 		class UBoxComponent* team_box_;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
-		class UCapsuleComponent* ball_cursor_;
+		class UCapsuleComponent* ball_cursor_capsule_;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
+		class UNiagaraSystem* ngsystem_ball_cursor_;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Play")
+		class UNiagaraComponent* ngcomp_ball_cursor_;
 
 private:
+	// Ball Cursor
+	bool is_cursor_active_ = false;
+
 	// SCORE
 	UINT score_win_set;
 	UINT point_this_set;
@@ -85,6 +94,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
 		void UpdateBallCursor(FVector2D cursor);
+
+	UFUNCTION(BlueprintCallable, Category = "Game Play")
+		void ClearBallCursor();
 
 	UFUNCTION(BlueprintCallable)
 		ABaseCharacter* GetLeftSidePlayer() { return left_side_player; }

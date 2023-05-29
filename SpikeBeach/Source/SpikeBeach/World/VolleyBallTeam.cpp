@@ -3,7 +3,8 @@
 #include "VolleyBallTeam.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
-
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
 // Sets default values
 AVolleyBallTeam::AVolleyBallTeam()
@@ -16,8 +17,14 @@ AVolleyBallTeam::AVolleyBallTeam()
 void AVolleyBallTeam::UpdateBallCursor(FVector2D cursor)
 {
 	if (team_box_ == nullptr ||
-		ball_cursor_ == nullptr)
+		ball_cursor_capsule_ == nullptr ||
+		ngsystem_ball_cursor_ == nullptr)
 		return;
+
+	if (ngcomp_ball_cursor_ == nullptr)
+	{
+		ngcomp_ball_cursor_ = UNiagaraFunctionLibrary::SpawnSystemAttached(ngsystem_ball_cursor_, ball_cursor_capsule_, NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, false);
+	}
 
 	FVector box_extend;
 	FVector cursor_3D_pos;
@@ -40,9 +47,18 @@ void AVolleyBallTeam::UpdateBallCursor(FVector2D cursor)
 
 	FVector local_3D_pos(X_local, Y_local, 100.0f);
 
-	ball_cursor_->SetWorldLocation(cursor_3D_pos + local_3D_pos);
-	ball_cursor_->SetVisibility(true);
-	ball_cursor_->SetHiddenInGame(false);
+	ball_cursor_capsule_->SetWorldLocation(cursor_3D_pos + local_3D_pos);
+	ball_cursor_capsule_->SetVisibility(true);
+	ball_cursor_capsule_->SetHiddenInGame(false);
+}
+
+void AVolleyBallTeam::ClearBallCursor()
+{
+	if (ngcomp_ball_cursor_)
+	{
+		ngcomp_ball_cursor_->DestroyComponent();
+		ngcomp_ball_cursor_ = nullptr;
+	}
 }
 
 // Called when the game starts or when spawned
