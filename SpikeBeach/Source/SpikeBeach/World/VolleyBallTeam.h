@@ -12,10 +12,6 @@ class SPIKEBEACH_API AVolleyBallTeam : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
-	AVolleyBallTeam();
-
 private:
 	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
 		FString team_name = TEXT("");
@@ -49,55 +45,18 @@ private:
 	// SCORE
 	UINT score_win_set;
 	UINT point_this_set;
+
+#pragma region SETTER
 public:
 	UFUNCTION(BlueprintCallable)
 		void SetTeamName(FString name) { team_name = name; }
 
 	UFUNCTION(BlueprintCallable)
 		void SetTeamCourt(ECourtName court_name) { court = court_name; }
+#pragma endregion
 
-	UFUNCTION(BlueprintCallable)
-		bool AddPlayerToTeam(ABaseCharacter* player) {
-		if (left_side_player == nullptr)
-		{
-			left_side_player = player;
-			left_side_player->SetMyTeam(this);
-			return true;
-		}
-
-		if (right_side_player == nullptr)
-		{
-			right_side_player = player;
-			right_side_player->SetMyTeam(this);
-			return true;
-		}
-
-		return false;
-	}
-
-	UFUNCTION(BlueprintCallable)
-		void WinSinglePoint() {
-		point_this_set++;
-	}
-
-	UFUNCTION(BlueprintCallable)
-		void WinSetPoint() {
-		score_win_set++;
-	}
-
-	UFUNCTION(BlueprintCallable)
-		void SwapPlayerPos() {
-		ABaseCharacter* temp = right_side_player;
-		right_side_player = left_side_player;
-		left_side_player = temp;
-	}
-
-	UFUNCTION(BlueprintCallable, Category = "Game Play")
-		void UpdateBallCursor(FVector2D cursor);
-
-	UFUNCTION(BlueprintCallable, Category = "Game Play")
-		void ClearBallCursor();
-
+#pragma region GETTER
+public:
 	UFUNCTION(BlueprintCallable)
 		ABaseCharacter* GetLeftSidePlayer() { return left_side_player; }
 
@@ -106,13 +65,35 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		ECourtName GetCourtName() { return court; }
+#pragma endregion
 
+public:
+	// Sets default values for this actor's properties
+	AVolleyBallTeam();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+		bool AddPlayerToTeam(ABaseCharacter* player);
+
+	UFUNCTION(BlueprintCallable)
+		void WinSinglePoint();
+
+	UFUNCTION(BlueprintCallable)
+		void WinSetPoint();
+
+	UFUNCTION(BlueprintCallable)
+		void SwapPlayerPos();
+
+	UFUNCTION(BlueprintCallable, Category = "Game Play")
+		void UpdateBallCursor(FVector2D cursor);
+
+	UFUNCTION(BlueprintCallable, Category = "Game Play")
+		void ClearBallCursor();
 };
+
