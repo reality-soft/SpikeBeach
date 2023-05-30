@@ -53,6 +53,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* SprintAction;
 
+	/** Mouse Wheel Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* MouseWheelClickAction;
+
 	/** Camera Length Control */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* CameraLengthControl;
@@ -124,6 +128,9 @@ protected:
 	/* Called for Sprint Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
 		void SprintCompleted(const FInputActionValue& Value);
+	/* Called for MouseClick Input*/
+	UFUNCTION(BlueprintCallable, Category = Input)
+		void WheelTriggered(const FInputActionValue& Value);
 	/* Called for MouseXY Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
 		void BallCursorTriggered(const FInputActionValue& Value);
@@ -159,4 +166,5 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
 		FVector2D ball_cursor_value_;
+
 };

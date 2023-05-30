@@ -13,6 +13,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 
 
 AVolleyBallTeam* ABaseCharacter::GetEnemyTeam()
@@ -776,6 +777,29 @@ void ABaseCharacter::SetMoveToActionPos(FVector Offset)
 	OffsetDestination = ActionPos - Offset;
 
 	bIsMoveToOffset = true;
+}
+
+bool ABaseCharacter::IsVectorInTeamBox(FVector vector)
+{
+	auto box = GetMyTeam()->team_box_;
+
+	FVector box_extent = box->GetScaledBoxExtent();
+	FVector box_pos = box->GetComponentLocation();
+
+	float min_x = box_pos.X - box_extent.X;
+	float max_x = box_pos.X + box_extent.X;
+
+	float min_y = box_pos.Y - box_extent.Y;
+	float max_y = box_pos.Y + box_extent.Y;
+
+	if (max_x > vector.X && vector.X > min_x)
+	{
+		if (max_y > vector.Y && vector.Y > min_y)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void ABaseCharacter::HandleTurnChange()

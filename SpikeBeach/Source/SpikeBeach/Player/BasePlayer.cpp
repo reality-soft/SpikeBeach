@@ -12,6 +12,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"	
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Math/Quat.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -47,6 +48,12 @@ void ABasePlayer::BeginPlay()
 void ABasePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (Company->GetPlayerRole() == EPlayerRole::PR_A_TOSS)
+	{
+		auto player_controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		player_controller->SetShowMouseCursor(true);
+	}
 }
 
 // Called to bind functionality to input
@@ -69,6 +76,10 @@ void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		// Sprint
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ABasePlayer::SprintTriggered);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ABasePlayer::SprintCompleted);
+
+		// Wheel Click
+		EnhancedInputComponent->BindAction(MouseWheelClickAction, ETriggerEvent::Triggered, this, &ABasePlayer::WheelTriggered);
+
 
 		// Ball Cursor
 		EnhancedInputComponent->BindAction(BallCursorControl, ETriggerEvent::Triggered, this, &ABasePlayer::BallCursorTriggered);
@@ -209,6 +220,34 @@ void ABasePlayer::SprintCompleted(const FInputActionValue& Value)
 	bIsSprint = false;
 
 	//GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+}
+
+void ABasePlayer::WheelTriggered(const FInputActionValue& Value)
+{
+	if (Company->GetPlayerRole() != EPlayerRole::PR_A_TOSS)
+		return;
+
+	auto player_controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!player_controller)
+		return;
+
+	FHitResult hit;
+	player_controller->GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery1, true, hit);
+	bool is_on_ground = hit.GetActor()->ActorHasTag(FName("Land"));
+	if (!is_on_ground)
+		return;
+
+	//dest_position_ = hit.Location;
+	//return;
+	if (IsVectorInTeamBox(hit.Location))
+	{
+		dest_position_ = hit.Location;
+	}
+	else
+	{
+		dest_position_ = GetActorLocation();
+	}
+	
 }
 
 void ABasePlayer::BallCursorTriggered(const FInputActionValue& Value)
