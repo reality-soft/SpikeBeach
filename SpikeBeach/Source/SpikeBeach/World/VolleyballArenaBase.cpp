@@ -51,7 +51,7 @@ void AVolleyballArenaBase::SetServiceTeam(ECourtName service_court)
 	auto enemy_team_left_player = enemy_team->GetLeftSidePlayer();
 	if (enemy_team_left_player) {
 		enemy_team_left_player->SetPlayerTurn(EPlayerTurn::PT_DEFENCE);
-		enemy_team_right_player->SetPlayerRole(EPlayerRole::PR_S_SERVICE_WAIT);
+		enemy_team_left_player->SetPlayerRole(EPlayerRole::PR_S_SERVICE_WAIT);
 	}
 }
 
