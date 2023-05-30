@@ -249,7 +249,7 @@ void ABasePlayer::WheelTriggered(const FInputActionValue& Value)
 
 	//dest_position_ = hit.Location;
 	//return;
-	if (IsVectorInTeamBox(hit.Location))
+	if (GetMyTeam()->IsVectorInTeamBox(hit.Location))
 	{
 		dest_position_ = hit.Location;
 	}

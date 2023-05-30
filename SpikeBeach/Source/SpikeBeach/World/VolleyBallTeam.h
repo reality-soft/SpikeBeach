@@ -98,5 +98,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
 		void ClearBallCursor();
+
+	UFUNCTION(BlueprintCallable)
+		bool IsVectorInTeamBox(FVector vector);
 };
 
