@@ -30,19 +30,25 @@ void AVolleyballArenaBase::SetServiceTeam(ECourtName service_court)
 
 	// Set Another Player to Proper Turn
 	auto my_team_right_player = service_team->GetRightSidePlayer();
-	if(my_team_right_player)
+	if (my_team_right_player) {
 		service_team->GetRightSidePlayer()->SetPlayerTurn(EPlayerTurn::PT_OFFENCE);
+		service_team->GetRightSidePlayer()->SetPlayerRole(EPlayerRole::PR_S_SERVICE_WAIT);
+	}
+
 	auto court = service_court == ECourtName::eReefSideTeam ? ECourtName::eBeachSideTeam : ECourtName::eReefSideTeam;
 	auto enemy_team = game_playing_->GetCourtTeam(court);
 
 	auto enemy_team_right_player = enemy_team->GetRightSidePlayer();
-	if (enemy_team_right_player)
+	if (enemy_team_right_player) {
 		enemy_team_right_player->SetPlayerTurn(EPlayerTurn::PT_DEFENCE);
+		enemy_team_right_player->SetPlayerRole(EPlayerRole::PR_S_SERVICE_WAIT);
+	}
 
 	auto enemy_team_left_player = enemy_team->GetLeftSidePlayer();
-	if (enemy_team_left_player)
+	if (enemy_team_left_player) {
 		enemy_team_left_player->SetPlayerTurn(EPlayerTurn::PT_DEFENCE);
-
+		enemy_team_right_player->SetPlayerRole(EPlayerRole::PR_S_SERVICE_WAIT);
+	}
 }
 
 ECourtName AVolleyballArenaBase::GetPlayerTeam(ABaseCharacter* player)
@@ -94,5 +100,67 @@ void AVolleyballArenaBase::UpdateBallTrigger()
 		ball_trigger_->SetHiddenInGame(false);
 		ball_trigger_->SetSphereRadius(100.0f);
 		return;
+	}
+}
+
+void AVolleyballArenaBase::SetPlayerRole()
+{
+	for (auto& cur_player : Players) {
+		
+		switch (cur_player->GetPlayerRole()) {
+		case EPlayerRole::PR_D_RECEIVE:
+			cur_player->SetPlayerRole(EPlayerRole::PR_A_MOVE_TO_ATTACK_POS);
+			break;
+		case EPlayerRole::PR_A_MOVE_TO_TOSS_POS:
+			cur_player->SetPlayerRole(EPlayerRole::PR_A_TOSS);
+			break;
+		case EPlayerRole::PR_A_TOSS:
+			cur_player->SetPlayerRole(EPlayerRole::PR_A_MOVE_TO_DEFENCE_POS);
+			break;
+		case EPlayerRole::PR_A_MOVE_TO_ATTACK_POS:
+			cur_player->SetPlayerRole(EPlayerRole::PR_A_ATTACK);
+			break;
+		}
+	}
+}
+
+void AVolleyballArenaBase::SetPlayerRoleOverTurn()
+{
+	AVolleyBallTeam* AttackTeam, * DefenceTeam;
+	if (arena_ball_->end_pos_[1] >= 810.0f) {
+		AttackTeam = game_playing_->GetCourtTeam(ECourtName::eBeachSideTeam);
+		DefenceTeam = game_playing_->GetCourtTeam(ECourtName::eReefSideTeam);
+	}
+	else {
+		DefenceTeam = game_playing_->GetCourtTeam(ECourtName::eBeachSideTeam);
+		AttackTeam = game_playing_->GetCourtTeam(ECourtName::eReefSideTeam);
+	}
+	
+	auto attack_team_r_player = AttackTeam->GetRightSidePlayer();
+	auto attack_team_l_player = AttackTeam->GetLeftSidePlayer();
+
+	float dist_from_ball_to_r = FVector::Distance(attack_team_r_player->GetActorLocation(), arena_ball_->end_pos_);
+	float dist_from_ball_to_l = FVector::Distance(attack_team_l_player->GetActorLocation(), arena_ball_->end_pos_);
+	if (dist_from_ball_to_r > dist_from_ball_to_l) {
+		attack_team_l_player->SetPlayerRole(EPlayerRole::PR_D_RECEIVE);
+		attack_team_r_player->SetPlayerRole(EPlayerRole::PR_A_MOVE_TO_TOSS_POS);
+	}
+	else {
+		attack_team_l_player->SetPlayerRole(EPlayerRole::PR_A_MOVE_TO_TOSS_POS);
+		attack_team_r_player->SetPlayerRole(EPlayerRole::PR_D_RECEIVE);
+	}
+
+	auto defence_team_r_player = DefenceTeam->GetRightSidePlayer();
+	auto defence_team_l_player = DefenceTeam->GetLeftSidePlayer();
+
+	float dist_from_net_to_r = fabs(attack_team_r_player->GetActorLocation().Y - 810.0f);
+	float dist_from_net_to_l = fabs(attack_team_l_player->GetActorLocation().Y - 810.0f);
+	if (dist_from_net_to_r > dist_from_net_to_l) {
+		defence_team_l_player->SetPlayerRole(EPlayerRole::PR_D_FRONT_BEFORE_TOSS);
+		defence_team_r_player->SetPlayerRole(EPlayerRole::PR_D_BACK);
+	}
+	else {
+		defence_team_r_player->SetPlayerRole(EPlayerRole::PR_D_FRONT_BEFORE_TOSS);
+		defence_team_l_player->SetPlayerRole(EPlayerRole::PR_D_BACK);
 	}
 }

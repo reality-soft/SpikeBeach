@@ -154,6 +154,10 @@ protected:
 	float	TimingAccuracy;
 	float	TimingTimer;
 	float	TimingMax;
+	bool	bIsMoveToOffset;
+	float	OffsetTimer;
+	FVector OffsetStart;
+	FVector OffsetDestination;
 
 	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 		class AVolleyBallTeam* my_team_;
@@ -190,18 +194,15 @@ protected:
 	TMap<FName, FVector> TossOffsetMap;
 	UPROPERTY(BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	TMap<FName, FVector> PassOffsetMap;
-public:
-	bool GetIsClicking() { return bIsClicking; }
-	
-public:
-	void SetServiceMode(FName mode) { ServiceMode = mode; }
-	void SetMyCourtPosition(EPlayerPosition pos) { MyCourtPosition = pos; }
 	
 	// Properties
-
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Ball Attach Component")
 		class USceneComponent* ball_attachment_;
+
+public:
+	UPROPERTY(BlueprintReadWrite, Category = "Player Movement")
+		FVector dest_position_;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Animation)
@@ -249,7 +250,7 @@ protected:
 protected:
 #pragma region GAME(Company, Ball) INFO
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GameInfo, meta = (AllowPrivateAccess = "true"))
-		class AActor* Company;
+		ABaseCharacter* Company;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GameInfo, meta = (AllowPrivateAccess = "true"))
 		class ABall* Ball;
@@ -302,14 +303,19 @@ public:
 
 #pragma region GETTER
 	public:
+		bool GetIsClicking() { return bIsClicking; }
 		AVolleyBallTeam* GetMyTeam() { return my_team_; }
 		AVolleyBallTeam* GetEnemyTeam();
+		EPlayerRole GetPlayerRole() { return PlayerRole;}
 #pragma endregion
 
 #pragma region SETTER
 	public:
 		void SetMyTeam(AVolleyBallTeam* team) { my_team_ = team; }
 		void SetPlayerTurn(EPlayerTurn turn) { PlayerTurn = turn; }
+		void SetServiceMode(FName mode) { ServiceMode = mode; }
+		void SetMyCourtPosition(EPlayerPosition pos) { MyCourtPosition = pos; }
+		void SetPlayerRole(EPlayerRole player_role) { PlayerRole = player_role; }
 #pragma endregion
 
 
@@ -343,6 +349,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void TimingCalculateIfClick(float DeltaTime);
 	void SmoothingWalkRun(float DeltaTime);
+	void MoveToOffsetDestination(float DeltaTime);
 	
 
 protected:
@@ -449,8 +456,8 @@ protected:
 	/* Offset Rotate to Current Actor's Forward Vector */
 	FVector RotateOffsetToCurrentDirection(FVector Vector);
 
-	/* Move to Action Position : Set Speed to Action Pos through Remaining Time to Action */
-	void MoveToActionPos(FVector Offset);
+	/* Set Move to Action Position */
+	void SetMoveToActionPos(FVector Offset);
 
 private:
 	void HandleTurnChange();

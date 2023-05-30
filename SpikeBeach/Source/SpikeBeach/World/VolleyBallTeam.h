@@ -12,10 +12,6 @@ class SPIKEBEACH_API AVolleyBallTeam : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
-	AVolleyBallTeam();
-
 private:
 	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
 		FString team_name = TEXT("Default Team Name");
@@ -49,6 +45,8 @@ private:
 	// SCORE
 	UINT score;
 	UINT set;
+  
+#pragma region SETTER
 public:
 	UFUNCTION(BlueprintCallable)
 		void SetTeamName(FString name) { team_name = name; }
@@ -58,6 +56,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void SetTeamCourt(ECourtName court_name) { court = court_name; }
+#pragma endregion
 
 	UFUNCTION(BlueprintCallable)
 		bool AddPlayerToTeam(ABaseCharacter* player) {
@@ -101,6 +100,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
 		void ClearBallCursor();
 
+#pragma region GETTER
+public:
 	UFUNCTION(BlueprintCallable)
 		ABaseCharacter* GetLeftSidePlayer() { return left_side_player; }
 
@@ -109,13 +110,35 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		ECourtName GetCourtName() { return court; }
+#pragma endregion
 
+public:
+	// Sets default values for this actor's properties
+	AVolleyBallTeam();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+		bool AddPlayerToTeam(ABaseCharacter* player);
+
+	UFUNCTION(BlueprintCallable)
+		void WinSinglePoint();
+
+	UFUNCTION(BlueprintCallable)
+		void WinSetPoint();
+
+	UFUNCTION(BlueprintCallable)
+		void SwapPlayerPos();
+
+	UFUNCTION(BlueprintCallable, Category = "Game Play")
+		void UpdateBallCursor(FVector2D cursor);
+
+	UFUNCTION(BlueprintCallable, Category = "Game Play")
+		void ClearBallCursor();
 };
+

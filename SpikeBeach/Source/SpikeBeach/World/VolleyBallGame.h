@@ -18,29 +18,43 @@ private:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
 		ECourtName service_court;
-public:
-	UFUNCTION(BlueprintCallable)
-		void SetCourtTeam(ECourtName court, AVolleyBallTeam* team) { TeamPlayingVolleyBall[(int)court] = team; }
 
+	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
+		FTransform ReefCourtLeft;
+	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
+		FTransform ReefCourtRight;
+	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
+		FTransform BeachCourtLeft;
+	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
+		FTransform BeachCourtRight;
+public:
+	// Sets default values for this component's properties
+	UVolleyBallGame();
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
+public:
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+public:
+#pragma region GETTER
 	UFUNCTION(BlueprintCallable)
 		class AVolleyBallTeam* GetCourtTeam(ECourtName court) { return TeamPlayingVolleyBall[(int)court]; }
 
 	UFUNCTION(BlueprintCallable)
 		ECourtName GetServiceCourt() { return service_court; }
+#pragma endregion
 
+#pragma region SETTER
+	UFUNCTION(BlueprintCallable)
+		void SetCourtTeam(ECourtName court, AVolleyBallTeam* team) { TeamPlayingVolleyBall[(int)court] = team; }
 	UFUNCTION(BlueprintCallable)
 		void SetServiceCourt(ECourtName court) { service_court = court; }
-public:	
-	// Sets default values for this component's properties
-	UVolleyBallGame();
+#pragma endregion
 
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable)
+		void ReturnPlayerToCourtPoint();
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
+	UFUNCTION(BlueprintCallable)
+		void ChangeCourt();
 };
