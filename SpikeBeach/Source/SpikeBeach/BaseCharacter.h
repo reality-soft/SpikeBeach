@@ -306,6 +306,7 @@ public:
 		bool GetIsClicking() { return bIsClicking; }
 		AVolleyBallTeam* GetMyTeam() { return my_team_; }
 		AVolleyBallTeam* GetEnemyTeam();
+		EPlayerRole GetPlayerRole() { return PlayerRole;}
 #pragma endregion
 
 #pragma region SETTER
@@ -314,6 +315,7 @@ public:
 		void SetPlayerTurn(EPlayerTurn turn) { PlayerTurn = turn; }
 		void SetServiceMode(FName mode) { ServiceMode = mode; }
 		void SetMyCourtPosition(EPlayerPosition pos) { MyCourtPosition = pos; }
+		void SetPlayerRole(EPlayerRole player_role) { PlayerRole = player_role; }
 #pragma endregion
 
 
