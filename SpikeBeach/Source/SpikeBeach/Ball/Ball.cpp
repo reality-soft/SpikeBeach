@@ -55,37 +55,41 @@ void ABall::UpdateByBallState()
 		case EBallState::eNone:
 			break;
 		case EBallState::eAttached:
-			parent_effect_system_->ClearNiagaraComps();
+			parent_effect_system_->EventClearSplineTrack();
 			parent_effect_system_->SetArcTrailSpawnRate(0);
 			ProjectileMovementComponent->SetActive(false);
 			break;
 
 		case EBallState::eFloatToService:
+			parent_effect_system_->EventClearSplineTrack();
 			parent_effect_system_->SetArcTrailSpawnRate(1500);
 			parent_effect_system_->SetTrailColor_Stable();
 			break;
 
 		case EBallState::eStableSetted:
-			parent_effect_system_->CreateSplineTrack();
+			PredictPath();
+			parent_effect_system_->EventCreateSplineTrack(spline_comp_, current_predict_.spline_positions_);
 			parent_effect_system_->SetTrailColor_Stable();
 			parent_effect_system_->SetArcTrailSpawnRate(3000);
 			break;
 
 		case EBallState::eTurnOver:
-			parent_effect_system_->CreateSplineTrack();
+			PredictPath();
+			parent_effect_system_->EventCreateSplineTrack(spline_comp_, current_predict_.spline_positions_);
 			parent_effect_system_->SetTrailColor_Offensive();
 			parent_effect_system_->SetArcTrailSpawnRate(3000);
 			break;
 
 		case EBallState::eMistake:
-			parent_effect_system_->CreateSplineTrack();
+			PredictPath();
+			parent_effect_system_->EventCreateSplineTrack(spline_comp_, current_predict_.spline_positions_);
 			parent_effect_system_->SetTrailColor_Wrong();
 			parent_effect_system_->SetArcTrailSpawnRate(3000);
 			break;
 
 		case EBallState::eDropped:
+			parent_effect_system_->EventClearSplineTrack();
 			parent_effect_system_->SetArcTrailSpawnRate(0);
-			parent_effect_system_->ClearNiagaraComps();
 			parent_effect_system_->SpawnSandDust();
 			break;
 		}
@@ -290,6 +294,50 @@ FDropInfo ABall::GetDropInfo(float dest_height)
 
 	return drop_info;
 
+}
+
+void ABall::PredictPath()
+{
+	if (spline_comp_ == nullptr ||
+		ngsystem_landing_point_ == nullptr)
+		return;
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> trace_types;
+	TArray<AActor*, FDefaultAllocator> ignore_actors;
+	trace_types.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
+	ignore_actors.Add(this);
+
+	FHitResult hit_result;
+	TArray<FVector> path_positions;
+	FVector dest_position;
+
+	bool success = UGameplayStatics::Blueprint_PredictProjectilePath_ByObjectType(
+		GetWorld(), hit_result, path_positions, dest_position,
+		GetActorLocation(), init_velocity_, true, GetSphereComp()->GetScaledSphereRadius(),
+		trace_types, true, ignore_actors, EDrawDebugTrace::None, 0.0f, 5.0f, 10.f);
+
+	if (success && hit_result.bBlockingHit)
+	{
+		if (hit_result.GetActor()->ActorHasTag("Land"))
+		{
+			current_predict_.b_hit_land = true;
+		}
+		else
+		{
+			current_predict_.b_hit_land = false;
+		}
+
+		current_predict_.destination = hit_result.Location;
+		current_predict_.spline_positions_ = path_positions;
+
+		for (int32 index = 0; index < path_positions.Num(); ++index)
+		{
+			spline_comp_->AddSplinePointAtIndex(path_positions[index], index, ESplineCoordinateSpace::World, true);
+		}
+	}
+
+
+	return;
 }
 
 bool ABall::PushAndUpdateBallState(EBallState state)
