@@ -20,12 +20,16 @@ void AVolleyballArenaBase::SetServiceTeam(ECourtName service_court)
 		return;
 	
 	left_player->SetServiceMode("Floating");
+	left_player->SetPlayerTurn(EPlayerTurn::PT_SERVICE);
+	left_player->SetPlayerRole(EPlayerRole::PR_S_SERVICE);
 	
 	auto cast_to_player = (ABasePlayer*)left_player;
 	if (cast_to_player)
 		cast_to_player->CanControlBallCursor = true;
 
+	//arena_ball_->Rename(nullptr, left_player->ball_attachment_);
 	arena_ball_->AttachToComponent(left_player->ball_attachment_, FAttachmentTransformRules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, true));
+	arena_ball_->SetActorRelativeLocation(FVector(0, 0, 0));
 	arena_ball_->PushAndUpdateBallState(EBallState::eAttached);
 
 	// Set Another Player to Proper Turn
