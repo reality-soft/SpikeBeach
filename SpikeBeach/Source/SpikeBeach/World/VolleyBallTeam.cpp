@@ -32,12 +32,12 @@ bool AVolleyBallTeam::AddPlayerToTeam(ABaseCharacter* player) {
 	return false;
 }
 
-void AVolleyBallTeam::WinSinglePoint() {
-	point_this_set++;
+void AVolleyBallTeam::WinScore() {
+	score++;
 }
 
-void AVolleyBallTeam::WinSetPoint() {
-	score_win_set++;
+void AVolleyBallTeam::WinSet() {
+	set++;
 }
 
 void AVolleyBallTeam::SwapPlayerPos() {

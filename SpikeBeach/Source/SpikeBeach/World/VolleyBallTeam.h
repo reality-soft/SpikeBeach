@@ -14,7 +14,7 @@ class SPIKEBEACH_API AVolleyBallTeam : public AActor
 	
 private:
 	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
-		FString team_name = TEXT("");
+		FString team_name = TEXT("Default Team Name");
 
 	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
 		ECourtName court;
@@ -43,13 +43,16 @@ private:
 	bool is_cursor_active_ = false;
 
 	// SCORE
-	UINT score_win_set;
-	UINT point_this_set;
-
+	UINT score;
+	UINT set;
+  
 #pragma region SETTER
 public:
 	UFUNCTION(BlueprintCallable)
 		void SetTeamName(FString name) { team_name = name; }
+
+	UFUNCTION(BlueprintCallable)
+		FString GetetTeamName() { return team_name; }
 
 	UFUNCTION(BlueprintCallable)
 		void SetTeamCourt(ECourtName court_name) { court = court_name; }
@@ -82,10 +85,10 @@ public:
 		bool AddPlayerToTeam(ABaseCharacter* player);
 
 	UFUNCTION(BlueprintCallable)
-		void WinSinglePoint();
+		void WinScore();
 
 	UFUNCTION(BlueprintCallable)
-		void WinSetPoint();
+		void WinSet();
 
 	UFUNCTION(BlueprintCallable)
 		void SwapPlayerPos();
