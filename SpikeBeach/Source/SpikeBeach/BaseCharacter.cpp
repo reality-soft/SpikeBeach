@@ -75,6 +75,8 @@ void ABaseCharacter::Tick(float DeltaTime)
 	TimingCalculateIfClick(DeltaTime);
 
 	SmoothingWalkRun(DeltaTime);
+
+	MoveToOffsetDestination(DeltaTime);
 }
 
 void ABaseCharacter::TimingCalculateIfClick(float DeltaTime)
@@ -106,6 +108,23 @@ void ABaseCharacter::SmoothingWalkRun(float DeltaTime)
 	}
 }
 
+void ABaseCharacter::MoveToOffsetDestination(float DeltaTime)
+{
+	if (!bIsMoveToOffset)
+		return;
+
+	OffsetTimer += DeltaTime;
+	
+	FVector Offset = OffsetDestination - OffsetStart;
+	FVector LocationThisTime = OffsetStart + Offset * OffsetTimer / RemainingTimeToAction;
+
+	SetActorLocation(LocationThisTime);
+
+	UE_LOG(LogTemp, Log, TEXT("Rate : %f"), OffsetTimer / RemainingTimeToAction);
+	UE_LOG(LogTemp, Log, TEXT("Cur Location : %f, %f, %f"), LocationThisTime.X, LocationThisTime.Y, LocationThisTime.Z);
+	UE_LOG(LogTemp, Log, TEXT("Destination : %f, %f, %f"), OffsetDestination.X, OffsetDestination.Y, OffsetDestination.Z)
+}
+
 void ABaseCharacter::SetSuperSettings()
 {
 	// Don't rotate when the controller rotates. Let that just affect the camera.
@@ -129,6 +148,7 @@ void ABaseCharacter::SetPlayerAttributes()
 
 	bIsClicking = false;
 	bIsSprint = false; 
+	bIsMoveToOffset = false;
 
 	TimingAccuracy = 0.0f;
 	TimingTimer = 0.0f;
@@ -278,12 +298,16 @@ void ABaseCharacter::ServiceHitBall()
 
 void ABaseCharacter::DigBall()
 {
+	bIsMoveToOffset = false;
+	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Dig Ball"));
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::ReceiveBall()
 {
+	bIsMoveToOffset = false;
+	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Receive Ball"));
 
 	FVector StartPos = Ball->GetActorLocation();
@@ -302,24 +326,32 @@ void ABaseCharacter::BlockBall()
 
 void ABaseCharacter::TossBall()
 {
+	bIsMoveToOffset = false;
+	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Toss Ball"));
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::PassBall()
 {
+	bIsMoveToOffset = false;
+	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Pass Ball"));
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::SpikeBall()
 {
+	bIsMoveToOffset = false;
+	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Spike Ball"));
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
 void ABaseCharacter::FloatingBall()
 {
+	bIsMoveToOffset = false;
+	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Floating Ball"));
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
@@ -588,13 +620,13 @@ void ABaseCharacter::PlayPassAnimation()
 	{
 	case EOffenceMode::OM_TOSS:
 		// Move To Action Pos
-		//MoveToActionPos(*TossOffsetMap.Find(Direction));
+		//SetMoveToActionPos(*TossOffsetMap.Find(Direction));
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, TossMontage, Direction);
 		PlayAnimMontage(TossMontage, PlayRate, Direction);
 		break;
 	case EOffenceMode::OM_PASS:
 		// Move To Action Pos
-		MoveToActionPos(*PassOffsetMap.Find(Direction));
+		SetMoveToActionPos(*PassOffsetMap.Find(Direction));
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, PassMontage, Direction);
 		PlayAnimMontage(PassMontage, PlayRate, Direction);
 		break;
@@ -609,13 +641,13 @@ void ABaseCharacter::PlayAttackAnimation()
 	{
 	case EOffenceMode::OM_SPIKE:
 		// Move To Action Pos
-		//MoveToActionPos(*SpikeOffsetMap.Find(SpikeMode));
+		//SetMoveToActionPos(*SpikeOffsetMap.Find(SpikeMode));
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, SpikeMontage, SpikeMode);
 		PlayAnimMontage(SpikeMontage, PlayRate, SpikeMode);
 		break;
 	case EOffenceMode::OM_FLOATING:
 		// Move To Action Pos
-		//MoveToActionPos(*FloatingOffsetMap.Find(Direction));
+		//SetMoveToActionPos(*FloatingOffsetMap.Find(Direction));
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, FloatingMontage, Direction);
 		PlayAnimMontage(FloatingMontage, PlayRate, Direction);
 		break;
@@ -630,13 +662,13 @@ void ABaseCharacter::PlayReceiveAnimation()
 	{
 	case EDefenceMode::DM_DIG:
 		// Move To Action Pos
-		//MoveToActionPos(*DigOffsetMap.Find(Direction));
+		//SetMoveToActionPos(*DigOffsetMap.Find(Direction));
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, DigMontage, Direction);
 		PlayAnimMontage(DigMontage, PlayRate, Direction);
 		break;
 	case EDefenceMode::DM_RECEIVE:
 		// Move To Action Pos
-		MoveToActionPos(*ReceiveOffsetMap.Find(Direction));
+		SetMoveToActionPos(*ReceiveOffsetMap.Find(Direction));
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, ReceiveMontage, Direction);
 		PlayAnimMontage(ReceiveMontage, PlayRate, Direction);
 		break;
@@ -719,15 +751,17 @@ FVector ABaseCharacter::RotateOffsetToCurrentDirection(FVector Vector)
 	return Vector;
 }
 
-void ABaseCharacter::MoveToActionPos(FVector Offset)
+void ABaseCharacter::SetMoveToActionPos(FVector Offset)
 {
 	Offset = RotateOffsetToCurrentDirection(Offset);
 
-	// Set Destination to Action
-	FVector Destination = ActionPos - Offset;
+	// Set Start Pos From current pos
+	OffsetStart = GetActorLocation();
 
-	// TODO : Set Speed To Destination
-	SetActorLocation(Destination);
+	// Set Destination to Action
+	OffsetDestination = ActionPos - Offset;
+
+	bIsMoveToOffset = true;
 }
 
 void ABaseCharacter::HandleTurnChange()
