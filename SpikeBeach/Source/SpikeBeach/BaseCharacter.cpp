@@ -117,6 +117,7 @@ void ABaseCharacter::SetSuperSettings()
 void ABaseCharacter::SetPlayerAttributes()
 {
 	PlayerTurn = EPlayerTurn::PT_SERVICE;
+	PlayerRole = EPlayerRole::PR_S_SERVICE_WAIT;
 
 	WalkSpeed = 500.0f;
 	SprintSpeed = 700.0f;

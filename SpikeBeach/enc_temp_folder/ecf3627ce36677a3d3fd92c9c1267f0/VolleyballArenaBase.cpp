@@ -150,8 +150,8 @@ void AVolleyballArenaBase::SetPlayerRoleOverTurn()
 		attack_team_r_player->SetPlayerRole(EPlayerRole::PR_D_RECEIVE);
 	}
 
-	auto defence_team_r_player = DefenceTeam->GetRightSidePlayer();
-	auto defence_team_l_player = DefenceTeam->GetLeftSidePlayer();
+	auto defence_team_r_player = AttackTeam->GetRightSidePlayer();
+	auto defence_team_l_player = AttackTeam->GetLeftSidePlayer();
 
 	float dist_from_net_to_r = fabs(attack_team_r_player->GetActorLocation().Y - 810.0f);
 	float dist_from_net_to_l = fabs(attack_team_l_player->GetActorLocation().Y - 810.0f);
