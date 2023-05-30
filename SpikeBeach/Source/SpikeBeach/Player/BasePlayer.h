@@ -151,7 +151,13 @@ protected:
 	virtual void PassBall() override;
 	virtual void SpikeBall() override;
 	virtual void FloatingBall() override;
-
+	
+protected:
+	virtual bool JudgeServiceMode() override;
+	virtual bool JudgePassMode() override;
+	virtual bool JudgeAttackMode() override;
+	virtual bool JudgeReceiveMode() override;
+	virtual bool JudgeBlockMode() override;
 protected:
 	virtual void PlayServiceAnimation() override;
 	virtual void PlayPassAnimation() override;

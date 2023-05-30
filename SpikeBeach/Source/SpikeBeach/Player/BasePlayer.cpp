@@ -49,10 +49,19 @@ void ABasePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	auto player_controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	if (Company->GetPlayerRole() == EPlayerRole::PR_A_TOSS)
 	{
-		auto player_controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 		player_controller->SetShowMouseCursor(true);
+	}
+	else
+	{
+		player_controller->SetShowMouseCursor(false);
+	}
+
+	if (Company->GetPlayerRole() == EPlayerRole::PR_A_MOVE_TO_DEFENCE_POS)
+	{
+		CanControlBallCursor = true;
 	}
 }
 
@@ -134,25 +143,22 @@ void ABasePlayer::LClickTriggered(const FInputActionValue& Value)
 	if (!bIsClicking)
 	{
 		bIsClicking = true;
-
-		switch (PlayerTurn)
-		{
-		case EPlayerTurn::PT_SERVICE:
-			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
-			SetServiceMode();
-			break;
-		case EPlayerTurn::PT_DEFENCE:
-			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_StableRG);
-			SetReceiveMode();
-			OffenceMode = EOffenceMode::OM_NONE;
-			break;
-		case EPlayerTurn::PT_OFFENCE:
-			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
-			SetAttackMode();
-			DefenceMode = EDefenceMode::DM_NONE;
-			break;
-		}
 	}
+	switch (PlayerTurn)
+	{
+	case EPlayerTurn::PT_SERVICE:
+		SetServiceMode();
+		break;
+	case EPlayerTurn::PT_DEFENCE:
+		SetReceiveMode();
+		OffenceMode = EOffenceMode::OM_NONE;
+		break;
+	case EPlayerTurn::PT_OFFENCE:
+		SetAttackMode();
+		DefenceMode = EDefenceMode::DM_NONE;
+		break;
+	}
+	
 }
 
 void ABasePlayer::LClickCompleted(const FInputActionValue& Value)
@@ -179,12 +185,10 @@ void ABasePlayer::RClickTriggered(const FInputActionValue& Value)
 		switch (PlayerTurn)
 		{
 		case EPlayerTurn::PT_DEFENCE:
-			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
 			SetBlockMode();
 			OffenceMode = EOffenceMode::OM_NONE;
 			break;
 		case EPlayerTurn::PT_OFFENCE:
-			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_StableRG);
 			SetPassMode();
 			DefenceMode = EDefenceMode::DM_NONE;
 			break;
@@ -352,7 +356,19 @@ void ABasePlayer::PassBall()
 
 void ABasePlayer::SpikeBall()
 {
-	ABaseCharacter::SpikeBall();
+	bIsMoveToOffset = false;
+	OffsetTimer = 0;
+	UE_LOG(LogTemp, Log, TEXT("Spike Ball"));
+
+	FVector StartPos = Ball->GetActorLocation();
+	FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+
+	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+
+	PlayerTurn = EPlayerTurn::PT_DEFENCE;
+
+	CanControlBallCursor = false;
+
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
@@ -362,25 +378,65 @@ void ABasePlayer::FloatingBall()
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
+bool ABasePlayer::JudgeServiceMode()
+{
+	if (is_montage_started_)
+		return false;
+	return ABaseCharacter::JudgeServiceMode();
+}
+
+bool ABasePlayer::JudgePassMode()
+{
+	if (is_montage_started_)
+		return false;
+	return ABaseCharacter::JudgePassMode();
+}
+
+bool ABasePlayer::JudgeAttackMode()
+{
+	if (is_montage_started_)
+		return false;
+	return ABaseCharacter::JudgeAttackMode();
+}
+
+bool ABasePlayer::JudgeReceiveMode()
+{
+	if (is_montage_started_)
+		return false;
+	return ABaseCharacter::JudgeReceiveMode();
+}
+
+bool ABasePlayer::JudgeBlockMode()
+{
+	if (is_montage_started_)
+		return false;
+	return ABaseCharacter::JudgeBlockMode();
+}
+
 void ABasePlayer::PlayServiceAnimation()
 {
 	CanControlBallCursor = false;
+
+	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
 	ABaseCharacter::PlayServiceAnimation();
 }
 
 void ABasePlayer::PlayPassAnimation()
 {
+	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_StableRG);
 	ABaseCharacter::PlayPassAnimation();
 }
 
 void ABasePlayer::PlayAttackAnimation()
 {
+	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
 	ABaseCharacter::PlayAttackAnimation();
 
 }
 
 void ABasePlayer::PlayReceiveAnimation()
 {
+	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_StableRG);
 	ABaseCharacter::PlayReceiveAnimation();
 }
 

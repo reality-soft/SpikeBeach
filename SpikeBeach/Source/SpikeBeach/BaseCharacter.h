@@ -387,24 +387,16 @@ protected:
 		virtual void FloatingBall();
 
 public:
-	UFUNCTION(BlueprintImplementableEvent, Category = Player)
-		void JudgeServiceMode();
-	//UFUNCTION(BlueprintImplementableEvent, Category = Player)
-	//	void JudgePassMode();
-	//UFUNCTION(BlueprintImplementableEvent, Category = Player)
-	//	void JudgeAttackMode();
-	//UFUNCTION(BlueprintImplementableEvent, Category = Player)
-	//	void JudgeReceiveMode();
-	//UFUNCTION(BlueprintImplementableEvent, Category = Player)
-	//	void JudgeBlockMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		bool JudgePassMode();
+		virtual bool JudgeServiceMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		bool JudgeAttackMode();
+		virtual bool JudgePassMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		bool JudgeReceiveMode();
+		virtual bool JudgeAttackMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		bool JudgeBlockMode();
+		virtual bool JudgeReceiveMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		virtual bool JudgeBlockMode();
 
 	UFUNCTION(BlueprintCallable, Category = Player)
 		FString GetPlayerMode();

@@ -334,7 +334,15 @@ void ABaseCharacter::TossBall()
 	UE_LOG(LogTemp, Log, TEXT("Toss Ball"));
 
 	FVector StartPos = Ball->GetActorLocation();
-	FVector EndPos = Company->dest_position_;
+	FVector EndPos;
+	if (FVector::PointsAreSame(Company->dest_position_, FVector(0, 0, 0)))
+	{
+		EndPos = Company->GetActorLocation();
+	}
+	else
+	{
+		EndPos = Company->dest_position_;
+	}
 
 	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
@@ -368,6 +376,13 @@ void ABaseCharacter::FloatingBall()
 	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Floating Ball"));
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
+}
+
+
+bool ABaseCharacter::JudgeServiceMode()
+{
+	RemainingTimeToAction = ServiceMontage->GetSectionLength(ServiceMontage->GetSectionIndex(ServiceMode));
+	return true;
 }
 
 bool ABaseCharacter::JudgePassMode()
@@ -536,7 +551,8 @@ void ABaseCharacter::SetServiceMode()
 	// Set Service Mode& Calculate Ball's Action Values
 	// 1. Set Service Mode upon Player Pos : TODO 
 	// 2. Call Ball's Calculate values : TODO
-	JudgeServiceMode();
+	if (!JudgeServiceMode())
+		return;
 
 	TimingMax = RemainingTimeToAction;
 
