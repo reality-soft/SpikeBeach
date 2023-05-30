@@ -132,6 +132,12 @@ void ABasePlayer::Move(const FInputActionValue& Value)
 		// get right vector 
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
+		if (GetMyTeam()->GetCourtName() == ECourtName::eBeachSideTeam)
+		{
+			MovementVector.X *= -1;
+			MovementVector.Y *= -1;
+		}
+
 		// add movement 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);

@@ -635,7 +635,6 @@ void ABaseCharacter::PlayServiceAnimation()
 	// Rotate To End Pos
 	auto RotationDir = (GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation() - GetActorLocation());
 	RotationDir.Z = 0;
-
 	RotationDir.Normalize();
 	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
 	
@@ -653,7 +652,7 @@ void ABaseCharacter::PlayPassAnimation()
 	{
 	case EOffenceMode::OM_TOSS:
 		// Move To Action Pos
-		//SetMoveToActionPos(*TossOffsetMap.Find(Direction));
+		SetMoveToActionPos(*TossOffsetMap.Find(Direction));
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, TossMontage, Direction);
 		PlayAnimMontage(TossMontage, PlayRate, Direction);
 		break;
@@ -670,17 +669,26 @@ void ABaseCharacter::PlayAttackAnimation()
 {
 	MontageStarted();
 	float PlayRate;
+	FVector RotationDir;
+	FQuat quat;
 	switch (OffenceMode)
 	{
 	case EOffenceMode::OM_SPIKE:
 		// Move To Action Pos
-		//SetMoveToActionPos(*SpikeOffsetMap.Find(SpikeMode));
+		SetMoveToActionPos(*SpikeOffsetMap.Find(SpikeMode));
+		// Rotate To End Pos
+		RotationDir = (GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation() - GetActorLocation());
+		RotationDir.Z = 0;
+		RotationDir.Normalize();
+		quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
+		AddActorLocalRotation(quat);
+
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, SpikeMontage, SpikeMode);
 		PlayAnimMontage(SpikeMontage, PlayRate, SpikeMode);
 		break;
 	case EOffenceMode::OM_FLOATING:
 		// Move To Action Pos
-		//SetMoveToActionPos(*FloatingOffsetMap.Find(Direction));
+		SetMoveToActionPos(*FloatingOffsetMap.Find(Direction));
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, FloatingMontage, Direction);
 		PlayAnimMontage(FloatingMontage, PlayRate, Direction);
 		break;
@@ -695,7 +703,7 @@ void ABaseCharacter::PlayReceiveAnimation()
 	{
 	case EDefenceMode::DM_DIG:
 		// Move To Action Pos
-		//SetMoveToActionPos(*DigOffsetMap.Find(Direction));
+		SetMoveToActionPos(*DigOffsetMap.Find(Direction));
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, DigMontage, Direction);
 		PlayAnimMontage(DigMontage, PlayRate, Direction);
 		break;
@@ -711,6 +719,11 @@ void ABaseCharacter::PlayReceiveAnimation()
 void ABaseCharacter::PlayBlockAnimation()
 {
 	MontageStarted();
+
+	auto RotationDir = GetMyTeam()->GetCourtName() == ECourtName::eReefSideTeam ? FVector(0, 1, 0) : FVector(0, -1, 0);
+	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
+	AddActorLocalRotation(quat);
+
 	PlayAnimMontage(BlockMontage, 1.0f, Direction);
 }
 

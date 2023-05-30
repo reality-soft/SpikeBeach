@@ -64,7 +64,15 @@ void UVolleyBallGame::ChangeCourt()
 {
 	auto reef_side_team = GetCourtTeam(ECourtName::eReefSideTeam);
 	auto beach_side_team = GetCourtTeam(ECourtName::eBeachSideTeam);
+
 	TeamPlayingVolleyBall[(int)ECourtName::eBeachSideTeam] = reef_side_team;
+	reef_side_team->SetTeamCourt(ECourtName::eBeachSideTeam);
+
 	TeamPlayingVolleyBall[(int)ECourtName::eReefSideTeam] = beach_side_team;
+	beach_side_team->SetTeamCourt(ECourtName::eReefSideTeam);
 	
+	// team box change
+	auto temp_box = reef_side_team->team_box_;
+	reef_side_team->team_box_ = beach_side_team->team_box_;
+	beach_side_team->team_box_ = temp_box;
 }
