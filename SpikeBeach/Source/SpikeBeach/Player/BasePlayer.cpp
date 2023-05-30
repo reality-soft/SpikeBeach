@@ -49,7 +49,7 @@ void ABasePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	auto player_controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	auto player_controller = Cast<ACustomPlayerController>(Controller);
 	if (Company->GetPlayerRole() == EPlayerRole::PR_A_TOSS)
 	{
 		player_controller->SetShowMouseCursor(true);
