@@ -280,7 +280,7 @@ void ABaseCharacter::ServiceHitBall()
 	if (Ball)
 	{
 		FVector StartPos = Ball->GetActorLocation();
-		FVector EndPos = { 2380, 1470, 20 };
+		FVector EndPos = dest_turnover_to_;
 
 		if (ServiceMode == FName("Spoon"))
 		{
