@@ -156,6 +156,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
 		FVector2D ball_cursor_value_;
 
-	UFUNCTION(BlueprintCallAble, Category = "Game Play")
-		void ClearBallCursor();
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
+		class AVolleyballArenaBase* arena_;
 };

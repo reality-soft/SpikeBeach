@@ -213,20 +213,7 @@ void ABasePlayer::SprintCompleted(const FInputActionValue& Value)
 
 void ABasePlayer::BallCursorTriggered(const FInputActionValue& Value)
 {
-	if (CanControlBallCursor == false)
-		return;
-
-	ball_cursor_value_.X += Value.Get<FInputActionValue::Axis2D>().X * 0.01f;
-	ball_cursor_value_.Y += Value.Get<FInputActionValue::Axis2D>().Y * 0.01f;
-
-	ball_cursor_value_.X = std::min(ball_cursor_value_.X,  1.0);
-	ball_cursor_value_.X = std::max(ball_cursor_value_.X, -1.0);
-												 
-	ball_cursor_value_.Y = std::min(ball_cursor_value_.Y,  1.0);
-	ball_cursor_value_.Y = std::max(ball_cursor_value_.Y, -1.0);
-
 	ECourtName agains_team;
-
 	switch (GetMyTeam()->GetCourtName())
 	{
 	case ECourtName::eReefSideTeam:
@@ -236,6 +223,23 @@ void ABasePlayer::BallCursorTriggered(const FInputActionValue& Value)
 		agains_team = ECourtName::eReefSideTeam;
 		break;
 	}
+
+	if (CanControlBallCursor == false)
+	{
+		ball_cursor_value_.X = 0.0f;
+		ball_cursor_value_.Y = 0.0f;
+		arena_->game_playing_->GetCourtTeam(agains_team)->ClearBallCursor();
+		return;
+	}
+
+	ball_cursor_value_.X += Value.Get<FInputActionValue::Axis2D>().X * 0.01f;
+	ball_cursor_value_.Y += Value.Get<FInputActionValue::Axis2D>().Y * 0.01f;
+
+	ball_cursor_value_.X = std::min(ball_cursor_value_.X, 1.0);
+	ball_cursor_value_.X = std::max(ball_cursor_value_.X, -1.0);
+
+	ball_cursor_value_.Y = std::min(ball_cursor_value_.Y, 1.0);
+	ball_cursor_value_.Y = std::max(ball_cursor_value_.Y, -1.0);
 
 	arena_->game_playing_->GetCourtTeam(agains_team)->UpdateBallCursor(ball_cursor_value_);
 }
@@ -344,11 +348,4 @@ void ABasePlayer::PlayReceiveAnimation()
 void ABasePlayer::PlayBlockAnimation()
 {
 	ABaseCharacter::PlayBlockAnimation();
-}
-
-
-void ABasePlayer::ClearBallCursor()
-{
-	ball_cursor_value_.X = 0;
-	ball_cursor_value_.Y = 0;
 }
