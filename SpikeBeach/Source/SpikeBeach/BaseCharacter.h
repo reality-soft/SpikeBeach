@@ -18,6 +18,23 @@ enum class EPlayerTurn : uint8
 };
 
 UENUM(BlueprintType)
+enum class EPlayerRole : uint8
+{
+	PR_S_SERVICE,
+	PR_S_SERVICE_WAIT,
+	PR_D_RECEIVE,
+	PR_D_FRONT_BEFORE_TOSS,
+	PR_D_FRONT_AFTER_TOSS,
+	PR_D_BACK,
+	PR_A_MOVE_TO_TOSS_POS,
+	PR_A_TOSS,
+	PR_A_MOVE_TO_ATTACK_POS,
+	PR_A_ATTACK,
+	PR_A_MOVE_TO_DEFENCE_POS,
+	COUNT,
+};
+
+UENUM(BlueprintType)
 enum class EOffenceMode : uint8
 {
 	OM_NONE,
@@ -142,6 +159,9 @@ protected:
 		class AVolleyBallTeam* my_team_;
 
 	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+		class AVolleyBallTeam* ememy_team_;
+
+	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 		EPlayerPosition MyCourtPosition;
 
 	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
@@ -201,6 +221,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Player, meta = (AllowPrivateAccess = "true"))
 		EPlayerTurn PlayerTurn;
 
+	/* Player Roll */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Player, meta = (AllowPrivateAccess = "true"))
+		EPlayerRole PlayerRole;
+
 	/* Attack Mode */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Player, meta = (AllowPrivateAccess = "true"))
 		EOffenceMode OffenceMode;
@@ -235,6 +259,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GameInfo, meta = (AllowPrivateAccess = "true"))
 		FVector ActionPos;
+public:
+	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
+		class AVolleyballArenaBase* arena_;
 #pragma endregion
 
 #pragma region Animation
@@ -276,6 +303,7 @@ protected:
 #pragma region GETTER
 	public:
 		AVolleyBallTeam* GetMyTeam() { return my_team_; }
+		AVolleyBallTeam* GetEnemyTeam();
 #pragma endregion
 
 #pragma region SETTER

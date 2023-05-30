@@ -4,13 +4,34 @@
 #include "BaseCharacter.h"
 #include "Ball/Ball.h"
 #include "World/VolleyballArenaBase.h"
+#include "World/VolleyballGame.h"
+#include "World/VolleyballTeam.h"
 #include "GameFramework/Controller.h"
 #include "Math/UnrealMathUtility.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+
+
+AVolleyBallTeam* ABaseCharacter::GetEnemyTeam()
+{
+	if (!arena_)
+		return nullptr;
+
+	switch (GetMyTeam()->GetCourtName())
+	{
+	case ECourtName::eBeachSideTeam:
+		return arena_->game_playing_->GetCourtTeam(ECourtName::eReefSideTeam);
+		break;
+	case ECourtName::eReefSideTeam:
+		return arena_->game_playing_->GetCourtTeam(ECourtName::eBeachSideTeam);
+		break;
+	}
+
+	return nullptr;
+}
 
 void ABaseCharacter::MontageStarted()
 {
@@ -546,6 +567,14 @@ FString ABaseCharacter::GetPlayerMode()
 void ABaseCharacter::PlayServiceAnimation()
 {
 	MontageStarted();
+
+	// Rotate To End Pos
+	auto RotationDir = (GetEnemyTeam()->ball_cursor_->GetComponentLocation() - GetActorLocation());
+	RotationDir.Normalize();
+	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
+	
+	AddActorLocalRotation(quat);
+
 	float PlayRate = CalculatePlayRate(RemainingTimeToAction, ServiceMontage, ServiceMode);
 	PlayAnimMontage(ServiceMontage, PlayRate, ServiceMode);
 }
