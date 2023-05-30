@@ -372,18 +372,19 @@ bool ABaseCharacter::JudgePassMode()
 	Direction = GetDirectionFromPlayer(Company->GetActorLocation());
 
 	// 2. Check If Toss is Possible
-	FName FilterName = Direction == FName("Back") ? FName("Front") : Direction;
+	FName FilterName = Direction.Compare(FName("Back")) == 0 ? FName("Front") : Direction;
 	float RequiredHeight = GetRequiredHeightFromOffset(TossOffsetMap, FilterName);
 	auto DropInfo = Ball->GetDropInfo(RequiredHeight);
 
 	// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
-	TimeToPlayAnim = TossMontage->GetSectionLength(TossMontage->GetSectionIndex(Direction));
+	TimeToPlayAnim = TossMontage->GetSectionLength(TossMontage->GetSectionIndex(FilterName));
 
 	if (DropInfo.remain_time > TimeToPlayAnim)
 		return false;
 
 	if (DropInfo.remain_time > 0.0f)
 	{
+		Direction = FilterName;
 		OffenceMode = EOffenceMode::OM_TOSS;
 		RemainingTimeToAction = DropInfo.remain_time;
 		ActionPos = DropInfo.drop_pos;
