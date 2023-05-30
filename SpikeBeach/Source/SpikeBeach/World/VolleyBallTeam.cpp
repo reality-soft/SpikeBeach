@@ -14,6 +14,38 @@ AVolleyBallTeam::AVolleyBallTeam()
 
 }
 
+bool AVolleyBallTeam::AddPlayerToTeam(ABaseCharacter* player) {
+	if (left_side_player == nullptr)
+	{
+		left_side_player = player;
+		left_side_player->SetMyTeam(this);
+		return true;
+	}
+
+	if (right_side_player == nullptr)
+	{
+		right_side_player = player;
+		right_side_player->SetMyTeam(this);
+		return true;
+	}
+
+	return false;
+}
+
+void AVolleyBallTeam::WinSinglePoint() {
+	point_this_set++;
+}
+
+void AVolleyBallTeam::WinSetPoint() {
+	score_win_set++;
+}
+
+void AVolleyBallTeam::SwapPlayerPos() {
+	ABaseCharacter* temp = right_side_player;
+	right_side_player = left_side_player;
+	left_side_player = temp;
+}
+
 void AVolleyBallTeam::UpdateBallCursor(FVector2D cursor)
 {
 	if (team_box_ == nullptr ||
