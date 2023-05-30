@@ -43,8 +43,10 @@ private:
 	bool is_cursor_active_ = false;
 
 	// SCORE
-	UINT score;
-	UINT set;
+	UPROPERTY(BlueprintReadWrite, Category = "Score", meta = (AllowPrivateAccess = "true"))
+		int32 score;
+	UPROPERTY(BlueprintReadWrite, Category = "Score", meta = (AllowPrivateAccess = "true"))
+		int32 set;
   
 #pragma region SETTER
 public:
