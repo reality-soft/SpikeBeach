@@ -304,12 +304,14 @@ public:
 	public:
 		AVolleyBallTeam* GetMyTeam() { return my_team_; }
 		AVolleyBallTeam* GetEnemyTeam();
+		EPlayerRole GetPlayerRole() { return PlayerRole;}
 #pragma endregion
 
 #pragma region SETTER
 	public:
 		void SetMyTeam(AVolleyBallTeam* team) { my_team_ = team; }
 		void SetPlayerTurn(EPlayerTurn turn) { PlayerTurn = turn; }
+		void SetPlayerRole(EPlayerRole player_role) { PlayerRole = player_role; }
 #pragma endregion
 
 

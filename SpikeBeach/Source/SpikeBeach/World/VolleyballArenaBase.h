@@ -23,6 +23,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "VolleyBallGame")
 		class UVolleyBallGame* game_playing_;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Players")
+		TArray<ABaseCharacter*> Players;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "BallSystem")
@@ -33,6 +35,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
 		void UpdateBallTrigger();
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "Players")
+		void SetPlayerRole();
+
+	UFUNCTION(BlueprintCallable, Category = "Players")
+		void SetPlayerRoleOverTurn();
 
 public:
 	// Sets default values for this actor's properties
