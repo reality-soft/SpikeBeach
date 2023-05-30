@@ -194,15 +194,15 @@ protected:
 	TMap<FName, FVector> TossOffsetMap;
 	UPROPERTY(BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	TMap<FName, FVector> PassOffsetMap;
-
-	
-
 	
 	// Properties
-
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Ball Attach Component")
 		class USceneComponent* ball_attachment_;
+
+public:
+	UPROPERTY(BlueprintReadWrite, Category = "Player Movement")
+		FVector dest_position_;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Animation)
