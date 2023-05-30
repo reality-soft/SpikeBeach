@@ -155,7 +155,8 @@ protected:
 	float	TimingTimer;
 	float	TimingMax;
 	bool	bIsMoveToOffset;
-	float	OffsetTimer;
+	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+		float	OffsetTimer;
 	FVector OffsetStart;
 	FVector OffsetDestination;
 
@@ -305,7 +306,8 @@ public:
 	public:
 		bool GetIsClicking() { return bIsClicking; }
 		AVolleyBallTeam* GetMyTeam() { return my_team_; }
-		AVolleyBallTeam* GetEnemyTeam();
+		UFUNCTION(BlueprintCallable, Category = EnemyFunc)
+			AVolleyBallTeam* GetEnemyTeam();
 		EPlayerRole GetPlayerRole() { return PlayerRole;}
 #pragma endregion
 

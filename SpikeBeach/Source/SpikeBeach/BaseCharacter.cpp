@@ -43,6 +43,8 @@ void ABaseCharacter::MontageStarted()
 void ABaseCharacter::MontageEnded()
 {
 	is_montage_ended_ = true;
+	OffenceMode = EOffenceMode::OM_NONE;
+	DefenceMode = EDefenceMode::DM_NONE;
 }
 
 // Sets default values
