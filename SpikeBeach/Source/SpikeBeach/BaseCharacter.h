@@ -250,7 +250,7 @@ protected:
 protected:
 #pragma region GAME(Company, Ball) INFO
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GameInfo, meta = (AllowPrivateAccess = "true"))
-		class AActor* Company;
+		ABaseCharacter* Company;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GameInfo, meta = (AllowPrivateAccess = "true"))
 		class ABall* Ball;

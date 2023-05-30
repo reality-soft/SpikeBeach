@@ -329,6 +329,11 @@ void ABaseCharacter::TossBall()
 	bIsMoveToOffset = false;
 	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Toss Ball"));
+
+	FVector StartPos = Ball->GetActorLocation();
+	FVector EndPos = Company->dest_position_;
+
+	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
