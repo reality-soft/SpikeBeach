@@ -569,7 +569,7 @@ void ABaseCharacter::PlayServiceAnimation()
 	MontageStarted();
 
 	// Rotate To End Pos
-	auto RotationDir = (GetEnemyTeam()->ball_cursor_->GetComponentLocation() - GetActorLocation());
+	auto RotationDir = (GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation() - GetActorLocation());
 	RotationDir.Normalize();
 	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
 	

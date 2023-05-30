@@ -258,7 +258,7 @@ void ABasePlayer::ServiceHitBall()
 	if (Ball)
 	{
 		FVector StartPos = Ball->GetActorLocation();
-		FVector EndPos = GetEnemyTeam()->ball_cursor_->GetComponentLocation();
+		FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
 
 		if (ServiceMode == FName("Spoon"))
 		{
