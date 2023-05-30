@@ -138,9 +138,6 @@ void ABaseCharacter::SetSuperSettings()
 
 void ABaseCharacter::SetPlayerAttributes()
 {
-	PlayerTurn = EPlayerTurn::PT_SERVICE;
-	PlayerRole = EPlayerRole::PR_S_SERVICE_WAIT;
-
 	WalkSpeed = 500.0f;
 	SprintSpeed = 700.0f;
 
@@ -295,8 +292,6 @@ void ABaseCharacter::ServiceHitBall()
 			Ball->JumpServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
 		}
 	}
-	
-	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
 void ABaseCharacter::DigBall()
@@ -304,7 +299,6 @@ void ABaseCharacter::DigBall()
 	bIsMoveToOffset = false;
 	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Dig Ball"));
-	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::ReceiveBall()
@@ -318,13 +312,11 @@ void ABaseCharacter::ReceiveBall()
 
 	Ball->ReceiveMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 
-	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::BlockBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Block Ball"));
-	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
 void ABaseCharacter::TossBall()
@@ -345,7 +337,6 @@ void ABaseCharacter::TossBall()
 	}
 
 	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
-	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::PassBall()
@@ -353,7 +344,6 @@ void ABaseCharacter::PassBall()
 	bIsMoveToOffset = false;
 	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Pass Ball"));
-	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::SpikeBall()
@@ -366,8 +356,6 @@ void ABaseCharacter::SpikeBall()
 	FVector EndPos = dest_turnover_to_;
 
 	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
-
-	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
 void ABaseCharacter::FloatingBall()
@@ -375,7 +363,6 @@ void ABaseCharacter::FloatingBall()
 	bIsMoveToOffset = false;
 	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Floating Ball"));
-	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
 

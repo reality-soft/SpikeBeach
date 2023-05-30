@@ -187,19 +187,19 @@ void ABasePlayer::RClickTriggered(const FInputActionValue& Value)
 	if (!bIsClicking)
 	{
 		bIsClicking = true;
-
-		switch (PlayerTurn)
-		{
-		case EPlayerTurn::PT_DEFENCE:
-			SetBlockMode();
-			OffenceMode = EOffenceMode::OM_NONE;
-			break;
-		case EPlayerTurn::PT_OFFENCE:
-			SetPassMode();
-			DefenceMode = EDefenceMode::DM_NONE;
-			break;
-		}
 	}
+	switch (PlayerTurn)
+	{
+	case EPlayerTurn::PT_DEFENCE:
+		SetBlockMode();
+		OffenceMode = EOffenceMode::OM_NONE;
+		break;
+	case EPlayerTurn::PT_OFFENCE:
+		SetPassMode();
+		DefenceMode = EDefenceMode::DM_NONE;
+		break;
+	}
+	
 
 }
 
@@ -323,8 +323,6 @@ void ABasePlayer::ServiceHitBall()
 		}
 	}
 
-	PlayerTurn = EPlayerTurn::PT_DEFENCE;
-
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
@@ -370,8 +368,6 @@ void ABasePlayer::SpikeBall()
 	FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
 
 	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
-
-	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 
 	CanControlBallCursor = false;
 
