@@ -370,8 +370,8 @@ void ABall::PredictPath()
 
 bool ABall::PushAndUpdateBallState(EBallState state)
 {
-	if (current_ball_state_ == state)
-		return false;
+	//if (current_ball_state_ == state)
+	//	return false;
 
 	current_ball_state_ = state;
 	state_queue_.Enqueue(state);
