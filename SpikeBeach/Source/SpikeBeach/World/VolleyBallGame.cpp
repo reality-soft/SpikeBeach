@@ -42,8 +42,8 @@ void UVolleyBallGame::ReturnPlayerToCourtPoint()
 	auto reef_l_player = reef_side_team->GetLeftSidePlayer();
 	if (reef_r_player && reef_l_player)
 	{
-		reef_r_player->SetActorLocation(ReefCourtRight);
-		reef_l_player->SetActorLocation(ReefCourtLeft);
+		reef_r_player->SetActorLocation(ReefCourtRight.GetLocation());
+		reef_l_player->SetActorLocation(ReefCourtLeft.GetLocation());
 	}
 
 	auto beach_side_team = GetCourtTeam(ECourtName::eBeachSideTeam);
@@ -51,8 +51,8 @@ void UVolleyBallGame::ReturnPlayerToCourtPoint()
 	auto beach_l_player = beach_side_team->GetLeftSidePlayer();
 	if (beach_r_player && beach_l_player)
 	{
-		beach_r_player->SetActorLocation(BeachCourtRight);
-		beach_l_player->SetActorLocation(BeachCourtLeft);
+		beach_r_player->SetActorLocation(BeachCourtRight.GetLocation());
+		beach_l_player->SetActorLocation(BeachCourtLeft.GetLocation());
 	}
 }
 

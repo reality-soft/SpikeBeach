@@ -20,13 +20,13 @@ private:
 		ECourtName service_court;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
-		FVector ReefCourtLeft;
+		FTransform ReefCourtLeft;
 	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
-		FVector ReefCourtRight;
+		FTransform ReefCourtRight;
 	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
-		FVector BeachCourtLeft;
+		FTransform BeachCourtLeft;
 	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
-		FVector BeachCourtRight;
+		FTransform BeachCourtRight;
 public:
 	// Sets default values for this component's properties
 	UVolleyBallGame();
