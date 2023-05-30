@@ -14,7 +14,7 @@ class SPIKEBEACH_API AVolleyBallTeam : public AActor
 	
 private:
 	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
-		FString team_name = TEXT("");
+		FString team_name = TEXT("Default Team Name");
 
 	UPROPERTY(BlueprintReadWrite, Category = "Team", meta = (AllowPrivateAccess = "true"))
 		ECourtName court;
@@ -43,17 +43,62 @@ private:
 	bool is_cursor_active_ = false;
 
 	// SCORE
-	UINT score_win_set;
-	UINT point_this_set;
-
+	UINT score;
+	UINT set;
+  
 #pragma region SETTER
 public:
 	UFUNCTION(BlueprintCallable)
 		void SetTeamName(FString name) { team_name = name; }
 
 	UFUNCTION(BlueprintCallable)
+		FString GetetTeamName() { return team_name; }
+
+	UFUNCTION(BlueprintCallable)
 		void SetTeamCourt(ECourtName court_name) { court = court_name; }
 #pragma endregion
+
+	UFUNCTION(BlueprintCallable)
+		bool AddPlayerToTeam(ABaseCharacter* player) {
+		if (left_side_player == nullptr)
+		{
+			left_side_player = player;
+			left_side_player->SetMyTeam(this);
+			return true;
+		}
+
+		if (right_side_player == nullptr)
+		{
+			right_side_player = player;
+			right_side_player->SetMyTeam(this);
+			return true;
+		}
+
+		return false;
+	}
+
+	UFUNCTION(BlueprintCallable)
+		void WinSinglePoint() {
+		set++;
+	}
+
+	UFUNCTION(BlueprintCallable)
+		void WinSetPoint() {
+		score++;
+	}
+
+	UFUNCTION(BlueprintCallable)
+		void SwapPlayerPos() {
+		ABaseCharacter* temp = right_side_player;
+		right_side_player = left_side_player;
+		left_side_player = temp;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Game Play")
+		void UpdateBallCursor(FVector2D cursor);
+
+	UFUNCTION(BlueprintCallable, Category = "Game Play")
+		void ClearBallCursor();
 
 #pragma region GETTER
 public:
