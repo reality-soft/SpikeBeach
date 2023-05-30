@@ -424,6 +424,9 @@ void ABasePlayer::PlayServiceAnimation()
 	CanControlBallCursor = false;
 
 	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
+
+	dest_turnover_to_ = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+
 	ABaseCharacter::PlayServiceAnimation();
 }
 
@@ -435,7 +438,12 @@ void ABasePlayer::PlayPassAnimation()
 
 void ABasePlayer::PlayAttackAnimation()
 {
+	CanControlBallCursor = false;
+
 	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
+
+	dest_turnover_to_ = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+
 	ABaseCharacter::PlayAttackAnimation();
 
 }

@@ -205,6 +205,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Player Movement")
 		FVector dest_position_;
 
+	UPROPERTY(BlueprintReadWrite, Category = Player)
+		FVector dest_turnover_to_;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Animation)
 		class UDataTable* AnimOffsetData;

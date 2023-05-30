@@ -363,7 +363,7 @@ void ABaseCharacter::SpikeBall()
 	UE_LOG(LogTemp, Log, TEXT("Spike Ball"));
 
 	FVector StartPos = Ball->GetActorLocation();
-	FVector EndPos = FVector(2240, 460, 30);
+	FVector EndPos = dest_turnover_to_;
 
 	auto box = GetEnemyTeam()->team_box_;
 
@@ -647,7 +647,7 @@ void ABaseCharacter::PlayServiceAnimation()
 	MontageStarted();
 
 	// Rotate To End Pos
-	auto RotationDir = (GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation() - GetActorLocation());
+	auto RotationDir = (dest_turnover_to_ - GetActorLocation());
 	RotationDir.Z = 0;
 	RotationDir.Normalize();
 	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
@@ -691,7 +691,7 @@ void ABaseCharacter::PlayAttackAnimation()
 		// Move To Action Pos
 		SetMoveToActionPos(*SpikeOffsetMap.Find(SpikeMode));
 		// Rotate To End Pos
-		RotationDir = (GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation() - GetActorLocation());
+		RotationDir = (dest_turnover_to_ - GetActorLocation());
 		RotationDir.Z = 0;
 		RotationDir.Normalize();
 		quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
