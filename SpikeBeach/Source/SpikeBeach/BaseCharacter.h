@@ -453,8 +453,6 @@ protected:
 	/* Set Move to Action Position */
 	void SetMoveToActionPos(FVector Offset);
 
-public:
-	bool IsVectorInTeamBox(FVector vector);
 private:
 	void HandleTurnChange();
 };

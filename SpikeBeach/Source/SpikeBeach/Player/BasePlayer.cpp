@@ -49,7 +49,7 @@ void ABasePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	auto player_controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	auto player_controller = Cast<ACustomPlayerController>(Controller);
 	if (Company->GetPlayerRole() == EPlayerRole::PR_A_TOSS)
 	{
 		player_controller->SetShowMouseCursor(true);
@@ -131,6 +131,12 @@ void ABasePlayer::Move(const FInputActionValue& Value)
 
 		// get right vector 
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+		if (GetMyTeam()->GetCourtName() == ECourtName::eBeachSideTeam)
+		{
+			MovementVector.X *= -1;
+			MovementVector.Y *= -1;
+		}
 
 		// add movement 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
@@ -243,7 +249,7 @@ void ABasePlayer::WheelTriggered(const FInputActionValue& Value)
 
 	//dest_position_ = hit.Location;
 	//return;
-	if (IsVectorInTeamBox(hit.Location))
+	if (GetMyTeam()->IsVectorInTeamBox(hit.Location))
 	{
 		dest_position_ = hit.Location;
 	}
