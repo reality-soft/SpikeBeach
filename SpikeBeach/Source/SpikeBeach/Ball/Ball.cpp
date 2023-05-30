@@ -250,6 +250,31 @@ FVector ABall::FloatingServiceMovement(float power, const FVector& start_pos, co
 	return velocity;
 }
 
+void ABall::NetHitMovement(const FVector& hit_location, const FVector& impulse_normal)
+{	
+	FVector movement_velocity = impulse_normal * GetVelocity().Length() * 0.25;
+
+	ProjectileMovementComponent->SetUpdatedComponent(GetRootComponent());
+	ProjectileMovementComponent->Velocity = movement_velocity;
+
+	init_velocity_ = movement_velocity;
+	PredictPath();
+
+	if (current_predict_.b_hit_land)
+	{
+		parent_effect_system_->EventCreateSplineTrack(spline_comp_, current_predict_.spline_positions_);
+		parent_effect_system_->SetTrailColor_Stable();
+		parent_effect_system_->SetArcTrailSpawnRate(3000);
+	}
+
+	// set drop data
+	cur_time_ = 0.0f;
+	start_pos_ = hit_location;
+	end_pos_ = current_predict_.destination;
+
+	CheckTurnChanged();
+}
+
 FVector ABall::SpoonServiceMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
 	power = (0.4 - 0.3) * power + 0.3;
@@ -302,6 +327,9 @@ void ABall::PredictPath()
 		ngsystem_landing_point_ == nullptr)
 		return;
 
+	current_predict_.spline_positions_.Empty();
+	spline_comp_->ClearSplinePoints();
+
 	TArray<TEnumAsByte<EObjectTypeQuery>> trace_types;
 	TArray<AActor*, FDefaultAllocator> ignore_actors;
 	trace_types.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
@@ -314,7 +342,7 @@ void ABall::PredictPath()
 	bool success = UGameplayStatics::Blueprint_PredictProjectilePath_ByObjectType(
 		GetWorld(), hit_result, path_positions, dest_position,
 		GetActorLocation(), init_velocity_, true, GetSphereComp()->GetScaledSphereRadius(),
-		trace_types, true, ignore_actors, EDrawDebugTrace::None, 0.0f, 5.0f, 10.f);
+		trace_types, false, ignore_actors, EDrawDebugTrace::None, 0.0f, 5.0f, 10.f);
 
 	if (success && hit_result.bBlockingHit)
 	{

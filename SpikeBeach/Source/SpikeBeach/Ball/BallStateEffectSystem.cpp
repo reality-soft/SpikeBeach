@@ -67,6 +67,10 @@ void UBallStateEffectSystem::SpawnArcTrail()
 void UBallStateEffectSystem::SpawnLandingPoint()
 {
 	DestroyLandingPoint();
+
+	if (owner_ball_->current_predict_.b_hit_land == false)
+		return;
+
 	ngcomp_landing_point_ = UNiagaraFunctionLibrary::SpawnSystemAtLocation(owner_ball_->GetWorld(), owner_ball_->ngsystem_landing_point_, owner_ball_->current_predict_.destination);
 }
 
