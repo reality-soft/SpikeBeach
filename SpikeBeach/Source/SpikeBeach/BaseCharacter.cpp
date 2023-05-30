@@ -365,6 +365,20 @@ void ABaseCharacter::SpikeBall()
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = FVector(2240, 460, 30);
 
+	auto box = GetEnemyTeam()->team_box_;
+
+	FVector box_extent = box->GetScaledBoxExtent();
+	FVector box_pos = box->GetComponentLocation();
+
+	float min_x = box_pos.X - box_extent.X;
+	float max_x = box_pos.X + box_extent.X;
+
+	float min_y = box_pos.Y - box_extent.Y;
+	float max_y = box_pos.Y + box_extent.Y;
+
+	EndPos.X = FMath::FRandRange(min_x, max_x);
+	EndPos.Y = FMath::FRandRange(min_y, max_y);
+
 	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
