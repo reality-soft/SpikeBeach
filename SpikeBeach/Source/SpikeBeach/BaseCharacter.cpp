@@ -350,6 +350,12 @@ void ABaseCharacter::SpikeBall()
 	bIsMoveToOffset = false;
 	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Spike Ball"));
+
+	FVector StartPos = Ball->GetActorLocation();
+	FVector EndPos = FVector(2240, 460, 30);
+
+	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+
 	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 

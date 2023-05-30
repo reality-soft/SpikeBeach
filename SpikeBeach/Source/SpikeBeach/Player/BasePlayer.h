@@ -12,9 +12,13 @@ enum class EStateUINotice
 	eActivateUI_StableRG,
 	eActivateUI_OffensiveRG,
 
-	eActivateUI_LClick_To_Service,
+	eActivateUI_LClick_To_UnderService,
+	eActivateUI_LClick_To_StandingService,
+	eActivateUI_LClick_To_JumpService,
 	eActivateUI_LClick_To_Receive,
-	eActivateUI_LClick_To_Attack,
+	eActivateUI_LClick_To_Sliding,
+	eActivateUI_LClick_To_AttackFloat,
+	eActivateUI_LClick_To_AttackSpike,
 
 	eActivateUI_RClick_To_Pass,
 	eActivateUI_RClick_To_Block,

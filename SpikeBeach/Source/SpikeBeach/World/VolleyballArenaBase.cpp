@@ -106,7 +106,6 @@ void AVolleyballArenaBase::UpdateBallTrigger()
 void AVolleyballArenaBase::SetPlayerRole()
 {
 	for (auto& cur_player : Players) {
-		
 		switch (cur_player->GetPlayerRole()) {
 		case EPlayerRole::PR_D_RECEIVE:
 			cur_player->SetPlayerRole(EPlayerRole::PR_A_MOVE_TO_ATTACK_POS);
