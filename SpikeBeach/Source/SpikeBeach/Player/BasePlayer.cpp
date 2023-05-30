@@ -40,7 +40,7 @@ void ABasePlayer::BeginPlay()
 		}
 	}
 
-	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_LClick_To_Service);
+	//state_ui_notices_.Enqueue(EStateUINotice::UI_);
 }
 
 // Called every frame

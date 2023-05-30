@@ -86,28 +86,28 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 			break;
 
 			// Update About L Click Guide
-		case EStateUINotice::eActivateUI_LClick_To_Service:
-			player_state_ui_->ActiveLClickGuide(text_service_);
-			player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
-			break;
-		case EStateUINotice::eActivateUI_LClick_To_Receive:
-			player_state_ui_->ActiveLClickGuide(text_receive_);
-			player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
-			break;
-		case EStateUINotice::eActivateUI_LClick_To_Attack:
-			player_state_ui_->ActiveLClickGuide(text_attack_);
-			player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
-			break;
+		//case EStateUINotice::eActivateUI_LClick_To_Service:
+		//	player_state_ui_->ActiveLClickGuide(text_service_);
+		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
+		//	break;
+		//case EStateUINotice::eActivateUI_LClick_To_Receive:
+		//	player_state_ui_->ActiveLClickGuide(text_receive_);
+		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
+		//	break;
+		//case EStateUINotice::eActivateUI_LClick_To_Attack:
+		//	player_state_ui_->ActiveLClickGuide(text_attack_);
+		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
+		//	break;
 
-			// Update About R Click Guide
-		case EStateUINotice::eActivateUI_RClick_To_Pass:
-			player_state_ui_->ActiveRClickGuide(text_pass_);
-			player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
-			break;
-		case EStateUINotice::eActivateUI_RClick_To_Block:
-			player_state_ui_->ActiveRClickGuide(text_block_);
-			player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
-			break;
+		//	// Update About R Click Guide
+		//case EStateUINotice::eActivateUI_RClick_To_Pass:
+		//	player_state_ui_->ActiveRClickGuide(text_pass_);
+		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
+		//	break;
+		//case EStateUINotice::eActivateUI_RClick_To_Block:
+		//	player_state_ui_->ActiveRClickGuide(text_block_);
+		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
+		//	break;
 		}
 	}
 
