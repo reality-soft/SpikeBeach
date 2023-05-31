@@ -41,7 +41,7 @@ public:
 	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		bool b_hit_land; 
 
-	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		FVector destination;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Spline Track")
