@@ -8,10 +8,12 @@
 #include "CustomPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"	
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Math/Quat.h"
 #include "EnhancedInputComponent.h"
@@ -20,8 +22,6 @@
 // Sets default values
 ABasePlayer::ABasePlayer() : ABaseCharacter()
 {
-	SetInputAction();
-
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
@@ -49,20 +49,35 @@ void ABasePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//auto player_controller = Cast<ACustomPlayerController>(Controller);
+	//if (Company->GetPlayerRole() == EPlayerRole::PR_A_TOSS)
+	//{
+	//	player_controller->SetShowMouseCursor(true);
+	//}
+	//else
+	//{
+	//	player_controller->SetShowMouseCursor(false);
+	//}
 	auto player_controller = Cast<ACustomPlayerController>(Controller);
-	if (Company->GetPlayerRole() == EPlayerRole::PR_A_TOSS)
+	player_controller->SetShowMouseCursor(false);
+
+	if (CanControlBallCursor)
 	{
-		player_controller->SetShowMouseCursor(true);
-	}
-	else
-	{
-		player_controller->SetShowMouseCursor(false);
+		if (GetPlayerRole() == EPlayerRole::PR_S_SERVICE || GetPlayerRole() == EPlayerRole::PR_A_ATTACK)
+		{
+			dest_turnover_to_ = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+
+			// Rotate To End Pos
+			auto RotationDir = (dest_turnover_to_ - GetActorLocation());
+			RotationDir.Z = 0;
+			RotationDir.Normalize();
+			auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
+
+			AddActorLocalRotation(quat);
+		}
 	}
 
-	if (Company->GetPlayerRole() == EPlayerRole::PR_A_MOVE_TO_DEFENCE_POS)
-	{
-		CanControlBallCursor = true;
-	}
+	MouseTraceOnGround();
 }
 
 // Called to bind functionality to input
@@ -94,21 +109,6 @@ void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(BallCursorControl, ETriggerEvent::Triggered, this, &ABasePlayer::BallCursorTriggered);
 	}
 
-}
-
-void ABasePlayer::SetInputAction()
-{
-	//ConstructorHelpers::FObjectFinder<UInputMappingContext>DEFAULT_CONTEXT(TEXT("/Game/Content/Character/Input/IMC_Player.IMC_Player"));
-	//if (DEFAULT_CONTEXT.Succeeded())
-	//{
-	//	DefaultMappingContext = DEFAULT_CONTEXT.Object;
-	//}
-	//
-	//ConstructorHelpers::FObjectFinder<UInputAction>MOVE_ACTION(TEXT("/Game/Content/Character/Input/Action/IA_Move.IA_Move"));
-	//if (MOVE_ACTION.Succeeded())
-	//{
-	//	MoveAction = MOVE_ACTION.Object;
-	//}
 }
 
 void ABasePlayer::Move(const FInputActionValue& Value)
@@ -153,13 +153,16 @@ void ABasePlayer::LClickTriggered(const FInputActionValue& Value)
 	switch (PlayerTurn)
 	{
 	case EPlayerTurn::PT_SERVICE:
+		CanControlBallCursor = true;
 		SetServiceMode();
 		break;
 	case EPlayerTurn::PT_DEFENCE:
+		CanControlBallCursor = false;
 		SetReceiveMode();
 		OffenceMode = EOffenceMode::OM_NONE;
 		break;
 	case EPlayerTurn::PT_OFFENCE:
+		CanControlBallCursor = true;
 		SetAttackMode();
 		DefenceMode = EDefenceMode::DM_NONE;
 		break;
@@ -229,35 +232,27 @@ void ABasePlayer::SprintCompleted(const FInputActionValue& Value)
 
 	bIsSprint = false;
 
-	//GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
 void ABasePlayer::WheelTriggered(const FInputActionValue& Value)
 {
-	if (Company->GetPlayerRole() != EPlayerRole::PR_A_TOSS)
+	//if (Company->GetPlayerRole() != EPlayerRole::PR_A_TOSS)
+	//	return;
+
+	if (show_ping_cursor_ == false)
 		return;
 
-	auto player_controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (!player_controller)
-		return;
-
-	FHitResult hit;
-	player_controller->GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery1, true, hit);
-	bool is_on_ground = hit.GetActor()->ActorHasTag(FName("Land"));
-	if (!is_on_ground)
-		return;
-
-	//dest_position_ = hit.Location;
-	//return;
-	if (GetMyTeam()->IsVectorInTeamBox(hit.Location))
+	if (traced_in_team_court_)
 	{
-		dest_position_ = hit.Location;
+		Company->ai_ping_order_.pass_ordered = true;
+		Company->ai_ping_order_.pass_order_pos = current_traced_pos_;
+		PingOrderEvent(EPingOrderType::ePassHere, current_traced_pos_);
 	}
 	else
 	{
-		dest_position_ = GetActorLocation();
-	}
-	
+		PingOrderEvent(EPingOrderType::eWrongPos, current_traced_pos_);
+	}	
 }
 
 void ABasePlayer::BallCursorTriggered(const FInputActionValue& Value)
@@ -324,6 +319,8 @@ void ABasePlayer::ServiceHitBall()
 			Ball->JumpServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
 		}
 	}
+	CanControlBallCursor = false;
+	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::ReceiveBall() 
@@ -408,11 +405,9 @@ bool ABasePlayer::JudgeBlockMode()
 
 void ABasePlayer::PlayServiceAnimation()
 {
-	CanControlBallCursor = false;
-
 	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
 
-	dest_turnover_to_ = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+	//dest_turnover_to_ = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
 
 	ABaseCharacter::PlayServiceAnimation();
 }
@@ -425,8 +420,6 @@ void ABasePlayer::PlayPassAnimation()
 
 void ABasePlayer::PlayAttackAnimation()
 {
-	CanControlBallCursor = false;
-
 	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
 
 	dest_turnover_to_ = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
@@ -444,4 +437,40 @@ void ABasePlayer::PlayReceiveAnimation()
 void ABasePlayer::PlayBlockAnimation()
 {
 	ABaseCharacter::PlayBlockAnimation();
+}
+
+void ABasePlayer::MouseTraceOnGround()
+{
+	//if (PlayerRole == EPlayerRole::PR_S_SERVICE ||
+	//	PlayerRole == EPlayerRole::PR_A_ATTACK ||
+	//	PlayerRole == EPlayerRole::PR_A_MOVE_TO_ATTACK_POS)
+	//{
+	//	show_ping_cursor_ = false;
+	//	return;
+	//}
+
+	if (CanControlBallCursor)
+	{
+		show_ping_cursor_ = false;
+		return;
+	}
+
+	auto player_controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!player_controller)
+		return;
+
+	FHitResult hit;
+	player_controller->GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery1, true, hit);
+
+	if (hit.bBlockingHit == false || hit.GetActor() == nullptr)
+		return;
+
+	bool is_on_ground = hit.GetActor()->ActorHasTag(FName("Land"));
+	if (!is_on_ground)
+		return;
+
+	traced_in_team_court_ = UKismetMathLibrary::IsPointInBox(hit.Location, GetMyTeam()->team_box_->GetComponentLocation(), GetMyTeam()->team_box_->GetScaledBoxExtent());
+	current_traced_pos_ = hit.Location;
+
+	show_ping_cursor_ = true;
 }

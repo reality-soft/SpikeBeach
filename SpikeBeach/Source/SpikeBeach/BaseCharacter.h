@@ -134,6 +134,11 @@ public:
 		FVector SemiSpike;
 };
 
+struct AI_PingOrder
+{
+	bool pass_ordered = false;
+	FVector pass_order_pos;
+};
 
 UCLASS()
 class SPIKEBEACH_API ABaseCharacter : public ACharacter
@@ -202,6 +207,8 @@ public:
 		class USceneComponent* ball_attachment_;
 
 public:
+	AI_PingOrder ai_ping_order_;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Player Movement")
 		FVector dest_position_;
 
@@ -311,7 +318,8 @@ public:
 		AVolleyBallTeam* GetMyTeam() { return my_team_; }
 		UFUNCTION(BlueprintCallable, Category = EnemyFunc)
 			AVolleyBallTeam* GetEnemyTeam();
-		EPlayerRole GetPlayerRole() { return PlayerRole;}
+		EPlayerRole GetPlayerRole() { return PlayerRole; }
+		EPlayerTurn GetPlayerTurn() { return PlayerTurn; }
 #pragma endregion
 
 #pragma region SETTER

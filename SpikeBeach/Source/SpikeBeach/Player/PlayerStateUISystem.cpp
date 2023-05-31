@@ -124,4 +124,31 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 		player_state_ui_->lclick_guide_parent_->SetRenderTranslation(player_pos_current_tick_ + lclick_guide_local_);
 		player_state_ui_->rclick_guide_parent_->SetRenderTranslation(player_pos_current_tick_ + rclick_guide_local_);
 	}
+
+
+	if (target_player_->show_ping_cursor_)
+	{
+		// ..Visible()
+		player_state_ui_->ping_cursor_img_->SetVisibility(ESlateVisibility::Visible);
+
+		if (target_player_->traced_in_team_court_)
+		{
+			// .. Set Green Color
+			player_state_ui_->ping_cursor_img_->SetColorAndOpacity(FLinearColor(0, 1, 0, 1));
+		}
+		else
+		{
+			// .. Set Red Color
+			player_state_ui_->ping_cursor_img_->SetColorAndOpacity(FLinearColor(1, 0, 0, 1));
+		}
+	}
+	else
+	{
+		// ..Hidden()
+		player_state_ui_->ping_cursor_img_->SetVisibility(ESlateVisibility::Hidden);
+		int32 viewport_x, viewport_y;
+
+		player_controller_->GetViewportSize(viewport_x, viewport_y);
+		player_controller_->SetMouseLocation(viewport_x / 2, viewport_y / 2);
+	}
 }
