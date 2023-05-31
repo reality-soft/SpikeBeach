@@ -464,7 +464,6 @@ protected:
 	/* Set Move to Action Position */
 	void SetMoveToActionPos(FVector Offset);
 
-private:
-	void HandleTurnChange();
+protected:
 	FVector GetRandomPosInRange(const FVector& Center, float accuracy);
 };

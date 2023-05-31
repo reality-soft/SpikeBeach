@@ -65,8 +65,6 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TurnChangeEvent.AddUObject(this, &ABaseCharacter::HandleTurnChange);
-
 	bUseControllerRotationYaw = false;
 }
 
@@ -800,13 +798,12 @@ void ABaseCharacter::SetMoveToActionPos(FVector Offset)
 	bIsMoveToOffset = true;
 }
 
-void ABaseCharacter::HandleTurnChange()
-{
-}
-
 FVector ABaseCharacter::GetRandomPosInRange(const FVector& Center, float accuracy)
 {
-	float radius = 150.0f * (1.0f - accuracy);
+	if (accuracy >= 1.1f) {
+		accuracy = 0.0f;
+	}
+	float radius = 300.0f * (1.0f - accuracy);
 	
 	FVector position;
 	position.X = UKismetMathLibrary::RandomFloatInRange(0.0f, 1.0f);

@@ -295,6 +295,8 @@ void ABasePlayer::MontageEnded()
 	is_montage_started_ = false;
 	is_montage_ended_ = true;
 
+	TimingAccuracy = 0.0f;
+
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
@@ -307,6 +309,7 @@ void ABasePlayer::ServiceHitBall()
 	{
 		FVector StartPos = Ball->GetActorLocation();
 		FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+		EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 		if (ServiceMode == FName("Spoon"))
 		{
@@ -359,6 +362,7 @@ void ABasePlayer::SpikeBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
 
@@ -373,6 +377,7 @@ void ABasePlayer::FloatingBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 	Ball->FloatingMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
 
@@ -496,7 +501,6 @@ void ABasePlayer::TimingCalculateIfClick(float DeltaTime)
 	}
 	else
 	{
-		TimingAccuracy = 0.0f;
 		TimingTimer = 0.0f;
 		TimingMax = -1.0f;
 	}
