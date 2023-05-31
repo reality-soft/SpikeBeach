@@ -42,7 +42,7 @@ void AVolleyballArenaBase::SetServiceTeam(ECourtName service_court)
 	}
 
 	auto cast_to_player = (ABasePlayer*)left_player;
-	if (cast_to_player)
+	//if (cast_to_player)
 		//cast_to_player->CanControlBallCursor = true;
 
 	//arena_ball_->Rename(nullptr, left_player->ball_attachment_);
