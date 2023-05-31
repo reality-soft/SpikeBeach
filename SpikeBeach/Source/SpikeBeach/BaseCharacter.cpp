@@ -75,27 +75,9 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	TimingCalculateIfClick(DeltaTime);
-
 	SmoothingWalkRun(DeltaTime);
 
 	MoveToOffsetDestination(DeltaTime);
-}
-
-void ABaseCharacter::TimingCalculateIfClick(float DeltaTime)
-{
-	if (bIsClicking && TimingMax > 0.0f)
-	{
-		// Timing To Accuracy
-		TimingTimer += DeltaTime;
-		TimingAccuracy = TimingTimer / TimingMax;
-	}
-	else
-	{
-		TimingAccuracy = -1.0f;
-		TimingTimer = 0.0f;
-		TimingMax = -1.0f;
-	}
 }
 
 void ABaseCharacter::SmoothingWalkRun(float DeltaTime)
@@ -274,6 +256,7 @@ void ABaseCharacter::ServiceHitBall()
 	{
 		FVector StartPos = Ball->GetActorLocation();
 		FVector EndPos = dest_turnover_to_;
+		EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 		if (ServiceMode == FName("Spoon"))
 		{
@@ -299,6 +282,7 @@ void ABaseCharacter::DigBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = Company->GetActorLocation();
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 	Ball->DigMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
@@ -312,6 +296,7 @@ void ABaseCharacter::ReceiveBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = Company->GetActorLocation();
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 	Ball->ReceiveMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
@@ -340,6 +325,7 @@ void ABaseCharacter::TossBall()
 		EndPos = Company->GetActorLocation();
 	}
 
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 	dest_position_ = EndPos;
 	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
@@ -364,6 +350,7 @@ void ABaseCharacter::PassBall()
 		EndPos = Company->dest_position_;
 	}
 
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
@@ -376,6 +363,7 @@ void ABaseCharacter::SpikeBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = dest_turnover_to_;
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
@@ -389,6 +377,7 @@ void ABaseCharacter::FloatingBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = dest_turnover_to_;
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 	Ball->FloatingMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
@@ -831,5 +820,21 @@ void ABaseCharacter::SetMoveToActionPos(FVector Offset)
 
 void ABaseCharacter::HandleTurnChange()
 {
+}
+
+FVector ABaseCharacter::GetRandomPosInRange(const FVector& Center, float accuracy)
+{
+	float radius = 150.0f * (1.0f - accuracy);
+	
+	FVector position;
+	position.X = UKismetMathLibrary::RandomFloatInRange(0.0f, 1.0f);
+	position.Y = UKismetMathLibrary::RandomFloatInRange(0.0f, 1.0f);
+
+	position.Normalize();
+	position *= radius;
+
+	position += Center;
+
+	return position;
 }
 

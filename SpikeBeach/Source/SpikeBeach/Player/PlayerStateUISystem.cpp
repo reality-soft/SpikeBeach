@@ -111,8 +111,8 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 		}
 	}
 
-	player_state_ui_->FillStableRG(target_player_->GetTimmingAccurancy());
-	player_state_ui_->FillOffensiveRG(target_player_->GetTimmingAccurancy());
+	player_state_ui_->FillStableRG(target_player_->GetTimingAccurancy());
+	player_state_ui_->FillOffensiveRG(target_player_->GetTimingAccurancy());
 
 	if (player_pos_setted_)
 	{
