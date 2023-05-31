@@ -98,7 +98,7 @@ void ABall::UpdateByBallState()
 
 FVector ABall::SpikeMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
-	power = (0.9 - 0.7) * power + 0.7;
+	power = (0.7 - 0.5) * power + 0.5;
 	FVector velocity;
 
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
@@ -372,7 +372,6 @@ bool ABall::PushAndUpdateBallState(EBallState state)
 {
 	//if (current_ball_state_ == state)
 	//	return false;
-
 	current_ball_state_ = state;
 	state_queue_.Enqueue(state);
 

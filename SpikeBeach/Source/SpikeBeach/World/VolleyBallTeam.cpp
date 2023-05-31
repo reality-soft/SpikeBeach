@@ -93,6 +93,29 @@ void AVolleyBallTeam::ClearBallCursor()
 	}
 }
 
+bool AVolleyBallTeam::IsVectorInTeamBox(FVector vector)
+{
+	auto box = team_box_;
+
+	FVector box_extent = box->GetScaledBoxExtent();
+	FVector box_pos = box->GetComponentLocation();
+
+	float min_x = box_pos.X - box_extent.X;
+	float max_x = box_pos.X + box_extent.X;
+
+	float min_y = box_pos.Y - box_extent.Y;
+	float max_y = box_pos.Y + box_extent.Y;
+
+	if (max_x > vector.X && vector.X > min_x)
+	{
+		if (max_y > vector.Y && vector.Y > min_y)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 // Called when the game starts or when spawned
 void AVolleyBallTeam::BeginPlay()
 {

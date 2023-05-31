@@ -12,9 +12,13 @@ enum class EStateUINotice
 	eActivateUI_StableRG,
 	eActivateUI_OffensiveRG,
 
-	eActivateUI_LClick_To_Service,
+	eActivateUI_LClick_To_UnderService,
+	eActivateUI_LClick_To_StandingService,
+	eActivateUI_LClick_To_JumpService,
 	eActivateUI_LClick_To_Receive,
-	eActivateUI_LClick_To_Attack,
+	eActivateUI_LClick_To_Sliding,
+	eActivateUI_LClick_To_AttackFloat,
+	eActivateUI_LClick_To_AttackSpike,
 
 	eActivateUI_RClick_To_Pass,
 	eActivateUI_RClick_To_Block,
@@ -48,6 +52,10 @@ private:
 	/** Sprint Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* SprintAction;
+
+	/** Mouse Wheel Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* MouseWheelClickAction;
 
 	/** Camera Length Control */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -120,6 +128,9 @@ protected:
 	/* Called for Sprint Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
 		void SprintCompleted(const FInputActionValue& Value);
+	/* Called for MouseClick Input*/
+	UFUNCTION(BlueprintCallable, Category = Input)
+		void WheelTriggered(const FInputActionValue& Value);
 	/* Called for MouseXY Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
 		void BallCursorTriggered(const FInputActionValue& Value);
@@ -140,7 +151,13 @@ protected:
 	virtual void PassBall() override;
 	virtual void SpikeBall() override;
 	virtual void FloatingBall() override;
-
+	
+protected:
+	virtual bool JudgeServiceMode() override;
+	virtual bool JudgePassMode() override;
+	virtual bool JudgeAttackMode() override;
+	virtual bool JudgeReceiveMode() override;
+	virtual bool JudgeBlockMode() override;
 protected:
 	virtual void PlayServiceAnimation() override;
 	virtual void PlayPassAnimation() override;
@@ -155,4 +172,5 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
 		FVector2D ball_cursor_value_;
+
 };

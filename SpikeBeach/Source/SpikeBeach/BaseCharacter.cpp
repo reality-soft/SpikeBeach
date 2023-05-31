@@ -13,6 +13,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 
 
 AVolleyBallTeam* ABaseCharacter::GetEnemyTeam()
@@ -42,6 +43,8 @@ void ABaseCharacter::MontageStarted()
 void ABaseCharacter::MontageEnded()
 {
 	is_montage_ended_ = true;
+	OffenceMode = EOffenceMode::OM_NONE;
+	DefenceMode = EDefenceMode::DM_NONE;
 }
 
 // Sets default values
@@ -135,9 +138,6 @@ void ABaseCharacter::SetSuperSettings()
 
 void ABaseCharacter::SetPlayerAttributes()
 {
-	PlayerTurn = EPlayerTurn::PT_SERVICE;
-	PlayerRole = EPlayerRole::PR_S_SERVICE_WAIT;
-
 	WalkSpeed = 500.0f;
 	SprintSpeed = 700.0f;
 
@@ -277,7 +277,7 @@ void ABaseCharacter::ServiceHitBall()
 	if (Ball)
 	{
 		FVector StartPos = Ball->GetActorLocation();
-		FVector EndPos = { 2380, 1470, 20 };
+		FVector EndPos = dest_turnover_to_;
 
 		if (ServiceMode == FName("Spoon"))
 		{
@@ -292,8 +292,6 @@ void ABaseCharacter::ServiceHitBall()
 			Ball->JumpServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
 		}
 	}
-	
-	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
 void ABaseCharacter::DigBall()
@@ -301,7 +299,6 @@ void ABaseCharacter::DigBall()
 	bIsMoveToOffset = false;
 	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Dig Ball"));
-	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::ReceiveBall()
@@ -315,13 +312,11 @@ void ABaseCharacter::ReceiveBall()
 
 	Ball->ReceiveMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 
-	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::BlockBall()
 {
 	UE_LOG(LogTemp, Log, TEXT("Block Ball"));
-	PlayerTurn = EPlayerTurn::PT_DEFENCE;
 }
 
 void ABaseCharacter::TossBall()
@@ -331,10 +326,17 @@ void ABaseCharacter::TossBall()
 	UE_LOG(LogTemp, Log, TEXT("Toss Ball"));
 
 	FVector StartPos = Ball->GetActorLocation();
-	FVector EndPos = Company->dest_position_;
+	FVector EndPos;
+	if (FVector::PointsAreSame(Company->dest_position_, FVector(0, 0, 0)))
+	{
+		EndPos = Company->GetActorLocation();
+	}
+	else
+	{
+		EndPos = Company->dest_position_;
+	}
 
 	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
-	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::PassBall()
@@ -342,7 +344,6 @@ void ABaseCharacter::PassBall()
 	bIsMoveToOffset = false;
 	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Pass Ball"));
-	PlayerTurn = EPlayerTurn::PT_OFFENCE;
 }
 
 void ABaseCharacter::SpikeBall()
@@ -350,7 +351,11 @@ void ABaseCharacter::SpikeBall()
 	bIsMoveToOffset = false;
 	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Spike Ball"));
-	PlayerTurn = EPlayerTurn::PT_DEFENCE;
+
+	FVector StartPos = Ball->GetActorLocation();
+	FVector EndPos = dest_turnover_to_;
+
+	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 }
 
 void ABaseCharacter::FloatingBall()
@@ -358,7 +363,13 @@ void ABaseCharacter::FloatingBall()
 	bIsMoveToOffset = false;
 	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Floating Ball"));
-	PlayerTurn = EPlayerTurn::PT_DEFENCE;
+}
+
+
+bool ABaseCharacter::JudgeServiceMode()
+{
+	RemainingTimeToAction = ServiceMontage->GetSectionLength(ServiceMontage->GetSectionIndex(ServiceMode));
+	return true;
 }
 
 bool ABaseCharacter::JudgePassMode()
@@ -527,7 +538,8 @@ void ABaseCharacter::SetServiceMode()
 	// Set Service Mode& Calculate Ball's Action Values
 	// 1. Set Service Mode upon Player Pos : TODO 
 	// 2. Call Ball's Calculate values : TODO
-	JudgeServiceMode();
+	if (!JudgeServiceMode())
+		return;
 
 	TimingMax = RemainingTimeToAction;
 
@@ -608,9 +620,8 @@ void ABaseCharacter::PlayServiceAnimation()
 	MontageStarted();
 
 	// Rotate To End Pos
-	auto RotationDir = (GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation() - GetActorLocation());
+	auto RotationDir = (dest_turnover_to_ - GetActorLocation());
 	RotationDir.Z = 0;
-
 	RotationDir.Normalize();
 	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
 	
@@ -628,7 +639,7 @@ void ABaseCharacter::PlayPassAnimation()
 	{
 	case EOffenceMode::OM_TOSS:
 		// Move To Action Pos
-		//SetMoveToActionPos(*TossOffsetMap.Find(Direction));
+		SetMoveToActionPos(*TossOffsetMap.Find(Direction));
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, TossMontage, Direction);
 		PlayAnimMontage(TossMontage, PlayRate, Direction);
 		break;
@@ -645,17 +656,26 @@ void ABaseCharacter::PlayAttackAnimation()
 {
 	MontageStarted();
 	float PlayRate;
+	FVector RotationDir;
+	FQuat quat;
 	switch (OffenceMode)
 	{
 	case EOffenceMode::OM_SPIKE:
 		// Move To Action Pos
-		//SetMoveToActionPos(*SpikeOffsetMap.Find(SpikeMode));
+		SetMoveToActionPos(*SpikeOffsetMap.Find(SpikeMode));
+		// Rotate To End Pos
+		RotationDir = (dest_turnover_to_ - GetActorLocation());
+		RotationDir.Z = 0;
+		RotationDir.Normalize();
+		quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
+		AddActorLocalRotation(quat);
+
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, SpikeMontage, SpikeMode);
 		PlayAnimMontage(SpikeMontage, PlayRate, SpikeMode);
 		break;
 	case EOffenceMode::OM_FLOATING:
 		// Move To Action Pos
-		//SetMoveToActionPos(*FloatingOffsetMap.Find(Direction));
+		SetMoveToActionPos(*FloatingOffsetMap.Find(Direction));
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, FloatingMontage, Direction);
 		PlayAnimMontage(FloatingMontage, PlayRate, Direction);
 		break;
@@ -670,7 +690,7 @@ void ABaseCharacter::PlayReceiveAnimation()
 	{
 	case EDefenceMode::DM_DIG:
 		// Move To Action Pos
-		//SetMoveToActionPos(*DigOffsetMap.Find(Direction));
+		SetMoveToActionPos(*DigOffsetMap.Find(Direction));
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, DigMontage, Direction);
 		PlayAnimMontage(DigMontage, PlayRate, Direction);
 		break;
@@ -686,6 +706,11 @@ void ABaseCharacter::PlayReceiveAnimation()
 void ABaseCharacter::PlayBlockAnimation()
 {
 	MontageStarted();
+
+	auto RotationDir = GetMyTeam()->GetCourtName() == ECourtName::eReefSideTeam ? FVector(0, 1, 0) : FVector(0, -1, 0);
+	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
+	AddActorLocalRotation(quat);
+
 	PlayAnimMontage(BlockMontage, 1.0f, Direction);
 }
 

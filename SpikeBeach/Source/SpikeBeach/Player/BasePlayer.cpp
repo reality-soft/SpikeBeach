@@ -12,6 +12,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"	
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Math/Quat.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -40,13 +41,28 @@ void ABasePlayer::BeginPlay()
 		}
 	}
 
-	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_LClick_To_Service);
+	//state_ui_notices_.Enqueue(EStateUINotice::UI_);
 }
 
 // Called every frame
 void ABasePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	auto player_controller = Cast<ACustomPlayerController>(Controller);
+	if (Company->GetPlayerRole() == EPlayerRole::PR_A_TOSS)
+	{
+		player_controller->SetShowMouseCursor(true);
+	}
+	else
+	{
+		player_controller->SetShowMouseCursor(false);
+	}
+
+	if (Company->GetPlayerRole() == EPlayerRole::PR_A_MOVE_TO_DEFENCE_POS)
+	{
+		CanControlBallCursor = true;
+	}
 }
 
 // Called to bind functionality to input
@@ -69,6 +85,10 @@ void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		// Sprint
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ABasePlayer::SprintTriggered);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ABasePlayer::SprintCompleted);
+
+		// Wheel Click
+		EnhancedInputComponent->BindAction(MouseWheelClickAction, ETriggerEvent::Triggered, this, &ABasePlayer::WheelTriggered);
+
 
 		// Ball Cursor
 		EnhancedInputComponent->BindAction(BallCursorControl, ETriggerEvent::Triggered, this, &ABasePlayer::BallCursorTriggered);
@@ -112,6 +132,12 @@ void ABasePlayer::Move(const FInputActionValue& Value)
 		// get right vector 
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
+		if (GetMyTeam()->GetCourtName() == ECourtName::eBeachSideTeam)
+		{
+			MovementVector.X *= -1;
+			MovementVector.Y *= -1;
+		}
+
 		// add movement 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
@@ -123,25 +149,22 @@ void ABasePlayer::LClickTriggered(const FInputActionValue& Value)
 	if (!bIsClicking)
 	{
 		bIsClicking = true;
-
-		switch (PlayerTurn)
-		{
-		case EPlayerTurn::PT_SERVICE:
-			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
-			SetServiceMode();
-			break;
-		case EPlayerTurn::PT_DEFENCE:
-			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_StableRG);
-			SetReceiveMode();
-			OffenceMode = EOffenceMode::OM_NONE;
-			break;
-		case EPlayerTurn::PT_OFFENCE:
-			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
-			SetAttackMode();
-			DefenceMode = EDefenceMode::DM_NONE;
-			break;
-		}
 	}
+	switch (PlayerTurn)
+	{
+	case EPlayerTurn::PT_SERVICE:
+		SetServiceMode();
+		break;
+	case EPlayerTurn::PT_DEFENCE:
+		SetReceiveMode();
+		OffenceMode = EOffenceMode::OM_NONE;
+		break;
+	case EPlayerTurn::PT_OFFENCE:
+		SetAttackMode();
+		DefenceMode = EDefenceMode::DM_NONE;
+		break;
+	}
+	
 }
 
 void ABasePlayer::LClickCompleted(const FInputActionValue& Value)
@@ -164,21 +187,19 @@ void ABasePlayer::RClickTriggered(const FInputActionValue& Value)
 	if (!bIsClicking)
 	{
 		bIsClicking = true;
-
-		switch (PlayerTurn)
-		{
-		case EPlayerTurn::PT_DEFENCE:
-			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
-			SetBlockMode();
-			OffenceMode = EOffenceMode::OM_NONE;
-			break;
-		case EPlayerTurn::PT_OFFENCE:
-			state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_StableRG);
-			SetPassMode();
-			DefenceMode = EDefenceMode::DM_NONE;
-			break;
-		}
 	}
+	switch (PlayerTurn)
+	{
+	case EPlayerTurn::PT_DEFENCE:
+		SetBlockMode();
+		OffenceMode = EOffenceMode::OM_NONE;
+		break;
+	case EPlayerTurn::PT_OFFENCE:
+		SetPassMode();
+		DefenceMode = EDefenceMode::DM_NONE;
+		break;
+	}
+	
 
 }
 
@@ -209,6 +230,34 @@ void ABasePlayer::SprintCompleted(const FInputActionValue& Value)
 	bIsSprint = false;
 
 	//GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+}
+
+void ABasePlayer::WheelTriggered(const FInputActionValue& Value)
+{
+	if (Company->GetPlayerRole() != EPlayerRole::PR_A_TOSS)
+		return;
+
+	auto player_controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!player_controller)
+		return;
+
+	FHitResult hit;
+	player_controller->GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery1, true, hit);
+	bool is_on_ground = hit.GetActor()->ActorHasTag(FName("Land"));
+	if (!is_on_ground)
+		return;
+
+	//dest_position_ = hit.Location;
+	//return;
+	if (GetMyTeam()->IsVectorInTeamBox(hit.Location))
+	{
+		dest_position_ = hit.Location;
+	}
+	else
+	{
+		dest_position_ = GetActorLocation();
+	}
+	
 }
 
 void ABasePlayer::BallCursorTriggered(const FInputActionValue& Value)
@@ -274,8 +323,6 @@ void ABasePlayer::ServiceHitBall()
 		}
 	}
 
-	PlayerTurn = EPlayerTurn::PT_DEFENCE;
-
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
@@ -313,7 +360,17 @@ void ABasePlayer::PassBall()
 
 void ABasePlayer::SpikeBall()
 {
-	ABaseCharacter::SpikeBall();
+	bIsMoveToOffset = false;
+	OffsetTimer = 0;
+	UE_LOG(LogTemp, Log, TEXT("Spike Ball"));
+
+	FVector StartPos = Ball->GetActorLocation();
+	FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+
+	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+
+	CanControlBallCursor = false;
+
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
@@ -323,25 +380,73 @@ void ABasePlayer::FloatingBall()
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
+bool ABasePlayer::JudgeServiceMode()
+{
+	if (is_montage_started_)
+		return false;
+	return ABaseCharacter::JudgeServiceMode();
+}
+
+bool ABasePlayer::JudgePassMode()
+{
+	if (is_montage_started_)
+		return false;
+	return ABaseCharacter::JudgePassMode();
+}
+
+bool ABasePlayer::JudgeAttackMode()
+{
+	if (is_montage_started_)
+		return false;
+	return ABaseCharacter::JudgeAttackMode();
+}
+
+bool ABasePlayer::JudgeReceiveMode()
+{
+	if (is_montage_started_)
+		return false;
+	return ABaseCharacter::JudgeReceiveMode();
+}
+
+bool ABasePlayer::JudgeBlockMode()
+{
+	if (is_montage_started_)
+		return false;
+	return ABaseCharacter::JudgeBlockMode();
+}
+
 void ABasePlayer::PlayServiceAnimation()
 {
 	CanControlBallCursor = false;
+
+	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
+
+	dest_turnover_to_ = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+
 	ABaseCharacter::PlayServiceAnimation();
 }
 
 void ABasePlayer::PlayPassAnimation()
 {
+	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_StableRG);
 	ABaseCharacter::PlayPassAnimation();
 }
 
 void ABasePlayer::PlayAttackAnimation()
 {
+	CanControlBallCursor = false;
+
+	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_OffensiveRG);
+
+	dest_turnover_to_ = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+
 	ABaseCharacter::PlayAttackAnimation();
 
 }
 
 void ABasePlayer::PlayReceiveAnimation()
 {
+	state_ui_notices_.Enqueue(EStateUINotice::eActivateUI_StableRG);
 	ABaseCharacter::PlayReceiveAnimation();
 }
 

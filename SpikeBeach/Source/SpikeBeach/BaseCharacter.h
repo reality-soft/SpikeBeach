@@ -155,7 +155,8 @@ protected:
 	float	TimingTimer;
 	float	TimingMax;
 	bool	bIsMoveToOffset;
-	float	OffsetTimer;
+	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+		float	OffsetTimer;
 	FVector OffsetStart;
 	FVector OffsetDestination;
 
@@ -203,6 +204,9 @@ public:
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Player Movement")
 		FVector dest_position_;
+
+	UPROPERTY(BlueprintReadWrite, Category = Player)
+		FVector dest_turnover_to_;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Animation)
@@ -305,7 +309,8 @@ public:
 	public:
 		bool GetIsClicking() { return bIsClicking; }
 		AVolleyBallTeam* GetMyTeam() { return my_team_; }
-		AVolleyBallTeam* GetEnemyTeam();
+		UFUNCTION(BlueprintCallable, Category = EnemyFunc)
+			AVolleyBallTeam* GetEnemyTeam();
 		EPlayerRole GetPlayerRole() { return PlayerRole;}
 #pragma endregion
 
@@ -385,24 +390,16 @@ protected:
 		virtual void FloatingBall();
 
 public:
-	UFUNCTION(BlueprintImplementableEvent, Category = Player)
-		void JudgeServiceMode();
-	//UFUNCTION(BlueprintImplementableEvent, Category = Player)
-	//	void JudgePassMode();
-	//UFUNCTION(BlueprintImplementableEvent, Category = Player)
-	//	void JudgeAttackMode();
-	//UFUNCTION(BlueprintImplementableEvent, Category = Player)
-	//	void JudgeReceiveMode();
-	//UFUNCTION(BlueprintImplementableEvent, Category = Player)
-	//	void JudgeBlockMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		bool JudgePassMode();
+		virtual bool JudgeServiceMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		bool JudgeAttackMode();
+		virtual bool JudgePassMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		bool JudgeReceiveMode();
+		virtual bool JudgeAttackMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		bool JudgeBlockMode();
+		virtual bool JudgeReceiveMode();
+	UFUNCTION(BlueprintCallable, Category = Player)
+		virtual bool JudgeBlockMode();
 
 	UFUNCTION(BlueprintCallable, Category = Player)
 		FString GetPlayerMode();
