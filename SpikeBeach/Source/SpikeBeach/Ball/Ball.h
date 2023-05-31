@@ -4,6 +4,7 @@
 
 #include "GameFramework/Actor.h"
 #include "../Delegates.h"
+#include "../World/VolleyballArenaBase.h"
 #include "Ball.generated.h"
 
 UENUM(BlueprintType)
@@ -94,6 +95,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "EffectSystem")
 		class UBallStateEffectSystem* parent_effect_system_;
 
+public:
+	UPROPERTY(BlueprintReadWrite, Category = BallState)
+		ECourtName LastTouchCourt;
 
 public:
 	UPROPERTY(BlueprintReadOnly, Category = DropInfo)
@@ -162,6 +166,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = BallFunc)
 		FDropInfo GetDropInfo(float height);
+
+	UFUNCTION(BlueprintCallable, Category = BallState)
+		void SetLastTouchCourt(ECourtName court);
 
 	USphereComponent* GetSphereComp() { return SphereCollisionComponent; }
 	UProjectileMovementComponent* GetProjectileComp() { return ProjectileMovementComponent; }

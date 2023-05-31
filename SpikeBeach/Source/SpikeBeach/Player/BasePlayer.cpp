@@ -5,6 +5,7 @@
 #include "../World/VolleyballArenaBase.h"
 #include "../World/VolleyballTeam.h"
 #include "../World/VolleyballGame.h"
+#include "../Ball/Ball.h"
 #include "CustomPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -318,6 +319,7 @@ void ABasePlayer::ServiceHitBall()
 		{
 			Ball->JumpServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
 		}
+		Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 	}
 	CanControlBallCursor = false;
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
@@ -359,6 +361,7 @@ void ABasePlayer::SpikeBall()
 	FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
 
 	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 
 	CanControlBallCursor = false;
 }
@@ -373,6 +376,7 @@ void ABasePlayer::FloatingBall()
 	FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
 
 	Ball->FloatingMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 
 	CanControlBallCursor = false;
 }

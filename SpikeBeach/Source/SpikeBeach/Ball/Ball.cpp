@@ -250,6 +250,11 @@ FVector ABall::FloatingServiceMovement(float power, const FVector& start_pos, co
 	return velocity;
 }
 
+void ABall::SetLastTouchCourt(ECourtName court)
+{
+	LastTouchCourt = court;
+}
+
 void ABall::NetHitMovement(const FVector& hit_location, const FVector& impulse_normal)
 {	
 	double reduced_speed = std::max(GetVelocity().Length() * 0.25, 1.0);
