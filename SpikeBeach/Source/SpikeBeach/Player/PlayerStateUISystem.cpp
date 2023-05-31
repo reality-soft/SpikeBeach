@@ -86,28 +86,28 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 			break;
 
 			// Update About L Click Guide
-		case EStateUINotice::eActivateUI_LClick_To_Service:
-			player_state_ui_->ActiveLClickGuide(text_service_);
-			player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
-			break;
-		case EStateUINotice::eActivateUI_LClick_To_Receive:
-			player_state_ui_->ActiveLClickGuide(text_receive_);
-			player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
-			break;
-		case EStateUINotice::eActivateUI_LClick_To_Attack:
-			player_state_ui_->ActiveLClickGuide(text_attack_);
-			player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
-			break;
+		//case EStateUINotice::eActivateUI_LClick_To_Service:
+		//	player_state_ui_->ActiveLClickGuide(text_service_);
+		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
+		//	break;
+		//case EStateUINotice::eActivateUI_LClick_To_Receive:
+		//	player_state_ui_->ActiveLClickGuide(text_receive_);
+		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
+		//	break;
+		//case EStateUINotice::eActivateUI_LClick_To_Attack:
+		//	player_state_ui_->ActiveLClickGuide(text_attack_);
+		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
+		//	break;
 
-			// Update About R Click Guide
-		case EStateUINotice::eActivateUI_RClick_To_Pass:
-			player_state_ui_->ActiveRClickGuide(text_pass_);
-			player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
-			break;
-		case EStateUINotice::eActivateUI_RClick_To_Block:
-			player_state_ui_->ActiveRClickGuide(text_block_);
-			player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
-			break;
+		//	// Update About R Click Guide
+		//case EStateUINotice::eActivateUI_RClick_To_Pass:
+		//	player_state_ui_->ActiveRClickGuide(text_pass_);
+		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
+		//	break;
+		//case EStateUINotice::eActivateUI_RClick_To_Block:
+		//	player_state_ui_->ActiveRClickGuide(text_block_);
+		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
+		//	break;
 		}
 	}
 
@@ -123,5 +123,32 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 		player_state_ui_->offensive_rg_parent_->SetRenderTranslation(player_pos_current_tick_ + ready_gauge_local_);
 		player_state_ui_->lclick_guide_parent_->SetRenderTranslation(player_pos_current_tick_ + lclick_guide_local_);
 		player_state_ui_->rclick_guide_parent_->SetRenderTranslation(player_pos_current_tick_ + rclick_guide_local_);
+	}
+
+
+	if (target_player_->show_ping_cursor_)
+	{
+		// ..Visible()
+		player_state_ui_->ping_cursor_img_->SetVisibility(ESlateVisibility::Visible);
+
+		if (target_player_->traced_in_team_court_)
+		{
+			// .. Set Green Color
+			player_state_ui_->ping_cursor_img_->SetColorAndOpacity(FLinearColor(0, 1, 0, 1));
+		}
+		else
+		{
+			// .. Set Red Color
+			player_state_ui_->ping_cursor_img_->SetColorAndOpacity(FLinearColor(1, 0, 0, 1));
+		}
+	}
+	else
+	{
+		// ..Hidden()
+		player_state_ui_->ping_cursor_img_->SetVisibility(ESlateVisibility::Hidden);
+		int32 viewport_x, viewport_y;
+
+		player_controller_->GetViewportSize(viewport_x, viewport_y);
+		player_controller_->SetMouseLocation(viewport_x / 2, viewport_y / 2);
 	}
 }

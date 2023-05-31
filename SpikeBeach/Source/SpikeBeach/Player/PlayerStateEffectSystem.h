@@ -30,6 +30,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Effect System")
 		bool InitOwnerInstance(ABasePlayer* player);
 	
+	UFUNCTION(BlueprintCallable, Category = "Ping")
+		bool Spawn_PassPing(FVector location);
+
+	UFUNCTION(BlueprintCallable, Category = "Ping")
+		bool Destroy_PassPing();
+
 	UFUNCTION(BlueprintCallable, Category = "Timing Arm")
 		void Spawn_TimingArm();
 
@@ -49,6 +55,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Timing Arm")
 		UNiagaraComponent* ngcomp_timing_arm_ = nullptr;
 	
+	UPROPERTY(BlueprintReadOnly, Category = "Ping")
+		UNiagaraComponent* ngcomp_pass_ping_ = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timing Arm")
 		FLinearColor subcolor_proper_ {1, 1, 1, 1};
 

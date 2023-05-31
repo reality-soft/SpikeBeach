@@ -43,7 +43,9 @@ void UVolleyBallGame::ReturnPlayerToCourtPoint()
 	if (reef_r_player && reef_l_player)
 	{
 		reef_r_player->SetActorLocation(ReefCourtRight.GetLocation());
+		reef_r_player->SetActorRotation(ReefCourtRight.GetRotation());
 		reef_l_player->SetActorLocation(ReefCourtLeft.GetLocation());
+		reef_l_player->SetActorRotation(ReefCourtLeft.GetRotation());
 	}
 
 	auto beach_side_team = GetCourtTeam(ECourtName::eBeachSideTeam);
@@ -52,7 +54,9 @@ void UVolleyBallGame::ReturnPlayerToCourtPoint()
 	if (beach_r_player && beach_l_player)
 	{
 		beach_r_player->SetActorLocation(BeachCourtRight.GetLocation());
+		beach_r_player->SetActorRotation(BeachCourtRight.GetRotation());
 		beach_l_player->SetActorLocation(BeachCourtLeft.GetLocation());
+		beach_l_player->SetActorRotation(BeachCourtLeft.GetRotation());
 	}
 }
 
@@ -60,6 +64,15 @@ void UVolleyBallGame::ChangeCourt()
 {
 	auto reef_side_team = GetCourtTeam(ECourtName::eReefSideTeam);
 	auto beach_side_team = GetCourtTeam(ECourtName::eBeachSideTeam);
+
 	TeamPlayingVolleyBall[(int)ECourtName::eBeachSideTeam] = reef_side_team;
+	reef_side_team->SetTeamCourt(ECourtName::eBeachSideTeam);
+
 	TeamPlayingVolleyBall[(int)ECourtName::eReefSideTeam] = beach_side_team;
+	beach_side_team->SetTeamCourt(ECourtName::eReefSideTeam);
+	
+	// team box change
+	auto temp_box = reef_side_team->team_box_;
+	reef_side_team->team_box_ = beach_side_team->team_box_;
+	beach_side_team->team_box_ = temp_box;
 }

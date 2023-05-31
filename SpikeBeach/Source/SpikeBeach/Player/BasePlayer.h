@@ -11,16 +11,37 @@ enum class EStateUINotice
 {
 	eActivateUI_StableRG,
 	eActivateUI_OffensiveRG,
-
-	eActivateUI_LClick_To_Service,
-	eActivateUI_LClick_To_Receive,
-	eActivateUI_LClick_To_Attack,
-
-	eActivateUI_RClick_To_Pass,
-	eActivateUI_RClick_To_Block,
+	eActiveUI_ClickGuide,
 
 	eCloseUI_ReadyGauge,
 	eCloseUI_ClickGuide,
+};
+
+enum class EClickableAction
+{
+	LClick_To_UnderService,
+	LClick_To_StandingService,
+	LClick_To_JumpService,
+	LClick_To_Receive,
+	LClick_To_Sliding,
+	LClick_To_AttackFloat,
+	LClick_To_AttackSpike,
+
+	RClick_To_Pass,
+	RClick_To_Block
+};
+
+UENUM(BlueprintType)
+enum class EPingOrderType : uint8
+{
+	eWrongPos,
+	ePassHere,
+};
+
+struct ClickableActionState
+{
+	EClickableAction LClick;
+	EClickableAction RClick;
 };
 
 UCLASS()
@@ -49,6 +70,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* SprintAction;
 
+	/** Mouse Wheel Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* MouseWheelClickAction;
+
 	/** Camera Length Control */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* CameraLengthControl;
@@ -63,11 +88,16 @@ private:
 #pragma region UI
 public:
 	TQueue<EStateUINotice> state_ui_notices_;
+
+	ClickableActionState clickable_action_state_;
 #pragma endregion
 
 #pragma region EFFECT
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
 		class UNiagaraSystem* ngsystem_timing_arm_ = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EffectSystem")
+		class UNiagaraSystem* ngsystem_pass_ping_ = nullptr;
 
 #pragma endregion
 
@@ -85,9 +115,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-private:
-	void SetInputAction();
 
 #pragma region GETTER
 public:
@@ -120,6 +147,9 @@ protected:
 	/* Called for Sprint Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
 		void SprintCompleted(const FInputActionValue& Value);
+	/* Called for MouseClick Input*/
+	UFUNCTION(BlueprintCallable, Category = Input)
+		void WheelTriggered(const FInputActionValue& Value);
 	/* Called for MouseXY Input*/
 	UFUNCTION(BlueprintCallable, Category = Input)
 		void BallCursorTriggered(const FInputActionValue& Value);
@@ -140,7 +170,13 @@ protected:
 	virtual void PassBall() override;
 	virtual void SpikeBall() override;
 	virtual void FloatingBall() override;
-
+	
+protected:
+	virtual bool JudgeServiceMode() override;
+	virtual bool JudgePassMode() override;
+	virtual bool JudgeAttackMode() override;
+	virtual bool JudgeReceiveMode() override;
+	virtual bool JudgeBlockMode() override;
 protected:
 	virtual void PlayServiceAnimation() override;
 	virtual void PlayPassAnimation() override;
@@ -148,6 +184,15 @@ protected:
 	virtual void PlayReceiveAnimation() override;
 	virtual void PlayBlockAnimation() override;
 
+public:
+	FVector current_traced_pos_;
+	bool traced_in_team_court_;
+	bool show_ping_cursor_;
+	void MouseTraceOnGround();
+
+public:
+	UFUNCTION(BlueprintImplementableEvent, Category = "Effect System")
+		void PingOrderEvent(EPingOrderType ping_type, FVector ping_location);
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
@@ -155,4 +200,5 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
 		FVector2D ball_cursor_value_;
+
 };

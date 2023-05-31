@@ -43,8 +43,10 @@ private:
 	bool is_cursor_active_ = false;
 
 	// SCORE
-	UINT score;
-	UINT set;
+	UPROPERTY(BlueprintReadWrite, Category = "Score", meta = (AllowPrivateAccess = "true"))
+		int32 score;
+	UPROPERTY(BlueprintReadWrite, Category = "Score", meta = (AllowPrivateAccess = "true"))
+		int32 set;
   
 #pragma region SETTER
 public:
@@ -57,48 +59,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetTeamCourt(ECourtName court_name) { court = court_name; }
 #pragma endregion
-
-	UFUNCTION(BlueprintCallable)
-		bool AddPlayerToTeam(ABaseCharacter* player) {
-		if (left_side_player == nullptr)
-		{
-			left_side_player = player;
-			left_side_player->SetMyTeam(this);
-			return true;
-		}
-
-		if (right_side_player == nullptr)
-		{
-			right_side_player = player;
-			right_side_player->SetMyTeam(this);
-			return true;
-		}
-
-		return false;
-	}
-
-	UFUNCTION(BlueprintCallable)
-		void WinSinglePoint() {
-		set++;
-	}
-
-	UFUNCTION(BlueprintCallable)
-		void WinSetPoint() {
-		score++;
-	}
-
-	UFUNCTION(BlueprintCallable)
-		void SwapPlayerPos() {
-		ABaseCharacter* temp = right_side_player;
-		right_side_player = left_side_player;
-		left_side_player = temp;
-	}
-
-	UFUNCTION(BlueprintCallable, Category = "Game Play")
-		void UpdateBallCursor(FVector2D cursor);
-
-	UFUNCTION(BlueprintCallable, Category = "Game Play")
-		void ClearBallCursor();
 
 #pragma region GETTER
 public:
@@ -127,10 +87,10 @@ public:
 		bool AddPlayerToTeam(ABaseCharacter* player);
 
 	UFUNCTION(BlueprintCallable)
-		void WinSinglePoint();
+		void WinScore();
 
 	UFUNCTION(BlueprintCallable)
-		void WinSetPoint();
+		void WinSet();
 
 	UFUNCTION(BlueprintCallable)
 		void SwapPlayerPos();
@@ -140,5 +100,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
 		void ClearBallCursor();
+
+	UFUNCTION(BlueprintCallable)
+		bool IsVectorInTeamBox(FVector vector);
 };
 
