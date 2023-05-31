@@ -94,6 +94,8 @@ void AVolleyballArenaBase::UpdateBallTrigger()
 	if (arena_ball_->current_ball_state_ == EBallState::eDropped)
 	{
 		ball_trigger_->SetActive(false);
+		ball_trigger_->SetWorldLocation(FVector(0, 0, 0));
+		arena_ball_->current_predict_.b_hit_land = false;
 		return;
 	}
 	if (arena_ball_->current_predict_.b_hit_land)
