@@ -268,6 +268,7 @@ void ABaseCharacter::ServiceHitBall()
 		{
 			Ball->JumpServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
 		}
+		Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 	}
 }
 
@@ -282,6 +283,7 @@ void ABaseCharacter::DigBall()
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 	Ball->DigMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
 void ABaseCharacter::ReceiveBall()
@@ -295,6 +297,7 @@ void ABaseCharacter::ReceiveBall()
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 	Ball->ReceiveMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
 void ABaseCharacter::BlockBall()
@@ -323,6 +326,7 @@ void ABaseCharacter::TossBall()
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 	dest_position_ = EndPos;
 	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 
 	ai_ping_order_.pass_ordered = false;
 }
@@ -346,6 +350,7 @@ void ABaseCharacter::PassBall()
 
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
 void ABaseCharacter::SpikeBall()
@@ -359,6 +364,7 @@ void ABaseCharacter::SpikeBall()
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
 void ABaseCharacter::FloatingBall()
@@ -372,11 +378,15 @@ void ABaseCharacter::FloatingBall()
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 	Ball->FloatingMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
 
 bool ABaseCharacter::JudgeServiceMode()
 {
+	if (GetMyTeam()->IsVectorInTeamBox(GetActorLocation()))
+		return false;
+
 	RemainingTimeToAction = ServiceMontage->GetSectionLength(ServiceMontage->GetSectionIndex(ServiceMode));
 	return true;
 }
@@ -687,11 +697,19 @@ void ABaseCharacter::PlayReceiveAnimation()
 {
 	MontageStarted();
 	float PlayRate;
+	FVector RotationDir;
+	FQuat quat;
 	switch (DefenceMode)
 	{
 	case EDefenceMode::DM_DIG:
 		// Move To Action Pos
 		SetMoveToActionPos(*DigOffsetMap.Find(Direction));
+		RotationDir = (ActionPos - GetActorLocation());
+		RotationDir.Z = 0;
+		RotationDir.Normalize();
+		quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
+		AddActorLocalRotation(quat);
+
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, DigMontage, Direction);
 		PlayAnimMontage(DigMontage, PlayRate, Direction);
 		break;

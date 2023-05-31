@@ -13,7 +13,9 @@ UCLASS()
 class SPIKEBEACH_API AOffsetTestPlayer : public ABasePlayer
 {
 	GENERATED_BODY()
-	
+public:
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 protected:
 	/* Called for LClick Input*/
 		void LClickTriggered(const FInputActionValue& Value) override {};

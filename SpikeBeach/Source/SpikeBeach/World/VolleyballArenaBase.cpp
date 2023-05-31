@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "VolleyballArenaBase.h"
+#include "../Ball/Ball.h"
 #include "kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
@@ -23,6 +25,22 @@ void AVolleyballArenaBase::SetServiceTeam(ECourtName service_court)
 	left_player->SetPlayerTurn(EPlayerTurn::PT_SERVICE);
 	left_player->SetPlayerRole(EPlayerRole::PR_S_SERVICE);
 	
+	FVector ServiceSpot;
+	float RandomDistance = UKismetMathLibrary::RandomFloatInRange(200, 400);
+	switch (service_court)
+	{
+	case ECourtName::eBeachSideTeam:
+		ServiceSpot = left_player->GetActorLocation();
+		ServiceSpot.Y += RandomDistance;
+		left_player->SetActorLocation(ServiceSpot);
+		break;
+	case ECourtName::eReefSideTeam:
+		ServiceSpot = left_player->GetActorLocation();
+		ServiceSpot.Y -= RandomDistance;
+		left_player->SetActorLocation(ServiceSpot);
+		break;
+	}
+
 	auto cast_to_player = (ABasePlayer*)left_player;
 	if (cast_to_player)
 		//cast_to_player->CanControlBallCursor = true;
