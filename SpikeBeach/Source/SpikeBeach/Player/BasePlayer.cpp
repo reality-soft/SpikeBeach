@@ -77,6 +77,8 @@ void ABasePlayer::Tick(float DeltaTime)
 		}
 	}
 
+	TimingCalculateIfClick(DeltaTime);
+
 	MouseTraceOnGround();
 }
 
@@ -482,4 +484,20 @@ void ABasePlayer::MouseTraceOnGround()
 	current_traced_pos_ = hit.Location;
 
 	show_ping_cursor_ = true;
+}
+
+void ABasePlayer::TimingCalculateIfClick(float DeltaTime)
+{
+	if (bIsClicking && TimingMax > 0.0f)
+	{
+		// Timing To Accuracy
+		TimingTimer += DeltaTime;
+		TimingAccuracy = TimingTimer / TimingMax;
+	}
+	else
+	{
+		TimingAccuracy = 0.0f;
+		TimingTimer = 0.0f;
+		TimingMax = -1.0f;
+	}
 }

@@ -146,7 +146,7 @@ class SPIKEBEACH_API ABaseCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	float GetTimmingAccurancy() { return TimingAccuracy; }
+	float GetTimingAccurancy() { return TimingAccuracy; }
 
 public:
 	DECLARE_EVENT(ABaseCharacter, FAttackChange)
@@ -156,7 +156,8 @@ protected:
 	// Variables
 	bool	bIsClicking;
 	bool	bIsSprint;
-	float	TimingAccuracy;
+	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+		float	TimingAccuracy;
 	float	TimingTimer;
 	float	TimingMax;
 	bool	bIsMoveToOffset;
@@ -360,7 +361,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void TimingCalculateIfClick(float DeltaTime);
 	void SmoothingWalkRun(float DeltaTime);
 	void MoveToOffsetDestination(float DeltaTime);
 	
@@ -466,4 +466,5 @@ protected:
 
 private:
 	void HandleTurnChange();
+	FVector GetRandomPosInRange(const FVector& Center, float accuracy);
 };

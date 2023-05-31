@@ -183,6 +183,7 @@ protected:
 	virtual void PlayAttackAnimation() override;
 	virtual void PlayReceiveAnimation() override;
 	virtual void PlayBlockAnimation() override;
+	void TimingCalculateIfClick(float DeltaTime);
 
 public:
 	FVector current_traced_pos_;
