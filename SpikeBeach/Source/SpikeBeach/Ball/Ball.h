@@ -154,6 +154,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
 		void NetHitMovement(const FVector& hit_location, const FVector& impulse_normal);
 
+	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
+		void BlockHitMovement(const FVector& hit_location, const FVector& impulse_normal);
+	
 	UFUNCTION(BlueprintCallable, Category = "Ball System")
 		void PredictPath();
 

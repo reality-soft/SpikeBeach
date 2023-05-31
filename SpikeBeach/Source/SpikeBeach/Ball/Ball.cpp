@@ -275,6 +275,31 @@ void ABall::NetHitMovement(const FVector& hit_location, const FVector& impulse_n
 	CheckTurnChanged();
 }
 
+void ABall::BlockHitMovement(const FVector& hit_location, const FVector& impulse_normal)
+{
+	FVector movement_velocity = impulse_normal * GetVelocity().Length() * 0.6f;
+
+	ProjectileMovementComponent->SetUpdatedComponent(GetRootComponent());
+	ProjectileMovementComponent->Velocity = movement_velocity;
+
+	init_velocity_ = movement_velocity;
+	PredictPath();
+
+	if (current_predict_.b_hit_land)
+	{
+		parent_effect_system_->EventCreateSplineTrack(spline_comp_, current_predict_.spline_positions_);
+		parent_effect_system_->SetTrailColor_Stable();
+		parent_effect_system_->SetArcTrailSpawnRate(3000);
+	}
+
+	// set drop data
+	cur_time_ = 0.0f;
+	start_pos_ = hit_location;
+	end_pos_ = current_predict_.destination;
+
+	CheckTurnChanged();
+}
+
 FVector ABall::SpoonServiceMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
 	power = (0.4 - 0.3) * power + 0.3;

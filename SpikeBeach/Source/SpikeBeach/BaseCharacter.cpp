@@ -311,7 +311,6 @@ void ABaseCharacter::ReceiveBall()
 	FVector EndPos = Company->GetActorLocation();
 
 	Ball->ReceiveMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
-
 }
 
 void ABaseCharacter::BlockBall()
@@ -527,7 +526,7 @@ bool ABaseCharacter::JudgeReceiveMode()
 
 bool ABaseCharacter::JudgeBlockMode()
 {
-	DefenceMode = EDefenceMode::DM_DIG;
+	DefenceMode = EDefenceMode::DM_BLOCK;
 	Direction = FName("Front");
 
 	return true;
