@@ -327,16 +327,20 @@ void ABaseCharacter::TossBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos;
-	if (FVector::PointsAreSame(Company->dest_position_, FVector(0, 0, 0)))
+
+	if (ai_ping_order_.pass_ordered)
 	{
-		EndPos = Company->GetActorLocation();
+		EndPos = ai_ping_order_.pass_order_pos;
 	}
 	else
 	{
-		EndPos = Company->dest_position_;
+		EndPos = Company->GetActorLocation();
 	}
 
+	dest_position_ = EndPos;
 	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+
+	ai_ping_order_.pass_ordered = false;
 }
 
 void ABaseCharacter::PassBall()
@@ -618,14 +622,6 @@ FString ABaseCharacter::GetPlayerMode()
 void ABaseCharacter::PlayServiceAnimation()
 {
 	MontageStarted();
-
-	// Rotate To End Pos
-	auto RotationDir = (dest_turnover_to_ - GetActorLocation());
-	RotationDir.Z = 0;
-	RotationDir.Normalize();
-	auto quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
-	
-	AddActorLocalRotation(quat);
 
 	float PlayRate = CalculatePlayRate(RemainingTimeToAction, ServiceMontage, ServiceMode);
 	PlayAnimMontage(ServiceMontage, PlayRate, ServiceMode);
