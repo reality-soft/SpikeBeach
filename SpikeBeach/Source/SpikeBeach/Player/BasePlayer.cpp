@@ -111,7 +111,6 @@ void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		// Ball Cursor
 		EnhancedInputComponent->BindAction(BallCursorControl, ETriggerEvent::Triggered, this, &ABasePlayer::BallCursorTriggered);
 	}
-
 }
 
 void ABasePlayer::Move(const FInputActionValue& Value)
