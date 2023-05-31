@@ -32,6 +32,29 @@ bool UPlayerStateEffectSystem::InitOwnerInstance(ABasePlayer* player)
 	return true;
 }
 
+bool UPlayerStateEffectSystem::Spawn_PassPing(FVector location)
+{
+	if (!target_player_ && !target_player_->ngsystem_pass_ping_)
+		return false;
+
+	if (ngcomp_pass_ping_ != nullptr)
+		Destroy_PassPing();
+
+	ngcomp_pass_ping_ = UNiagaraFunctionLibrary::SpawnSystemAtLocation(target_player_->GetWorld(), target_player_->ngsystem_pass_ping_, location);
+
+	return true;
+}
+
+bool UPlayerStateEffectSystem::Destroy_PassPing()
+{
+	if (ngcomp_pass_ping_)
+	{
+		ngcomp_pass_ping_->DestroyComponent();
+		ngcomp_pass_ping_ = nullptr;
+	}
+	return true;
+}
+
 void UPlayerStateEffectSystem::Spawn_TimingArm()
 {
 	if (!target_player_ && !target_player_->ngsystem_timing_arm_)
