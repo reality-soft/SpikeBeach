@@ -104,7 +104,7 @@ void AVolleyballArenaBase::UpdateBallTrigger()
 		ball_trigger_->SetActive(true);
 		ball_trigger_->SetVisibility(true);
 		ball_trigger_->SetHiddenInGame(false);
-		ball_trigger_->SetSphereRadius(100.0f);
+		ball_trigger_->SetSphereRadius(200.0f);
 		return;
 	}
 }

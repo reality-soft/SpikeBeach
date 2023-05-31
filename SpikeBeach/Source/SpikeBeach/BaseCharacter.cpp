@@ -368,7 +368,7 @@ void ABaseCharacter::SpikeBall()
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = dest_turnover_to_;
 
-	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
 }
 
 void ABaseCharacter::FloatingBall()
@@ -380,7 +380,7 @@ void ABaseCharacter::FloatingBall()
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = dest_turnover_to_;
 
-	Ball->FloatingMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->FloatingMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
 }
 
 

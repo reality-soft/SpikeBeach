@@ -59,7 +59,7 @@ void ABasePlayer::Tick(float DeltaTime)
 		player_controller->SetShowMouseCursor(false);
 	}
 
-	if (Company->GetPlayerRole() == EPlayerRole::PR_A_MOVE_TO_DEFENCE_POS)
+	if (Company->GetPlayerRole() == EPlayerRole::PR_A_MOVE_TO_DEFENCE_POS || Company->GetPlayerRole() == EPlayerRole::PR_D_RECEIVE)
 	{
 		CanControlBallCursor = true;
 	}
@@ -361,14 +361,23 @@ void ABasePlayer::SpikeBall()
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
 
-	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
 
 	CanControlBallCursor = false;
 }
 
 void ABasePlayer::FloatingBall()
 {
-	ABaseCharacter::FloatingBall();
+	bIsMoveToOffset = false;
+	OffsetTimer = 0;
+	UE_LOG(LogTemp, Log, TEXT("Floating Ball"));
+
+	FVector StartPos = Ball->GetActorLocation();
+	FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+
+	Ball->FloatingMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
+
+	CanControlBallCursor = false;
 }
 
 bool ABasePlayer::JudgeServiceMode()

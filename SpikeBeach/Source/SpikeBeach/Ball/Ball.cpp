@@ -297,6 +297,8 @@ void ABall::BlockHitMovement(const FVector& hit_location, const FVector& impulse
 	start_pos_ = hit_location;
 	end_pos_ = current_predict_.destination;
 
+	PushAndUpdateBallState(EBallState::eTurnOver);
+
 	CheckTurnChanged();
 }
 
