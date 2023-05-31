@@ -35,10 +35,10 @@ public:
 		bool InitSpikeRGInstances(UWidget* parent_widget, UImage* img, UMaterialInstanceDynamic* mi);
 
 	UFUNCTION(BlueprintCallable, Category = "Controll Guide")
-		bool InitLClickGuideInstances(UWidget* parent_widget, UImage* img, UWidgetAnimation* anim, UTextBlock* text);
+		bool InitLClickGuideInstances(UWidget* parent_widget, UImage* img, UTextBlock* text);
 
 	UFUNCTION(BlueprintCallable, Category = "Controll Guide")
-		bool InitRClickGuideInstances(UWidget* parent_widget, UImage* img, UWidgetAnimation* anim, UTextBlock* text);
+		bool InitRClickGuideInstances(UWidget* parent_widget, UImage* img, UTextBlock* text);
 
 public:
 	// Gauges
@@ -70,9 +70,6 @@ public:
 		UImage* lclick_guide_img_ = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Controll Guide")
-		UWidgetAnimation* lclick_guide_anim_ = nullptr;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Controll Guide")
 		UTextBlock* lclick_guide_text_ = nullptr;
 
 
@@ -83,10 +80,11 @@ public:
 		UImage* rclick_guide_img_ = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Controll Guide")
-		UWidgetAnimation* rclick_guide_anim_ = nullptr;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Controll Guide")
 		UTextBlock* rclick_guide_text_ = nullptr;
+
+	// Ping Cursor
+	UPROPERTY(BlueprintReadWrite, Category = "Ping")
+		UImage* ping_cursor_img_ = nullptr;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Animation")

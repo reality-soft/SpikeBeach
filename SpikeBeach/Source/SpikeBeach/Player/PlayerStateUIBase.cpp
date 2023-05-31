@@ -34,14 +34,13 @@ bool UPlayerStateUIBase::InitSpikeRGInstances(UWidget* parent_widget, UImage* im
 	return false;
 }
 
-bool UPlayerStateUIBase::InitLClickGuideInstances(UWidget* parent_widget, UImage* img, UWidgetAnimation* anim, UTextBlock* text)
+bool UPlayerStateUIBase::InitLClickGuideInstances(UWidget* parent_widget, UImage* img, UTextBlock* text)
 {
 	lclick_guide_parent_ = parent_widget;
 	lclick_guide_img_ = img;
-	lclick_guide_anim_ = anim;
 	lclick_guide_text_ = text;
 
-	if (lclick_guide_parent_ && lclick_guide_img_ && lclick_guide_anim_)
+	if (lclick_guide_parent_ && lclick_guide_img_ && lclick_guide_text_)
 	{
 		lclick_guide_parent_->SetVisibility(ESlateVisibility::Hidden);
 		return true;
@@ -50,14 +49,13 @@ bool UPlayerStateUIBase::InitLClickGuideInstances(UWidget* parent_widget, UImage
 	return false;
 }
 
-bool UPlayerStateUIBase::InitRClickGuideInstances(UWidget* parent_widget, UImage* img, UWidgetAnimation* anim, UTextBlock* text)
+bool UPlayerStateUIBase::InitRClickGuideInstances(UWidget* parent_widget, UImage* img, UTextBlock* text)
 {
 	rclick_guide_parent_ = parent_widget;
 	rclick_guide_img_ = img;
-	rclick_guide_anim_ = anim;
 	rclick_guide_text_ = text;
 
-	if (rclick_guide_parent_ && rclick_guide_img_ && rclick_guide_anim_)
+	if (rclick_guide_parent_ && rclick_guide_img_ && rclick_guide_text_)
 	{
 		rclick_guide_parent_->SetVisibility(ESlateVisibility::Hidden);
 		return true;
@@ -121,13 +119,11 @@ void UPlayerStateUIBase::LossOffensiveRG()
 
 void UPlayerStateUIBase::ActiveLClickGuide(FText text)
 {
-	PlayAnimation(lclick_guide_anim_, 0.0f, 30);
 	lclick_guide_text_->SetText(text);
 }
 
 void UPlayerStateUIBase::ActiveRClickGuide(FText text)
 {
-	PlayAnimation(rclick_guide_anim_, 0.0f, 30);
 	rclick_guide_text_->SetText(text);
 }
 
