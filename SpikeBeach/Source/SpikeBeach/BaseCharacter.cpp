@@ -122,10 +122,6 @@ void ABaseCharacter::MoveToOffsetDestination(float DeltaTime)
 	FVector LocationThisTime = OffsetStart + Offset * OffsetTimer / RemainingTimeToAction;
 
 	SetActorLocation(LocationThisTime);
-
-	UE_LOG(LogTemp, Log, TEXT("Rate : %f"), OffsetTimer / RemainingTimeToAction);
-	UE_LOG(LogTemp, Log, TEXT("Cur Location : %f, %f, %f"), LocationThisTime.X, LocationThisTime.Y, LocationThisTime.Z);
-	UE_LOG(LogTemp, Log, TEXT("Destination : %f, %f, %f"), OffsetDestination.X, OffsetDestination.Y, OffsetDestination.Z)
 }
 
 void ABaseCharacter::SetSuperSettings()
@@ -299,6 +295,11 @@ void ABaseCharacter::DigBall()
 	bIsMoveToOffset = false;
 	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Dig Ball"));
+
+	FVector StartPos = Ball->GetActorLocation();
+	FVector EndPos = Company->GetActorLocation();
+
+	Ball->DigMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 }
 
 void ABaseCharacter::ReceiveBall()
@@ -311,7 +312,6 @@ void ABaseCharacter::ReceiveBall()
 	FVector EndPos = Company->GetActorLocation();
 
 	Ball->ReceiveMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
-
 }
 
 void ABaseCharacter::BlockBall()
@@ -348,6 +348,19 @@ void ABaseCharacter::PassBall()
 	bIsMoveToOffset = false;
 	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Pass Ball"));
+
+	FVector StartPos = Ball->GetActorLocation();
+	FVector EndPos;
+	if (FVector::PointsAreSame(Company->dest_position_, FVector(0, 0, 0)))
+	{
+		EndPos = Company->GetActorLocation();
+	}
+	else
+	{
+		EndPos = Company->dest_position_;
+	}
+
+	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 }
 
 void ABaseCharacter::SpikeBall()
@@ -367,6 +380,11 @@ void ABaseCharacter::FloatingBall()
 	bIsMoveToOffset = false;
 	OffsetTimer = 0;
 	UE_LOG(LogTemp, Log, TEXT("Floating Ball"));
+
+	FVector StartPos = Ball->GetActorLocation();
+	FVector EndPos = dest_turnover_to_;
+
+	Ball->FloatingMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 }
 
 
@@ -397,7 +415,7 @@ bool ABaseCharacter::JudgePassMode()
 	if (DropInfo.remain_time > TimeToPlayAnim)
 		return false;
 
-	if (DropInfo.remain_time > 0.0f)
+	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
 	{
 		Direction = FilterName;
 		OffenceMode = EOffenceMode::OM_TOSS;
@@ -416,7 +434,7 @@ bool ABaseCharacter::JudgePassMode()
 	if (DropInfo.remain_time > TimeToPlayAnim)
 		return false;
 
-	if (DropInfo.remain_time > 0.0f)
+	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
 	{
 		OffenceMode = EOffenceMode::OM_PASS;
 		RemainingTimeToAction = DropInfo.remain_time;
@@ -447,7 +465,7 @@ bool ABaseCharacter::JudgeAttackMode()
 	if (DropInfo.remain_time > TimeToPlayAnim)
 		return false;
 
-	if (DropInfo.remain_time > 0.0f)
+	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
 	{
 		OffenceMode = EOffenceMode::OM_SPIKE;
 		RemainingTimeToAction = DropInfo.remain_time;
@@ -468,7 +486,7 @@ bool ABaseCharacter::JudgeAttackMode()
 	if (DropInfo.remain_time > TimeToPlayAnim)
 		return false;
 
-	if (DropInfo.remain_time > 0.0f)
+	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
 	{
 		OffenceMode = EOffenceMode::OM_FLOATING;
 		RemainingTimeToAction = DropInfo.remain_time;
@@ -499,7 +517,7 @@ bool ABaseCharacter::JudgeReceiveMode()
 	if (DropInfo.remain_time > TimeToPlayAnim)
 		return false;
 
-	if (DropInfo.remain_time > 0.0f)
+	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
 	{
 		DefenceMode = EDefenceMode::DM_RECEIVE;
 		RemainingTimeToAction = DropInfo.remain_time;
@@ -517,7 +535,7 @@ bool ABaseCharacter::JudgeReceiveMode()
 	if (DropInfo.remain_time > TimeToPlayAnim)
 		return false;
 
-	if (DropInfo.remain_time > 0.0f)
+	if (DropInfo.remain_time > 0.0f)//TimeToPlayAnim * 0.4f)
 	{
 		Direction = FName("Front");
 		DefenceMode = EDefenceMode::DM_DIG;
@@ -531,7 +549,7 @@ bool ABaseCharacter::JudgeReceiveMode()
 
 bool ABaseCharacter::JudgeBlockMode()
 {
-	DefenceMode = EDefenceMode::DM_DIG;
+	DefenceMode = EDefenceMode::DM_BLOCK;
 	Direction = FName("Front");
 
 	return true;

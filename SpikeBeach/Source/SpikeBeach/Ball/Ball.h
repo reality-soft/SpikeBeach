@@ -41,7 +41,7 @@ public:
 	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		bool b_hit_land; 
 
-	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Ball, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		FVector destination;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Spline Track")
@@ -154,6 +154,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
 		void NetHitMovement(const FVector& hit_location, const FVector& impulse_normal);
 
+	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
+		void BlockHitMovement(const FVector& hit_location, const FVector& impulse_normal);
+	
 	UFUNCTION(BlueprintCallable, Category = "Ball System")
 		void PredictPath();
 

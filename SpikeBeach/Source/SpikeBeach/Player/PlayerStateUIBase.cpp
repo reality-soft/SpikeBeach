@@ -87,6 +87,9 @@ void UPlayerStateUIBase::SetStateUIVisible(EStateWidgets state_widget, bool visi
 
 void UPlayerStateUIBase::FillStableRG(float fill_value)
 {
+	if (fill_value < 0)
+		return;
+
 	if (stable_rg_activation_)
 	{
 		fill_value = std::min(fill_value, 1.0f);
@@ -98,6 +101,9 @@ void UPlayerStateUIBase::FillStableRG(float fill_value)
 
 void UPlayerStateUIBase::FillOffensiveRG(float fill_value)
 {
+	if (fill_value < 0)
+		return;
+
 	if (offensive_rg_activation_)
 	{
 		fill_value = std::min(fill_value, 1.0f);

@@ -292,6 +292,8 @@ void ABasePlayer::MontageEnded()
 {
 	is_montage_started_ = false;
 	is_montage_ended_ = true;
+
+	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 
@@ -317,7 +319,6 @@ void ABasePlayer::ServiceHitBall()
 			Ball->JumpServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
 		}
 	}
-
 	CanControlBallCursor = false;
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
@@ -325,33 +326,27 @@ void ABasePlayer::ServiceHitBall()
 void ABasePlayer::ReceiveBall() 
 {
 	ABaseCharacter::ReceiveBall();
-	
-	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::DigBall() 
 {
 	ABaseCharacter::DigBall();
-	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::BlockBall()
 {
 	ABaseCharacter::BlockBall();
-	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::TossBall()
 {
 	ABaseCharacter::TossBall();
-	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 
 }
 
 void ABasePlayer::PassBall()
 {
 	ABaseCharacter::PassBall();
-	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::SpikeBall()
@@ -366,14 +361,11 @@ void ABasePlayer::SpikeBall()
 	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 
 	CanControlBallCursor = false;
-
-	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 void ABasePlayer::FloatingBall()
 {
 	ABaseCharacter::FloatingBall();
-	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
 bool ABasePlayer::JudgeServiceMode()
