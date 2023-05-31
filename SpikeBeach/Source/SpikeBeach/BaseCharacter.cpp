@@ -122,10 +122,6 @@ void ABaseCharacter::MoveToOffsetDestination(float DeltaTime)
 	FVector LocationThisTime = OffsetStart + Offset * OffsetTimer / RemainingTimeToAction;
 
 	SetActorLocation(LocationThisTime);
-
-	UE_LOG(LogTemp, Log, TEXT("Rate : %f"), OffsetTimer / RemainingTimeToAction);
-	UE_LOG(LogTemp, Log, TEXT("Cur Location : %f, %f, %f"), LocationThisTime.X, LocationThisTime.Y, LocationThisTime.Z);
-	UE_LOG(LogTemp, Log, TEXT("Destination : %f, %f, %f"), OffsetDestination.X, OffsetDestination.Y, OffsetDestination.Z)
 }
 
 void ABaseCharacter::SetSuperSettings()
