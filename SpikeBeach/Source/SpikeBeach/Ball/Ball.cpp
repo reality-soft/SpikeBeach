@@ -252,7 +252,8 @@ FVector ABall::FloatingServiceMovement(float power, const FVector& start_pos, co
 
 void ABall::NetHitMovement(const FVector& hit_location, const FVector& impulse_normal)
 {	
-	FVector movement_velocity = impulse_normal * GetVelocity().Length() * 0.25;
+	double reduced_speed = std::max(GetVelocity().Length() * 0.25, 1.0);
+	FVector movement_velocity = impulse_normal * reduced_speed;
 
 	ProjectileMovementComponent->SetUpdatedComponent(GetRootComponent());
 	ProjectileMovementComponent->Velocity = movement_velocity;
