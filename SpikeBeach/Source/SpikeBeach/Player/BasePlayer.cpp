@@ -546,7 +546,7 @@ void ABasePlayer::CheckClickableUI()
 		}
 
 		// L
-		switch (JudgeReceiveMode())
+		switch (GetReceiveUIMode())
 		{
 		case EDefenceMode::DM_RECEIVE:
 			clickable_action_state_.LClick = EClickableAction::LClick_To_Receive;
@@ -575,7 +575,7 @@ void ABasePlayer::CheckClickableUI()
 		}
 
 		// L
-		switch (JudgeAttackMode())
+		switch (GetAttackUIMode())
 		{
 		case EOffenceMode::OM_SPIKE:
 			clickable_action_state_.LClick = EClickableAction::LClick_To_AttackSpike;
@@ -588,7 +588,7 @@ void ABasePlayer::CheckClickableUI()
 			break;
 		}
 		// R
-		switch (JudgePassMode())
+		switch (GetPassUIMode())
 		{
 		case EOffenceMode::OM_TOSS:
 			clickable_action_state_.RClick = EClickableAction::RClick_To_Pass;
@@ -604,4 +604,143 @@ void ABasePlayer::CheckClickableUI()
 		break;
 	}
 	}
+}
+
+EOffenceMode ABasePlayer::GetPassUIMode()
+{
+	if (!Company)
+		return EOffenceMode::OM_NONE;
+
+	float TimeToPlayAnim = 0;
+	float RequiredHeight = 0;
+	FDropInfo DropInfo;
+
+	// 1. Set Direction
+	auto direction = GetDirectionFromPlayer(Company->GetActorLocation());
+
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_TOSS)
+	{
+		// 2. Check If Toss is Possible
+		FName FilterName = direction.Compare(FName("Back")) == 0 ? FName("Front") : direction;
+		RequiredHeight = GetRequiredHeightFromOffset(TossOffsetMap, FilterName);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = TossMontage->GetSectionLength(TossMontage->GetSectionIndex(FilterName));
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			return EOffenceMode::OM_TOSS;
+		}
+	}
+
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_PASS)
+	{
+		// 4. Check If Pass is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(PassOffsetMap, direction);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 5. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = PassMontage->GetSectionLength(PassMontage->GetSectionIndex(direction));
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			return EOffenceMode::OM_PASS;
+		}
+	}
+
+	return EOffenceMode::OM_NONE;
+}
+
+EOffenceMode ABasePlayer::GetAttackUIMode()
+{
+	if (!Company)
+		return EOffenceMode::OM_NONE;
+
+	float TimeToPlayAnim = 0;
+	float RequiredHeight = 0;
+	FDropInfo DropInfo;
+
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_SPIKE)
+	{
+		// 1. Set Spike
+		SpikeMode = FName("FullSpike");
+
+		// 2. Check If Spike is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(SpikeOffsetMap, SpikeMode);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = SpikeMontage->GetSectionLength(SpikeMontage->GetSectionIndex(SpikeMode));
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			return EOffenceMode::OM_SPIKE;
+		}
+	}
+
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_FLOATING)
+	{
+		// 4. Set Direction to Enemy's Court : TODO
+		auto direction = FName("Front");
+
+		// 5. Check If Floating is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(FloatingOffsetMap, direction);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 6. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = FloatingMontage->GetSectionLength(FloatingMontage->GetSectionIndex(direction));
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			return EOffenceMode::OM_FLOATING;
+		}
+	}
+
+	return EOffenceMode::OM_NONE;
+}
+
+EDefenceMode ABasePlayer::GetReceiveUIMode()
+{
+	if (!Company)
+		return EDefenceMode::DM_NONE;
+
+	float TimeToPlayAnim = 0;
+	float RequiredHeight = 0;
+	FDropInfo DropInfo;
+
+	// 1. Set Direction
+	auto direction = GetDirectionFromPlayer(Company->GetActorLocation());
+
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_RECEIVE)
+	{
+		// 2. Check If Receive is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(ReceiveOffsetMap, direction);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = ReceiveMontage->GetSectionLength(ReceiveMontage->GetSectionIndex(direction));
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			return EDefenceMode::DM_RECEIVE;
+		}
+	}
+
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_DIG)
+	{
+		// 4. Check If Dig is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(DigOffsetMap, FName("Front"));
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 5. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = DigMontage->GetSectionLength(DigMontage->GetSectionIndex(direction));
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.3f)
+		{
+			return EDefenceMode::DM_DIG;
+		}
+	}
+
+	return EDefenceMode::DM_NONE;
 }
