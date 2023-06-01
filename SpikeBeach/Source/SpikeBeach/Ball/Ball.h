@@ -158,6 +158,9 @@ public:
 		FVector FloatingServiceMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state);
 
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
+		FVector ServiceThrowMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state);
+
+	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
 		void NetHitMovement(const FVector& hit_location, const FVector& impulse_normal);
 
 	UFUNCTION(BlueprintCallable, Category = "Ball Movement")
