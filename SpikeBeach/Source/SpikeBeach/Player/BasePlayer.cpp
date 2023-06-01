@@ -50,16 +50,11 @@ void ABasePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//auto player_controller = Cast<ACustomPlayerController>(Controller);
-	//if (Company->GetPlayerRole() == EPlayerRole::PR_A_TOSS)
-	//{
-	//	player_controller->SetShowMouseCursor(true);
-	//}
-	//else
-	//{
-	//	player_controller->SetShowMouseCursor(false);
-	//}
 	auto player_controller = Cast<ACustomPlayerController>(Controller);
+
+	if (player_controller == nullptr)
+		return;
+
 	player_controller->SetShowMouseCursor(false);
 
 	if (CanControlBallCursor)
@@ -259,6 +254,9 @@ void ABasePlayer::WheelTriggered(const FInputActionValue& Value)
 
 void ABasePlayer::BallCursorTriggered(const FInputActionValue& Value)
 {
+	if (my_team_ == nullptr)
+		return;
+
 	ECourtName agains_team;
 	switch (GetMyTeam()->GetCourtName())
 	{
@@ -467,6 +465,8 @@ void ABasePlayer::MouseTraceOnGround()
 	//	show_ping_cursor_ = false;
 	//	return;
 	//}
+	if (my_team_ == nullptr)
+		return;
 
 	if (CanControlBallCursor)
 	{
