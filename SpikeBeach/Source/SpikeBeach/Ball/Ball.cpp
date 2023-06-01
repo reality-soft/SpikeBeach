@@ -122,7 +122,7 @@ FVector ABall::SpikeMovement(float power, const FVector& start_pos, const FVecto
 
 FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
-	power = (0.6 - 0.3) * (1.0 - power) + 0.3;
+	power = (0.5 - 0.3) * (1.0 - power) + 0.3;
 	FVector velocity;
 	
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
@@ -146,7 +146,7 @@ FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVec
 
 FVector ABall::TossMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
-	power = (0.5 - 0.3) * (1.0 - power) + 0.3;
+	power = (0.4 - 0.3) * (1.0 - power) + 0.3;
 	FVector velocity;
 
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
@@ -194,7 +194,7 @@ FVector ABall::FloatingMovement(float power, const FVector& start_pos, const FVe
 
 FVector ABall::DigMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
-	power = (0.7 - 0.5) * (1.0 - power) + 0.5;
+	power = (0.5 - 0.4) * (1.0 - power) + 0.4;
 	FVector velocity;
 
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
