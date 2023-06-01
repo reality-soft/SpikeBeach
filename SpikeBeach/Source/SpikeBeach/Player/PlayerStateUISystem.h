@@ -74,16 +74,22 @@ public:
 private:
 	FVector2D ready_gauge_local_ = { -150, -150 };
 	FVector2D lclick_guide_local_ = { -200, 0 };
-	FVector2D rclick_guide_local_ = {  200, 0 };
+	FVector2D rclick_guide_local_ = {  50, 0 };
 
 	bool player_pos_setted_ = false;
 
 #define LOCTEXT_NAMESPACE "Click Guide Text"
-	const FText text_service_ = LOCTEXT("lclick_to_service", "서브");
-	const FText text_receive_ = LOCTEXT("lclick_to_receive", "리시브");
-	const FText text_attack_  = LOCTEXT("lclick_to_attack", "공격");
+	const FText text_under_service_ = LOCTEXT("l_under_service", "언더 서브");
+	const FText text_standgind_service_ = LOCTEXT("l_standing_service", "스탠딩 서브");
+	const FText text_jump_service_ = LOCTEXT("l_jump_service", "점프 서브");
 
-	const FText text_pass_  =  LOCTEXT("rclick_to_pass", "패스");
-	const FText text_block_ = LOCTEXT("rclick_to_block", "블로킹");
+	const FText text_receive_ = LOCTEXT("l_receive", "리시브");
+	const FText text_sliding_ = LOCTEXT("l_sliding", "슬라이딩");
+
+	const FText text_float_attack_ = LOCTEXT("l_sliding", "플롯 어택");
+	const FText text_spike_attack_  = LOCTEXT("l_attack", "스파이크");
+
+	const FText text_pass_  =  LOCTEXT("r_pass", "패스");
+	const FText text_block_ = LOCTEXT("r_block", "블로킹");
 #undef LOCTEXT_NAMESPACE
 };

@@ -38,6 +38,9 @@ bool UPlayerStateUISystem::InitRenderTransforms()
 
 FVector2D UPlayerStateUISystem::GetPlayerPosOnScreen()
 {
+	if (player_controller_ == nullptr)
+		return FVector2D();
+
 	FVector2D player_screen_pos;
 	player_controller_->ProjectWorldLocationToScreen(target_player_->GetActorLocation(), player_screen_pos);
 	return player_screen_pos;
@@ -48,6 +51,9 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	timer_manager_.Tick(DeltaTime);
+
+	if (target_player_ == nullptr)
+		return;
 
 	if (player_pos_setted_ == false)
 	{
@@ -84,30 +90,6 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 			player_state_ui_->LossStableRG();
 			player_state_ui_->LossOffensiveRG();
 			break;
-
-			// Update About L Click Guide
-		//case EStateUINotice::eActivateUI_LClick_To_Service:
-		//	player_state_ui_->ActiveLClickGuide(text_service_);
-		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
-		//	break;
-		//case EStateUINotice::eActivateUI_LClick_To_Receive:
-		//	player_state_ui_->ActiveLClickGuide(text_receive_);
-		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
-		//	break;
-		//case EStateUINotice::eActivateUI_LClick_To_Attack:
-		//	player_state_ui_->ActiveLClickGuide(text_attack_);
-		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
-		//	break;
-
-		//	// Update About R Click Guide
-		//case EStateUINotice::eActivateUI_RClick_To_Pass:
-		//	player_state_ui_->ActiveRClickGuide(text_pass_);
-		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
-		//	break;
-		//case EStateUINotice::eActivateUI_RClick_To_Block:
-		//	player_state_ui_->ActiveRClickGuide(text_block_);
-		//	player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
-		//	break;
 		}
 	}
 
@@ -125,6 +107,47 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 		player_state_ui_->rclick_guide_parent_->SetRenderTranslation(player_pos_current_tick_ + rclick_guide_local_);
 	}
 
+	if (target_player_->GetIsInBallTrigger())
+	{
+		player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
+		player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
+	}
+	else
+	{
+		player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, false);
+		player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, false);
+	}
+	if (player_state_ui_->lclick_guide_parent_->GetVisibility() == ESlateVisibility::Visible)
+	{
+		switch (target_player_->clickable_action_state_.LClick)
+		{
+		case EClickableAction::LClick_To_UnderService:
+			player_state_ui_->ActiveLClickGuide(text_under_service_); break;
+		case EClickableAction::LClick_To_StandingService:
+			player_state_ui_->ActiveLClickGuide(text_standgind_service_); break;
+		case EClickableAction::LClick_To_JumpService:
+			player_state_ui_->ActiveLClickGuide(text_jump_service_); break;
+		case EClickableAction::LClick_To_Receive:
+			player_state_ui_->ActiveLClickGuide(text_receive_); break;
+		case EClickableAction::LClick_To_Sliding:
+			player_state_ui_->ActiveLClickGuide(text_sliding_); break;
+		case EClickableAction::LClick_To_AttackFloat:
+			player_state_ui_->ActiveLClickGuide(text_float_attack_); break;
+		case EClickableAction::LClick_To_AttackSpike:
+			player_state_ui_->ActiveLClickGuide(text_spike_attack_); break;
+		}
+	}
+
+	if (player_state_ui_->rclick_guide_parent_->GetVisibility() == ESlateVisibility::Visible)
+	{
+		switch (target_player_->clickable_action_state_.RClick)
+		{
+		case EClickableAction::RClick_To_Pass:
+			player_state_ui_->ActiveRClickGuide(text_pass_); break;
+		case EClickableAction::RClick_To_Block:
+			player_state_ui_->ActiveRClickGuide(text_block_); break;
+		}
+	}
 
 	if (target_player_->show_ping_cursor_)
 	{
