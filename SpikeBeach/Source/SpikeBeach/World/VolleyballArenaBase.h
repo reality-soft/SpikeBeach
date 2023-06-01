@@ -52,6 +52,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "BallSystem")
 		ECourtName GetPlayerTeam(ABaseCharacter* player);
 
+	UFUNCTION(BlueprintCallable, Category = "BallSystem")
+		void ResetActionTrigger();
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Players")
 		void SetPlayerRole();

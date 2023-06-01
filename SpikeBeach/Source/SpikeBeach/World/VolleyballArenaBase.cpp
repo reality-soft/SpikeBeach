@@ -80,6 +80,23 @@ ECourtName AVolleyballArenaBase::GetPlayerTeam(ABaseCharacter* player)
 	return ECourtName();
 }
 
+void AVolleyballArenaBase::ResetActionTrigger()
+{
+	receive_trigger_->SetWorldLocation(arena_ball_->GetDropInfo(Players[0]->GetReceiveZOffset()).drop_pos);
+	dig_trigger_->SetWorldLocation(arena_ball_->GetDropInfo(Players[0]->GetDigZOffset()).drop_pos);
+	spike_trigger_->SetWorldLocation(arena_ball_->GetDropInfo(Players[0]->GetSpikeZOffset()).drop_pos);
+	floating_trigger_->SetWorldLocation(arena_ball_->GetDropInfo(Players[0]->GetFloatingZOffset()).drop_pos);
+	toss_trigger_->SetWorldLocation(arena_ball_->GetDropInfo(Players[0]->GetTossZOffset()).drop_pos);
+	pass_trigger_->SetWorldLocation(arena_ball_->GetDropInfo(Players[0]->GetPassZOffset()).drop_pos);
+
+	receive_trigger_->SetActive(true);
+	dig_trigger_->SetActive(true);
+	spike_trigger_->SetActive(true);
+	floating_trigger_->SetActive(true);
+	toss_trigger_->SetActive(true);
+	pass_trigger_->SetActive(true);
+}
+
 // Sets default values
 AVolleyballArenaBase::AVolleyballArenaBase()
 {
@@ -90,8 +107,10 @@ AVolleyballArenaBase::AVolleyballArenaBase()
 
 	BoxPlayableArea = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxPlayableArea"));
 	BoxPlayableArea->InitBoxExtent(FVector(700, 1100, 1000));
-	BoxPlayableArea->bHiddenInGame = true;
+	BoxPlayableArea->bHiddenInGame = false;
+	BoxPlayableArea->SetVisibility(true);
 	RootComponent = BoxPlayableArea;
+
 
 	receive_trigger_	= CreateDefaultSubobject<UCapsuleComponent>(TEXT("ReceiveTrigger"));
 	dig_trigger_		= CreateDefaultSubobject<UCapsuleComponent>(TEXT("DigTrigger"));
@@ -99,6 +118,34 @@ AVolleyballArenaBase::AVolleyballArenaBase()
 	floating_trigger_	= CreateDefaultSubobject<UCapsuleComponent>(TEXT("FloatingTrigger"));
 	toss_trigger_		= CreateDefaultSubobject<UCapsuleComponent>(TEXT("TossTrigger"));
 	pass_trigger_		= CreateDefaultSubobject<UCapsuleComponent>(TEXT("PassTrigger"));
+
+	receive_trigger_->SetCapsuleHalfHeight(1000);
+	dig_trigger_->SetCapsuleHalfHeight(1000);
+	spike_trigger_->SetCapsuleHalfHeight(1000);
+	floating_trigger_->SetCapsuleHalfHeight(1000);
+	toss_trigger_->SetCapsuleHalfHeight(1000);
+	pass_trigger_->SetCapsuleHalfHeight(1000);
+
+	receive_trigger_->SetCapsuleRadius(150);
+	dig_trigger_->SetCapsuleRadius(300);
+	spike_trigger_->SetCapsuleRadius(150);
+	floating_trigger_->SetCapsuleRadius(150);
+	toss_trigger_->SetCapsuleRadius(150);
+	pass_trigger_->SetCapsuleRadius(150);
+
+	receive_trigger_->bHiddenInGame = false;
+	dig_trigger_->bHiddenInGame = false;
+	spike_trigger_->bHiddenInGame = false;
+	floating_trigger_->bHiddenInGame = false;
+	toss_trigger_->bHiddenInGame = false;
+	pass_trigger_->bHiddenInGame = false;
+
+	receive_trigger_->SetVisibility(true);
+	dig_trigger_->SetVisibility(true);
+	spike_trigger_->SetVisibility(true);
+	floating_trigger_->SetVisibility(true);
+	toss_trigger_->SetVisibility(true);
+	pass_trigger_->SetVisibility(true);
 }
 
 // Called when the game starts or when spawned

@@ -1,15 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+
 #include "BaseCharacter.h"
 #include "Ball/Ball.h"
 #include "World/VolleyballArenaBase.h"
 #include "World/VolleyballGame.h"
 #include "World/VolleyballTeam.h"
-#include "GameFramework/Controller.h"
-#include "Math/UnrealMathUtility.h"
+#include "Math/UnrealMathUtility.h"	
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/Controller.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -843,3 +844,48 @@ FVector ABaseCharacter::GetRandomPosInRange(const FVector& Center, float accurac
 	return position;
 }
 
+float ABaseCharacter::GetReceiveZOffset()
+{
+	float MaxHeight = ReceiveOffsetMap.Find(FName("Front"))->Z; GetRequiredHeightFromOffset(ReceiveOffsetMap, FName("Front"));
+	MaxHeight = FMath::Max(MaxHeight, ReceiveOffsetMap.Find(FName("Back"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, ReceiveOffsetMap.Find(FName("Left"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, ReceiveOffsetMap.Find(FName("Right"))->Z);
+	return ACTOR_Z + MaxHeight;
+}
+
+float ABaseCharacter::GetDigZOffset()
+{
+	return ACTOR_Z + DigOffsetMap.Find(FName("Front"))->Z;
+}
+
+float ABaseCharacter::GetSpikeZOffset()
+{
+	
+	return ACTOR_Z + SpikeOffsetMap.Find(FName("FullSpike"))->Z;
+}
+
+float ABaseCharacter::GetFloatingZOffset()
+{
+	float MaxHeight = FloatingOffsetMap.Find(FName("Front"))->Z; GetRequiredHeightFromOffset(FloatingOffsetMap, FName("Front"));
+	MaxHeight = FMath::Max(MaxHeight, FloatingOffsetMap.Find(FName("Back"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, FloatingOffsetMap.Find(FName("Left"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, FloatingOffsetMap.Find(FName("Right"))->Z);
+	return ACTOR_Z + MaxHeight;
+}
+
+float ABaseCharacter::GetTossZOffset()
+{
+	float MaxHeight = TossOffsetMap.Find(FName("Front"))->Z; GetRequiredHeightFromOffset(TossOffsetMap, FName("Front"));
+	MaxHeight = FMath::Max(MaxHeight, TossOffsetMap.Find(FName("Left"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, TossOffsetMap.Find(FName("Right"))->Z);
+	return ACTOR_Z + MaxHeight;
+}
+
+float ABaseCharacter::GetPassZOffset()
+{
+	float MaxHeight = PassOffsetMap.Find(FName("Front"))->Z; GetRequiredHeightFromOffset(PassOffsetMap, FName("Front"));
+	MaxHeight = FMath::Max(MaxHeight, PassOffsetMap.Find(FName("Back"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, PassOffsetMap.Find(FName("Left"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, PassOffsetMap.Find(FName("Right"))->Z);
+	return ACTOR_Z + MaxHeight;
+}

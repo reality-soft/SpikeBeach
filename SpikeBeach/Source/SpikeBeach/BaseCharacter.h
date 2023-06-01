@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
+
+#define ACTOR_Z 115
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
@@ -87,6 +88,18 @@ enum class EPlayerPosition : uint8
 	POSITION_COUNT,
 };
 
+UENUM(BlueprintType)
+enum class EActionTriggerState : uint8
+{
+	TS_NONE		= 0b000000,
+	TS_DIG		= 0b000001,
+	TS_RECEIVE	= 0b000010,
+	TS_FLOATING	= 0b000100,
+	TS_SPIKE	= 0b001000,
+	TS_PASS		= 0b010000,
+	TS_TOSS		= 0b100000,
+};
+
 USTRUCT(BlueprintType)
 struct FAnimationOffsetData : public FTableRowBase
 {
@@ -165,6 +178,8 @@ protected:
 		float	OffsetTimer;
 	FVector OffsetStart;
 	FVector OffsetDestination;
+	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+		int32 trigger_state_;
 
 	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 		class AVolleyBallTeam* my_team_;
@@ -214,9 +229,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Block Capsule")
 		class UCapsuleComponent* BlockCapsuleL;
 #pragma endregion
-
-public:
-	
 
 public:
 
@@ -478,4 +490,12 @@ protected:
 
 protected:
 	FVector GetRandomPosInRange(const FVector& Center, float accuracy);
+
+public:
+	float GetReceiveZOffset();
+	float GetDigZOffset();
+	float GetSpikeZOffset();
+	float GetFloatingZOffset();
+	float GetTossZOffset();
+	float GetPassZOffset();
 };
