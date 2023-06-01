@@ -559,7 +559,7 @@ EDefenceMode ABaseCharacter::JudgeReceiveMode()
 		if (DropInfo.remain_time > TimeToPlayAnim)
 			return EDefenceMode::DM_NONE;
 
-		if (DropInfo.remain_time > 0.0f)//TimeToPlayAnim * 0.4f)
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.3f)
 		{
 			Direction = FName("Front");
 			RemainingTimeToAction = DropInfo.remain_time;

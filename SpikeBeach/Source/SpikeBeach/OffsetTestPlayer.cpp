@@ -36,7 +36,7 @@ void AOffsetTestPlayer::ReceiveBall()
 
 void AOffsetTestPlayer::DigBall()
 {
-	auto SocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("RightHand")));
+	auto SocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("RightLowerArm")));
 	auto ActorLocation = GetActorLocation();
 	auto Offset = SocketLocation - ActorLocation;
 

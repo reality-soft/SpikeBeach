@@ -115,6 +115,9 @@ public:
 protected:
 	void TimingCalculateIfClick(float DeltaTime);
 	void CheckClickableUI();
+		EOffenceMode GetPassUIMode();
+		EOffenceMode GetAttackUIMode();
+		EDefenceMode GetReceiveUIMode();
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
