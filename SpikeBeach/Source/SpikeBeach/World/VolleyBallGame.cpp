@@ -36,6 +36,25 @@ void UVolleyBallGame::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	// ...
 }
 
+void UVolleyBallGame::SetWin(ECourtName winning_court)
+{
+	switch (winning_court)
+	{
+	case ECourtName::eReefSideTeam:
+		TeamPlayingVolleyBall[(int)ECourtName::eReefSideTeam]->WinSet();
+		TeamPlayingVolleyBall[(int)ECourtName::eReefSideTeam]->ResetScore();
+
+		TeamPlayingVolleyBall[(int)ECourtName::eBeachSideTeam]->ResetScore();
+		break;
+	case ECourtName::eBeachSideTeam:
+		TeamPlayingVolleyBall[(int)ECourtName::eBeachSideTeam]->WinSet();
+		TeamPlayingVolleyBall[(int)ECourtName::eBeachSideTeam]->ResetScore();
+
+		TeamPlayingVolleyBall[(int)ECourtName::eReefSideTeam]->ResetScore();
+		break;
+	}
+}
+
 void UVolleyBallGame::ReturnPlayerToCourtPoint()
 {
 	auto reef_side_team = GetCourtTeam(ECourtName::eReefSideTeam);
