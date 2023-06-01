@@ -316,6 +316,7 @@ public:
 #pragma region GETTER
 	public:
 		bool GetIsClicking() { return bIsClicking; }
+		bool GetIsInBallTrigger() { return bIsInBallTrigger;  }
 		AVolleyBallTeam* GetMyTeam() { return my_team_; }
 		UFUNCTION(BlueprintCallable, Category = EnemyFunc)
 			AVolleyBallTeam* GetEnemyTeam();

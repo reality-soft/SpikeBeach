@@ -106,22 +106,20 @@ void AVolleyballArenaBase::Tick(float DeltaTime)
 
 void AVolleyballArenaBase::UpdateBallTrigger()
 {
-	if (ball_trigger_ == nullptr)
+	if (arena_ball_ == nullptr || ball_trigger_ == nullptr)
 		return;
 
 	if (arena_ball_->current_ball_state_ == EBallState::eDropped)
 	{
-		ball_trigger_->SetActive(false);
+		ball_trigger_->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		ball_trigger_->SetWorldLocation(FVector(0, 0, 0));
 		arena_ball_->current_predict_.b_hit_land = false;
 		return;
 	}
 	if (arena_ball_->current_predict_.b_hit_land)
 	{
+		ball_trigger_->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		ball_trigger_->SetWorldLocation(arena_ball_->current_predict_.destination);
-		ball_trigger_->SetActive(true);
-		ball_trigger_->SetVisibility(true);
-		ball_trigger_->SetHiddenInGame(false);
 		ball_trigger_->SetSphereRadius(200.0f);
 		return;
 	}
