@@ -115,6 +115,8 @@ FVector ABall::SpikeMovement(float power, const FVector& start_pos, const FVecto
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
+	is_valid_attack_ = false;
+
 	return velocity;
 }
 
@@ -136,6 +138,8 @@ FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVec
 
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
+
+	is_valid_attack_ = false;
 
 	return velocity;
 }
@@ -159,6 +163,8 @@ FVector ABall::TossMovement(float power, const FVector& start_pos, const FVector
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
+	is_valid_attack_ = false;
+
 	return velocity;
 }
 
@@ -180,6 +186,8 @@ FVector ABall::FloatingMovement(float power, const FVector& start_pos, const FVe
 
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
+
+	is_valid_attack_ = false;
 
 	return velocity;
 }
@@ -203,6 +211,8 @@ FVector ABall::DigMovement(float power, const FVector& start_pos, const FVector&
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
+	is_valid_attack_ = false;
+
 	return velocity;
 }
 
@@ -225,6 +235,8 @@ FVector ABall::JumpServiceMovement(float power, const FVector& start_pos, const 
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
+	is_valid_attack_ = false;
+
 	return velocity;
 }
 
@@ -246,6 +258,8 @@ FVector ABall::FloatingServiceMovement(float power, const FVector& start_pos, co
 
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
+
+	is_valid_attack_ = false;
 
 	return velocity;
 }
@@ -305,6 +319,8 @@ void ABall::BlockHitMovement(const FVector& hit_location, const FVector& impulse
 
 	PushAndUpdateBallState(EBallState::eTurnOver);
 
+	is_valid_attack_ = false;
+
 	CheckTurnChanged();
 }
 
@@ -326,6 +342,8 @@ FVector ABall::SpoonServiceMovement(float power, const FVector& start_pos, const
 
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
+
+	is_valid_attack_ = false;
 
 	return velocity;
 }

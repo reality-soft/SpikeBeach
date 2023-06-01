@@ -108,6 +108,8 @@ public:
 		FVector end_pos_;
 	UPROPERTY(BlueprintReadOnly, Category = DropInfo)
 		FVector init_velocity_;
+	UPROPERTY(BlueprintReadOnly, Category = DropInfo)
+		bool is_valid_attack_ = false;
 
 public:
 	DECLARE_EVENT(ABall, FAttackChange)
