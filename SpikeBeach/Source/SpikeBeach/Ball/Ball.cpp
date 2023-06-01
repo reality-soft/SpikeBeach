@@ -326,6 +326,30 @@ void ABall::BlockHitMovement(const FVector& hit_location, const FVector& impulse
 	CheckTurnChanged();
 }
 
+FVector ABall::ServiceThrowMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
+{
+	power = (0.4 - 0.3) * power + 0.3;
+	FVector velocity;
+
+	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
+
+	ProjectileMovementComponent->SetUpdatedComponent(GetRootComponent());
+	ProjectileMovementComponent->Velocity = velocity;
+
+	// set drop data
+	cur_time_ = 0.0f;
+	start_pos_ = start_pos;
+	end_pos_ = end_pos;
+	init_velocity_ = velocity;
+
+	CheckTurnChanged();
+	PushAndUpdateBallState(ball_state);
+
+	is_valid_attack_ = true;
+
+	return velocity;
+}
+
 FVector ABall::SpoonServiceMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
 	power = (0.4 - 0.3) * power + 0.3;
