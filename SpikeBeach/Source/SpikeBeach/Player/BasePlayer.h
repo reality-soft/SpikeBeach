@@ -190,6 +190,7 @@ protected:
 public:
 	FVector current_traced_pos_;
 	bool traced_in_team_court_;
+	bool is_ping_clicked_;
 	bool show_ping_cursor_;
 	void MouseTraceOnGround();
 

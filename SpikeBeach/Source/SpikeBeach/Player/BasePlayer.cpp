@@ -78,6 +78,15 @@ void ABasePlayer::Tick(float DeltaTime)
 	MouseTraceOnGround();
 
 	CheckClickableUI();
+
+	if (is_ping_clicked_)
+	{
+		dest_position_ = current_traced_pos_;
+	}
+	else
+	{
+		dest_position_ = GetActorLocation();
+	}
 }
 
 // Called to bind functionality to input
@@ -244,14 +253,13 @@ void ABasePlayer::WheelTriggered(const FInputActionValue& Value)
 
 	if (traced_in_team_court_)
 	{
-		Company->ai_ping_order_.pass_ordered = true;
-		Company->ai_ping_order_.pass_order_pos = current_traced_pos_;
 		PingOrderEvent(EPingOrderType::ePassHere, current_traced_pos_);
-		dest_position_ = Company->ai_ping_order_.pass_order_pos;
+		is_ping_clicked_ = true;
 	}
 	else
 	{
 		PingOrderEvent(EPingOrderType::eWrongPos, current_traced_pos_);
+		is_ping_clicked_ = false;
 	}	
 }
 

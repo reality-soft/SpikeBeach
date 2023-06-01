@@ -337,8 +337,6 @@ void ABaseCharacter::TossBall()
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
-
-	ai_ping_order_.pass_ordered = false;
 }
 
 void ABaseCharacter::PassBall()

@@ -219,7 +219,6 @@ public:
 	
 
 public:
-	AI_PingOrder ai_ping_order_;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Player Movement")
 		FVector dest_position_;
