@@ -112,6 +112,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+protected:
+	void TimingCalculateIfClick(float DeltaTime);
+	void CheckClickableUI();
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -183,7 +186,6 @@ protected:
 	virtual void PlayAttackAnimation() override;
 	virtual void PlayReceiveAnimation() override;
 	virtual void PlayBlockAnimation() override;
-	void TimingCalculateIfClick(float DeltaTime);
 
 public:
 	FVector current_traced_pos_;

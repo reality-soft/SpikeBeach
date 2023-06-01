@@ -112,14 +112,16 @@ void AVolleyballArenaBase::UpdateBallTrigger()
 	if (arena_ball_->current_ball_state_ == EBallState::eDropped)
 	{
 		ball_trigger_->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		ball_trigger_->SetWorldLocation(FVector(0, 0, 0));
+		//ball_trigger_->SetWorldLocation(FVector(0, 0, 0));
 		arena_ball_->current_predict_.b_hit_land = false;
+		ball_trigger_->SetHiddenInGame(false);
 		return;
 	}
 	if (arena_ball_->current_predict_.b_hit_land)
 	{
 		ball_trigger_->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		ball_trigger_->SetWorldLocation(arena_ball_->current_predict_.destination);
+		ball_trigger_->SetHiddenInGame(false);
 		ball_trigger_->SetSphereRadius(200.0f);
 		return;
 	}
@@ -171,11 +173,11 @@ void AVolleyballArenaBase::SetPlayerRoleOverTurn()
 		attack_team_l_player->SetPlayerRole(EPlayerRole::PR_D_RECEIVE);
 		attack_team_l_player->SetPlayerTurn(EPlayerTurn::PT_DEFENCE);
 		attack_team_r_player->SetPlayerRole(EPlayerRole::PR_A_MOVE_TO_TOSS_POS);
-		attack_team_l_player->SetPlayerTurn(EPlayerTurn::PT_OFFENCE);
+		attack_team_l_player->SetPlayerTurn(EPlayerTurn::PT_DEFENCE);
 	}
 	else {
 		attack_team_l_player->SetPlayerRole(EPlayerRole::PR_A_MOVE_TO_TOSS_POS);
-		attack_team_l_player->SetPlayerTurn(EPlayerTurn::PT_OFFENCE);
+		attack_team_l_player->SetPlayerTurn(EPlayerTurn::PT_DEFENCE);
 		attack_team_r_player->SetPlayerRole(EPlayerRole::PR_D_RECEIVE);
 		attack_team_l_player->SetPlayerTurn(EPlayerTurn::PT_DEFENCE);
 	}

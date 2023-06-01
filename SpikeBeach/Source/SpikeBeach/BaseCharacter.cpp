@@ -14,6 +14,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 
 
 AVolleyBallTeam* ABaseCharacter::GetEnemyTeam()
@@ -101,7 +102,7 @@ void ABaseCharacter::MoveToOffsetDestination(float DeltaTime)
 	FVector Offset = OffsetDestination - OffsetStart;
 	FVector LocationThisTime = OffsetStart + Offset * OffsetTimer / RemainingTimeToAction;
 
-	SetActorLocation(LocationThisTime);
+	SetActorLocation(LocationThisTime, true);
 }
 
 void ABaseCharacter::SetSuperSettings()

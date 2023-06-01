@@ -76,6 +76,8 @@ void ABasePlayer::Tick(float DeltaTime)
 	TimingCalculateIfClick(DeltaTime);
 
 	MouseTraceOnGround();
+
+	CheckClickableUI();
 }
 
 // Called to bind functionality to input
@@ -506,5 +508,84 @@ void ABasePlayer::TimingCalculateIfClick(float DeltaTime)
 	{
 		TimingTimer = 0.0f;
 		TimingMax = -1.0f;
+	}
+}
+
+void ABasePlayer::CheckClickableUI()
+{
+	switch (PlayerTurn)
+	{
+	case EPlayerTurn::PT_SERVICE:
+	{
+		if (ServiceMode == FName("Jump"))
+			clickable_action_state_.LClick = EClickableAction::LClick_To_JumpService;
+		if (ServiceMode == FName("Floating"))
+			clickable_action_state_.LClick = EClickableAction::LClick_To_StandingService;
+		if (ServiceMode == FName("Spoon"))
+			clickable_action_state_.LClick = EClickableAction::LClick_To_UnderService;
+		break;
+	}
+	case EPlayerTurn::PT_DEFENCE:
+	{
+		if (!bIsInBallTrigger || is_montage_started_)
+		{
+			clickable_action_state_.LClick = EClickableAction::Nothing;
+			clickable_action_state_.RClick = EClickableAction::Nothing;
+			return;
+		}
+
+		// L
+		if (true)
+		{
+			clickable_action_state_.LClick = EClickableAction::LClick_To_Receive;
+		}
+		else if (true)
+		{
+			clickable_action_state_.LClick = EClickableAction::LClick_To_Sliding;
+		}
+		else
+		{
+			clickable_action_state_.LClick = EClickableAction::Nothing;
+		}
+		// R
+		clickable_action_state_.RClick = EClickableAction::RClick_To_Block;
+
+		break;
+	}
+	case EPlayerTurn::PT_OFFENCE:
+	{
+
+		if (!bIsInBallTrigger || is_montage_started_)
+		{
+			clickable_action_state_.LClick = EClickableAction::Nothing;
+			clickable_action_state_.RClick = EClickableAction::Nothing;
+			return;
+		}
+
+		// L
+		if (true)
+		{
+			clickable_action_state_.LClick = EClickableAction::LClick_To_AttackSpike;
+		}
+		else if (true)
+		{
+			clickable_action_state_.LClick = EClickableAction::LClick_To_AttackFloat;
+		}
+		else
+		{
+			clickable_action_state_.LClick = EClickableAction::Nothing;
+		}
+		// R
+		if (true)
+		{
+			clickable_action_state_.RClick = EClickableAction::RClick_To_Pass;
+		}
+		else
+		{
+			clickable_action_state_.RClick = EClickableAction::Nothing;
+		}
+
+		break;
+	}
 	}
 }
