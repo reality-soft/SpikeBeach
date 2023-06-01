@@ -611,6 +611,9 @@ EOffenceMode ABasePlayer::GetPassUIMode()
 	if (!Company)
 		return EOffenceMode::OM_NONE;
 
+	if (GetEnemyTeam()->IsVectorInTeamBox(Ball->end_pos_))
+		return EOffenceMode::OM_NONE;
+
 	float TimeToPlayAnim = 0;
 	float RequiredHeight = 0;
 	FDropInfo DropInfo;
@@ -655,6 +658,9 @@ EOffenceMode ABasePlayer::GetPassUIMode()
 EOffenceMode ABasePlayer::GetAttackUIMode()
 {
 	if (!Company)
+		return EOffenceMode::OM_NONE;
+
+	if (GetEnemyTeam()->IsVectorInTeamBox(Ball->end_pos_))
 		return EOffenceMode::OM_NONE;
 
 	float TimeToPlayAnim = 0;
@@ -703,6 +709,9 @@ EOffenceMode ABasePlayer::GetAttackUIMode()
 EDefenceMode ABasePlayer::GetReceiveUIMode()
 {
 	if (!Company)
+		return EDefenceMode::DM_NONE;
+
+	if (!GetMyTeam()->IsVectorInTeamBox(Ball->end_pos_))
 		return EDefenceMode::DM_NONE;
 
 	float TimeToPlayAnim = 0;
