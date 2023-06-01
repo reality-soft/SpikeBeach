@@ -3,6 +3,7 @@
 
 #include "VolleyBallGame.h"
 #include "VolleyBallTeam.h"
+#include "GameFramework/CharacterMovementComponent.h"	
 
 // Sets default values for this component's properties
 UVolleyBallGame::UVolleyBallGame()
@@ -44,8 +45,12 @@ void UVolleyBallGame::ReturnPlayerToCourtPoint()
 	{
 		reef_r_player->SetActorLocation(ReefCourtRight.GetLocation());
 		reef_r_player->SetActorRotation(ReefCourtRight.GetRotation());
+		reef_r_player->GetCharacterMovement()->StopMovementImmediately();
+		reef_r_player->is_montage_started_ = false;
 		reef_l_player->SetActorLocation(ReefCourtLeft.GetLocation());
 		reef_l_player->SetActorRotation(ReefCourtLeft.GetRotation());
+		reef_l_player->GetCharacterMovement()->StopMovementImmediately();
+		reef_l_player->is_montage_started_ = false;
 	}
 
 	auto beach_side_team = GetCourtTeam(ECourtName::eBeachSideTeam);
@@ -55,8 +60,12 @@ void UVolleyBallGame::ReturnPlayerToCourtPoint()
 	{
 		beach_r_player->SetActorLocation(BeachCourtRight.GetLocation());
 		beach_r_player->SetActorRotation(BeachCourtRight.GetRotation());
+		beach_r_player->GetCharacterMovement()->StopMovementImmediately();
+		beach_r_player->is_montage_started_ = false;
 		beach_l_player->SetActorLocation(BeachCourtLeft.GetLocation());
 		beach_l_player->SetActorRotation(BeachCourtLeft.GetRotation());
+		beach_l_player->GetCharacterMovement()->StopMovementImmediately();
+		beach_l_player->is_montage_started_ = false;
 	}
 }
 

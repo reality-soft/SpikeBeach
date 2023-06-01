@@ -190,9 +190,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 		EPlayerPosition MyCourtPosition;
 
-	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
-		bool bIsInBallTrigger;
-
 
 	UPROPERTY(BlueprintReadWrite, Category = Location, meta = (AllowPrivateAccess = "true"))
 		EFrontBack front_back_;
@@ -338,7 +335,6 @@ public:
 #pragma region GETTER
 	public:
 		bool GetIsClicking() { return bIsClicking; }
-		bool GetIsInBallTrigger() { return bIsInBallTrigger;  }
 		AVolleyBallTeam* GetMyTeam() { return my_team_; }
 		UFUNCTION(BlueprintCallable, Category = EnemyFunc)
 			AVolleyBallTeam* GetEnemyTeam();
@@ -356,7 +352,7 @@ public:
 #pragma endregion
 
 
-protected:
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	bool is_montage_started_ = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
@@ -425,13 +421,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Player)
 		virtual bool JudgeServiceMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		virtual bool JudgePassMode();
+		virtual EOffenceMode JudgePassMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		virtual bool JudgeAttackMode();
+		virtual EOffenceMode JudgeAttackMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		virtual bool JudgeReceiveMode();
+		virtual EDefenceMode JudgeReceiveMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		virtual bool JudgeBlockMode();
+		virtual EDefenceMode JudgeBlockMode();
 
 	UFUNCTION(BlueprintCallable, Category = Player)
 		FString GetPlayerMode();

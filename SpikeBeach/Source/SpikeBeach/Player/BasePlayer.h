@@ -176,10 +176,10 @@ protected:
 	
 protected:
 	virtual bool JudgeServiceMode() override;
-	virtual bool JudgePassMode() override;
-	virtual bool JudgeAttackMode() override;
-	virtual bool JudgeReceiveMode() override;
-	virtual bool JudgeBlockMode() override;
+	virtual EOffenceMode JudgePassMode() override;
+	virtual EOffenceMode JudgeAttackMode() override;
+	virtual EDefenceMode JudgeReceiveMode() override;
+	virtual EDefenceMode JudgeBlockMode() override;
 protected:
 	virtual void PlayServiceAnimation() override;
 	virtual void PlayPassAnimation() override;

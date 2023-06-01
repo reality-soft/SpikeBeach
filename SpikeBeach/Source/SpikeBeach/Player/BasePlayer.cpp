@@ -403,31 +403,31 @@ bool ABasePlayer::JudgeServiceMode()
 	return ABaseCharacter::JudgeServiceMode();
 }
 
-bool ABasePlayer::JudgePassMode()
+EOffenceMode ABasePlayer::JudgePassMode()
 {
 	if (is_montage_started_)
-		return false;
+		return EOffenceMode::OM_NONE;
 	return ABaseCharacter::JudgePassMode();
 }
 
-bool ABasePlayer::JudgeAttackMode()
+EOffenceMode ABasePlayer::JudgeAttackMode()
 {
 	if (is_montage_started_)
-		return false;
+		return EOffenceMode::OM_NONE;
 	return ABaseCharacter::JudgeAttackMode();
 }
 
-bool ABasePlayer::JudgeReceiveMode()
+EDefenceMode ABasePlayer::JudgeReceiveMode()
 {
 	if (is_montage_started_)
-		return false;
+		return EDefenceMode::DM_NONE;
 	return ABaseCharacter::JudgeReceiveMode();
 }
 
-bool ABasePlayer::JudgeBlockMode()
+EDefenceMode ABasePlayer::JudgeBlockMode()
 {
 	if (is_montage_started_)
-		return false;
+		return EDefenceMode::DM_NONE;
 	return ABaseCharacter::JudgeBlockMode();
 }
 
@@ -532,11 +532,13 @@ void ABasePlayer::CheckClickableUI()
 			clickable_action_state_.LClick = EClickableAction::LClick_To_StandingService;
 		if (ServiceMode == FName("Spoon"))
 			clickable_action_state_.LClick = EClickableAction::LClick_To_UnderService;
+
+		clickable_action_state_.RClick = EClickableAction::Nothing;
 		break;
 	}
 	case EPlayerTurn::PT_DEFENCE:
 	{
-		if (!bIsInBallTrigger || is_montage_started_)
+		if (is_montage_started_)
 		{
 			clickable_action_state_.LClick = EClickableAction::Nothing;
 			clickable_action_state_.RClick = EClickableAction::Nothing;
@@ -544,18 +546,19 @@ void ABasePlayer::CheckClickableUI()
 		}
 
 		// L
-		if (true)
+		switch (JudgeReceiveMode())
 		{
+		case EDefenceMode::DM_RECEIVE:
 			clickable_action_state_.LClick = EClickableAction::LClick_To_Receive;
-		}
-		else if (true)
-		{
+			break;
+		case EDefenceMode::DM_DIG:
 			clickable_action_state_.LClick = EClickableAction::LClick_To_Sliding;
-		}
-		else
-		{
+			break;
+		case EDefenceMode::DM_NONE:
 			clickable_action_state_.LClick = EClickableAction::Nothing;
+			break;
 		}
+
 		// R
 		clickable_action_state_.RClick = EClickableAction::RClick_To_Block;
 
@@ -564,7 +567,7 @@ void ABasePlayer::CheckClickableUI()
 	case EPlayerTurn::PT_OFFENCE:
 	{
 
-		if (!bIsInBallTrigger || is_montage_started_)
+		if (is_montage_started_)
 		{
 			clickable_action_state_.LClick = EClickableAction::Nothing;
 			clickable_action_state_.RClick = EClickableAction::Nothing;
@@ -572,26 +575,30 @@ void ABasePlayer::CheckClickableUI()
 		}
 
 		// L
-		if (true)
+		switch (JudgeAttackMode())
 		{
+		case EOffenceMode::OM_SPIKE:
 			clickable_action_state_.LClick = EClickableAction::LClick_To_AttackSpike;
-		}
-		else if (true)
-		{
+			break;
+		case EOffenceMode::OM_FLOATING:
 			clickable_action_state_.LClick = EClickableAction::LClick_To_AttackFloat;
-		}
-		else
-		{
+			break;
+		case EOffenceMode::OM_NONE:
 			clickable_action_state_.LClick = EClickableAction::Nothing;
+			break;
 		}
 		// R
-		if (true)
+		switch (JudgePassMode())
 		{
+		case EOffenceMode::OM_TOSS:
 			clickable_action_state_.RClick = EClickableAction::RClick_To_Pass;
-		}
-		else
-		{
+			break;
+		case EOffenceMode::OM_PASS:
+			clickable_action_state_.RClick = EClickableAction::RClick_To_Pass;
+			break;
+		case EOffenceMode::OM_NONE:
 			clickable_action_state_.RClick = EClickableAction::Nothing;
+			break;
 		}
 
 		break;

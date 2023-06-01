@@ -400,165 +400,182 @@ bool ABaseCharacter::JudgeServiceMode()
 	return true;
 }
 
-bool ABaseCharacter::JudgePassMode()
+EOffenceMode ABaseCharacter::JudgePassMode()
 {
-	if (!bIsInBallTrigger || !Company)
-		return false;
+	if (!Company)
+		return EOffenceMode::OM_NONE;
 
 	float TimeToPlayAnim = 0;
+	float RequiredHeight = 0;
+	FDropInfo DropInfo;
 
 	// 1. Set Direction
 	Direction = GetDirectionFromPlayer(Company->GetActorLocation());
 
-	// 2. Check If Toss is Possible
-	FName FilterName = Direction.Compare(FName("Back")) == 0 ? FName("Front") : Direction;
-	float RequiredHeight = GetRequiredHeightFromOffset(TossOffsetMap, FilterName);
-	auto DropInfo = Ball->GetDropInfo(RequiredHeight);
-
-	// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
-	TimeToPlayAnim = TossMontage->GetSectionLength(TossMontage->GetSectionIndex(FilterName));
-
-	if (DropInfo.remain_time > TimeToPlayAnim)
-		return false;
-
-	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_TOSS)
 	{
-		Direction = FilterName;
-		OffenceMode = EOffenceMode::OM_TOSS;
-		RemainingTimeToAction = DropInfo.remain_time;
-		ActionPos = DropInfo.drop_pos;
-		return true;
+		// 2. Check If Toss is Possible
+		FName FilterName = Direction.Compare(FName("Back")) == 0 ? FName("Front") : Direction;
+		RequiredHeight = GetRequiredHeightFromOffset(TossOffsetMap, FilterName);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = TossMontage->GetSectionLength(TossMontage->GetSectionIndex(FilterName));
+
+		if (DropInfo.remain_time > TimeToPlayAnim)
+			return EOffenceMode::OM_NONE;
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			Direction = FilterName;
+			RemainingTimeToAction = DropInfo.remain_time;
+			ActionPos = DropInfo.drop_pos;
+			return EOffenceMode::OM_TOSS;
+		}
 	}
 
-	// 4. Check If Pass is Possible
-	RequiredHeight = GetRequiredHeightFromOffset(PassOffsetMap, Direction);
-	DropInfo = Ball->GetDropInfo(RequiredHeight);
-
-	// 5. If Remaining Time to Arrive is more than AnimTime, Waiting
-	TimeToPlayAnim = PassMontage->GetSectionLength(PassMontage->GetSectionIndex(Direction));
-
-	if (DropInfo.remain_time > TimeToPlayAnim)
-		return false;
-
-	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_PASS)
 	{
-		OffenceMode = EOffenceMode::OM_PASS;
-		RemainingTimeToAction = DropInfo.remain_time;
-		ActionPos = DropInfo.drop_pos;
-		return true;
+		// 4. Check If Pass is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(PassOffsetMap, Direction);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 5. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = PassMontage->GetSectionLength(PassMontage->GetSectionIndex(Direction));
+
+		if (DropInfo.remain_time > TimeToPlayAnim)
+			return EOffenceMode::OM_NONE;
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			RemainingTimeToAction = DropInfo.remain_time;
+			ActionPos = DropInfo.drop_pos;
+			return EOffenceMode::OM_PASS;
+		}
 	}
 
-	return false;
+	return EOffenceMode::OM_NONE;
 }
 
-bool ABaseCharacter::JudgeAttackMode()
+EOffenceMode ABaseCharacter::JudgeAttackMode()
 {
-	if (!bIsInBallTrigger || !Company)
-		return false;
+	if (!Company)
+		return EOffenceMode::OM_NONE;
 
 	float TimeToPlayAnim = 0;
+	float RequiredHeight = 0;
+	FDropInfo DropInfo;
 
-	// 1. Set Spike
-	SpikeMode = FName("FullSpike");
-
-	// 2. Check If Spike is Possible
-	float RequiredHeight = GetRequiredHeightFromOffset(SpikeOffsetMap, SpikeMode);
-	auto DropInfo = Ball->GetDropInfo(RequiredHeight);
-
-	// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
-	TimeToPlayAnim = SpikeMontage->GetSectionLength(SpikeMontage->GetSectionIndex(SpikeMode));
-
-	if (DropInfo.remain_time > TimeToPlayAnim)
-		return false;
-
-	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_SPIKE)
 	{
-		OffenceMode = EOffenceMode::OM_SPIKE;
-		RemainingTimeToAction = DropInfo.remain_time;
-		ActionPos = DropInfo.drop_pos;
-		return true;
+		// 1. Set Spike
+		SpikeMode = FName("FullSpike");
+
+		// 2. Check If Spike is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(SpikeOffsetMap, SpikeMode);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = SpikeMontage->GetSectionLength(SpikeMontage->GetSectionIndex(SpikeMode));
+
+		if (DropInfo.remain_time > TimeToPlayAnim)
+			return EOffenceMode::OM_NONE;
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			RemainingTimeToAction = DropInfo.remain_time;
+			ActionPos = DropInfo.drop_pos;
+			return EOffenceMode::OM_SPIKE;
+		}
 	}
-
-	// 4. Set Direction to Enemy's Court : TODO
-	Direction = FName("Front");
-
-	// 5. Check If Floating is Possible
-	RequiredHeight = GetRequiredHeightFromOffset(FloatingOffsetMap, Direction);
-	DropInfo = Ball->GetDropInfo(RequiredHeight);
-
-	// 6. If Remaining Time to Arrive is more than AnimTime, Waiting
-	TimeToPlayAnim = FloatingMontage->GetSectionLength(FloatingMontage->GetSectionIndex(Direction));
-
-	if (DropInfo.remain_time > TimeToPlayAnim)
-		return false;
-
-	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+	
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_FLOATING)
 	{
-		OffenceMode = EOffenceMode::OM_FLOATING;
-		RemainingTimeToAction = DropInfo.remain_time;
-		ActionPos = DropInfo.drop_pos;
-		return true;
-	}
-
-	return false;
-}
-
-bool ABaseCharacter::JudgeReceiveMode()
-{
-	if (!bIsInBallTrigger || !Company)
-		return false;
-
-	float TimeToPlayAnim = 0;
-
-	// 1. Set Direction
-	Direction = GetDirectionFromPlayer(Company->GetActorLocation());
-
-	// 2. Check If Receive is Possible
-	float RequiredHeight = GetRequiredHeightFromOffset(ReceiveOffsetMap, Direction);
-	auto DropInfo = Ball->GetDropInfo(RequiredHeight);
-
-	// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
-	TimeToPlayAnim = ReceiveMontage->GetSectionLength(ReceiveMontage->GetSectionIndex(Direction));
-
-	if (DropInfo.remain_time > TimeToPlayAnim)
-		return false;
-
-	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
-	{
-		DefenceMode = EDefenceMode::DM_RECEIVE;
-		RemainingTimeToAction = DropInfo.remain_time;
-		ActionPos = DropInfo.drop_pos;
-		return true;
-	}
-
-	// 4. Check If Dig is Possible
-	RequiredHeight = GetRequiredHeightFromOffset(DigOffsetMap, FName("Front"));
-	DropInfo = Ball->GetDropInfo(RequiredHeight);
-
-	// 5. If Remaining Time to Arrive is more than AnimTime, Waiting
-	TimeToPlayAnim = DigMontage->GetSectionLength(DigMontage->GetSectionIndex(Direction));
-
-	if (DropInfo.remain_time > TimeToPlayAnim)
-		return false;
-
-	if (DropInfo.remain_time > 0.0f)//TimeToPlayAnim * 0.4f)
-	{
+		// 4. Set Direction to Enemy's Court : TODO
 		Direction = FName("Front");
-		DefenceMode = EDefenceMode::DM_DIG;
-		RemainingTimeToAction = DropInfo.remain_time;
-		ActionPos = DropInfo.drop_pos;
-		return true;
+
+		// 5. Check If Floating is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(FloatingOffsetMap, Direction);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 6. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = FloatingMontage->GetSectionLength(FloatingMontage->GetSectionIndex(Direction));
+
+		if (DropInfo.remain_time > TimeToPlayAnim)
+			return EOffenceMode::OM_NONE;
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			RemainingTimeToAction = DropInfo.remain_time;
+			ActionPos = DropInfo.drop_pos;
+			return EOffenceMode::OM_FLOATING;
+		}
 	}
 
-	return false;
+	return EOffenceMode::OM_NONE;
 }
 
-bool ABaseCharacter::JudgeBlockMode()
+EDefenceMode ABaseCharacter::JudgeReceiveMode()
 {
-	DefenceMode = EDefenceMode::DM_BLOCK;
+	if (!Company)
+		return EDefenceMode::DM_NONE;
+
+	float TimeToPlayAnim = 0;
+	float RequiredHeight = 0;
+	FDropInfo DropInfo;
+
+	// 1. Set Direction
+	Direction = GetDirectionFromPlayer(Company->GetActorLocation());
+
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_RECEIVE)
+	{
+		// 2. Check If Receive is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(ReceiveOffsetMap, Direction);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = ReceiveMontage->GetSectionLength(ReceiveMontage->GetSectionIndex(Direction));
+
+		if (DropInfo.remain_time > TimeToPlayAnim)
+			return EDefenceMode::DM_NONE;
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			RemainingTimeToAction = DropInfo.remain_time;
+			ActionPos = DropInfo.drop_pos;
+			return EDefenceMode::DM_RECEIVE;
+		}
+	}
+	
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_DIG)
+	{
+		// 4. Check If Dig is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(DigOffsetMap, FName("Front"));
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 5. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = DigMontage->GetSectionLength(DigMontage->GetSectionIndex(Direction));
+
+		if (DropInfo.remain_time > TimeToPlayAnim)
+			return EDefenceMode::DM_NONE;
+
+		if (DropInfo.remain_time > 0.0f)//TimeToPlayAnim * 0.4f)
+		{
+			Direction = FName("Front");
+			RemainingTimeToAction = DropInfo.remain_time;
+			ActionPos = DropInfo.drop_pos;
+			return EDefenceMode::DM_DIG;
+		}
+	}
+
+	return EDefenceMode::DM_NONE;
+}
+
+EDefenceMode ABaseCharacter::JudgeBlockMode()
+{
 	Direction = FName("Front");
 
-	return true;
+	return EDefenceMode::DM_BLOCK;
 }
 
 void ABaseCharacter::SetServiceMode()
@@ -577,7 +594,8 @@ void ABaseCharacter::SetServiceMode()
 
 void ABaseCharacter::SetPassMode()
 {
-	if (!JudgePassMode())
+	OffenceMode = JudgePassMode();
+	if (OffenceMode == EOffenceMode::OM_NONE)
 		return;
 
 	TimingMax = RemainingTimeToAction;
@@ -587,7 +605,8 @@ void ABaseCharacter::SetPassMode()
 
 void ABaseCharacter::SetAttackMode()
 {
-	if (!JudgeAttackMode())
+	OffenceMode = JudgeAttackMode();
+	if (OffenceMode == EOffenceMode::OM_NONE)
 		return;
 
 	TimingMax = RemainingTimeToAction;
@@ -597,7 +616,8 @@ void ABaseCharacter::SetAttackMode()
 
 void ABaseCharacter::SetReceiveMode()
 {
-	if (!JudgeReceiveMode())
+	DefenceMode = JudgeReceiveMode();
+	if (DefenceMode == EDefenceMode::DM_NONE)
 		return;
 
 	TimingMax = RemainingTimeToAction;
@@ -607,7 +627,8 @@ void ABaseCharacter::SetReceiveMode()
 
 void ABaseCharacter::SetBlockMode()
 {
-	if (!JudgeBlockMode())
+	DefenceMode = JudgeBlockMode();
+	if (DefenceMode == EDefenceMode::DM_NONE)
 		return;
 
 	PlayBlockAnimation();
