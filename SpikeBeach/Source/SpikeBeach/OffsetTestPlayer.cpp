@@ -3,6 +3,11 @@
 
 #include "OffsetTestPlayer.h"
 
+void AOffsetTestPlayer::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void AOffsetTestPlayer::ServiceHitBall()
 {
 	auto SocketLocation = GetMesh()->GetSocketLocation(FName(TEXT("RightHand")));

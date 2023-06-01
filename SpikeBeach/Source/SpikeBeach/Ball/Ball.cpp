@@ -250,6 +250,11 @@ FVector ABall::FloatingServiceMovement(float power, const FVector& start_pos, co
 	return velocity;
 }
 
+void ABall::SetLastTouchCourt(ECourtName court)
+{
+	LastTouchCourt = court;
+}
+
 void ABall::NetHitMovement(const FVector& hit_location, const FVector& impulse_normal)
 {	
 	double reduced_speed = std::max(GetVelocity().Length() * 0.25, 50.0);
@@ -297,6 +302,8 @@ void ABall::BlockHitMovement(const FVector& hit_location, const FVector& impulse
 	cur_time_ = 0.0f;
 	start_pos_ = hit_location;
 	end_pos_ = current_predict_.destination;
+
+	PushAndUpdateBallState(EBallState::eTurnOver);
 
 	CheckTurnChanged();
 }

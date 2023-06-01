@@ -65,8 +65,6 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TurnChangeEvent.AddUObject(this, &ABaseCharacter::HandleTurnChange);
-
 	bUseControllerRotationYaw = false;
 }
 
@@ -75,27 +73,9 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	TimingCalculateIfClick(DeltaTime);
-
 	SmoothingWalkRun(DeltaTime);
 
 	MoveToOffsetDestination(DeltaTime);
-}
-
-void ABaseCharacter::TimingCalculateIfClick(float DeltaTime)
-{
-	if (bIsClicking && TimingMax > 0.0f)
-	{
-		// Timing To Accuracy
-		TimingTimer += DeltaTime;
-		TimingAccuracy = TimingTimer / TimingMax;
-	}
-	else
-	{
-		TimingAccuracy = -1.0f;
-		TimingTimer = 0.0f;
-		TimingMax = -1.0f;
-	}
 }
 
 void ABaseCharacter::SmoothingWalkRun(float DeltaTime)
@@ -274,6 +254,7 @@ void ABaseCharacter::ServiceHitBall()
 	{
 		FVector StartPos = Ball->GetActorLocation();
 		FVector EndPos = dest_turnover_to_;
+		EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 		if (ServiceMode == FName("Spoon"))
 		{
@@ -287,6 +268,7 @@ void ABaseCharacter::ServiceHitBall()
 		{
 			Ball->JumpServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
 		}
+		Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 	}
 }
 
@@ -298,8 +280,10 @@ void ABaseCharacter::DigBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = Company->GetActorLocation();
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 	Ball->DigMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
 void ABaseCharacter::ReceiveBall()
@@ -310,8 +294,10 @@ void ABaseCharacter::ReceiveBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = Company->GetActorLocation();
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 	Ball->ReceiveMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
 void ABaseCharacter::BlockBall()
@@ -337,8 +323,10 @@ void ABaseCharacter::TossBall()
 		EndPos = Company->GetActorLocation();
 	}
 
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 	dest_position_ = EndPos;
 	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 
 	ai_ping_order_.pass_ordered = false;
 }
@@ -360,7 +348,9 @@ void ABaseCharacter::PassBall()
 		EndPos = Company->dest_position_;
 	}
 
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
 void ABaseCharacter::SpikeBall()
@@ -371,8 +361,10 @@ void ABaseCharacter::SpikeBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = dest_turnover_to_;
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
-	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
 void ABaseCharacter::FloatingBall()
@@ -383,13 +375,18 @@ void ABaseCharacter::FloatingBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = dest_turnover_to_;
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
-	Ball->FloatingMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->FloatingMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
 
 bool ABaseCharacter::JudgeServiceMode()
 {
+	if (GetMyTeam()->IsVectorInTeamBox(GetActorLocation()))
+		return false;
+
 	RemainingTimeToAction = ServiceMontage->GetSectionLength(ServiceMontage->GetSectionIndex(ServiceMode));
 	return true;
 }
@@ -700,11 +697,19 @@ void ABaseCharacter::PlayReceiveAnimation()
 {
 	MontageStarted();
 	float PlayRate;
+	FVector RotationDir;
+	FQuat quat;
 	switch (DefenceMode)
 	{
 	case EDefenceMode::DM_DIG:
 		// Move To Action Pos
 		SetMoveToActionPos(*DigOffsetMap.Find(Direction));
+		RotationDir = (ActionPos - GetActorLocation());
+		RotationDir.Z = 0;
+		RotationDir.Normalize();
+		quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
+		AddActorLocalRotation(quat);
+
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, DigMontage, Direction);
 		PlayAnimMontage(DigMontage, PlayRate, Direction);
 		break;
@@ -811,7 +816,22 @@ void ABaseCharacter::SetMoveToActionPos(FVector Offset)
 	bIsMoveToOffset = true;
 }
 
-void ABaseCharacter::HandleTurnChange()
+FVector ABaseCharacter::GetRandomPosInRange(const FVector& Center, float accuracy)
 {
+	if (accuracy >= 1.1f) {
+		accuracy = 0.0f;
+	}
+	float radius = 300.0f * (1.0f - accuracy);
+	
+	FVector position;
+	position.X = UKismetMathLibrary::RandomFloatInRange(0.0f, 1.0f);
+	position.Y = UKismetMathLibrary::RandomFloatInRange(0.0f, 1.0f);
+
+	position.Normalize();
+	position *= radius;
+
+	position += Center;
+
+	return position;
 }
 

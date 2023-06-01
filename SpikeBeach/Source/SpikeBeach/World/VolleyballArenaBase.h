@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "../Player/BasePlayer.h"
-#include "../Ball/Ball.h"
 #include "VolleyballArenaBase.generated.h"
 
 UCLASS()
@@ -15,7 +14,7 @@ class SPIKEBEACH_API AVolleyballArenaBase : public AActor
 	
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "BallSystem")
-		ABall* arena_ball_ = nullptr;
+		class ABall* arena_ball_ = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
 		class USphereComponent* ball_trigger_;

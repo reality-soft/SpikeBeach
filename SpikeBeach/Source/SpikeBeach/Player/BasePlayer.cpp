@@ -5,6 +5,7 @@
 #include "../World/VolleyballArenaBase.h"
 #include "../World/VolleyballTeam.h"
 #include "../World/VolleyballGame.h"
+#include "../Ball/Ball.h"
 #include "CustomPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -49,16 +50,11 @@ void ABasePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//auto player_controller = Cast<ACustomPlayerController>(Controller);
-	//if (Company->GetPlayerRole() == EPlayerRole::PR_A_TOSS)
-	//{
-	//	player_controller->SetShowMouseCursor(true);
-	//}
-	//else
-	//{
-	//	player_controller->SetShowMouseCursor(false);
-	//}
 	auto player_controller = Cast<ACustomPlayerController>(Controller);
+
+	if (player_controller == nullptr)
+		return;
+
 	player_controller->SetShowMouseCursor(false);
 
 	if (CanControlBallCursor)
@@ -76,6 +72,8 @@ void ABasePlayer::Tick(float DeltaTime)
 			AddActorLocalRotation(quat);
 		}
 	}
+
+	TimingCalculateIfClick(DeltaTime);
 
 	MouseTraceOnGround();
 }
@@ -256,6 +254,9 @@ void ABasePlayer::WheelTriggered(const FInputActionValue& Value)
 
 void ABasePlayer::BallCursorTriggered(const FInputActionValue& Value)
 {
+	if (my_team_ == nullptr)
+		return;
+
 	ECourtName agains_team;
 	switch (GetMyTeam()->GetCourtName())
 	{
@@ -292,6 +293,8 @@ void ABasePlayer::MontageEnded()
 	is_montage_started_ = false;
 	is_montage_ended_ = true;
 
+	TimingAccuracy = 0.0f;
+
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
 }
 
@@ -304,6 +307,7 @@ void ABasePlayer::ServiceHitBall()
 	{
 		FVector StartPos = Ball->GetActorLocation();
 		FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+		EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
 		if (ServiceMode == FName("Spoon"))
 		{
@@ -317,6 +321,7 @@ void ABasePlayer::ServiceHitBall()
 		{
 			Ball->JumpServiceMovement(1.0, StartPos, EndPos, EBallState::eTurnOver);
 		}
+		Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 	}
 	CanControlBallCursor = false;
 	state_ui_notices_.Enqueue(EStateUINotice::eCloseUI_ReadyGauge);
@@ -356,15 +361,28 @@ void ABasePlayer::SpikeBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
-	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->SpikeMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 
 	CanControlBallCursor = false;
 }
 
 void ABasePlayer::FloatingBall()
 {
-	ABaseCharacter::FloatingBall();
+	bIsMoveToOffset = false;
+	OffsetTimer = 0;
+	UE_LOG(LogTemp, Log, TEXT("Floating Ball"));
+
+	FVector StartPos = Ball->GetActorLocation();
+	FVector EndPos = GetEnemyTeam()->ball_cursor_capsule_->GetComponentLocation();
+	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
+
+	Ball->FloatingMovement(1.2, StartPos, EndPos, EBallState::eTurnOver);
+	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
+
+	CanControlBallCursor = false;
 }
 
 bool ABasePlayer::JudgeServiceMode()
@@ -447,6 +465,8 @@ void ABasePlayer::MouseTraceOnGround()
 	//	show_ping_cursor_ = false;
 	//	return;
 	//}
+	if (my_team_ == nullptr)
+		return;
 
 	if (CanControlBallCursor)
 	{
@@ -472,4 +492,19 @@ void ABasePlayer::MouseTraceOnGround()
 	current_traced_pos_ = hit.Location;
 
 	show_ping_cursor_ = true;
+}
+
+void ABasePlayer::TimingCalculateIfClick(float DeltaTime)
+{
+	if (bIsClicking && TimingMax > 0.0f)
+	{
+		// Timing To Accuracy
+		TimingTimer += DeltaTime;
+		TimingAccuracy = TimingTimer / TimingMax;
+	}
+	else
+	{
+		TimingTimer = 0.0f;
+		TimingMax = -1.0f;
+	}
 }

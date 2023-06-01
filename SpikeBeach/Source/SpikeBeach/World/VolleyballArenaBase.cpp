@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "VolleyballArenaBase.h"
+#include "../Ball/Ball.h"
 #include "kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
@@ -23,8 +25,24 @@ void AVolleyballArenaBase::SetServiceTeam(ECourtName service_court)
 	left_player->SetPlayerTurn(EPlayerTurn::PT_SERVICE);
 	left_player->SetPlayerRole(EPlayerRole::PR_S_SERVICE);
 	
+	FVector ServiceSpot;
+	float RandomDistance = UKismetMathLibrary::RandomFloatInRange(200, 400);
+	switch (service_court)
+	{
+	case ECourtName::eBeachSideTeam:
+		ServiceSpot = left_player->GetActorLocation();
+		ServiceSpot.Y += RandomDistance;
+		left_player->SetActorLocation(ServiceSpot);
+		break;
+	case ECourtName::eReefSideTeam:
+		ServiceSpot = left_player->GetActorLocation();
+		ServiceSpot.Y -= RandomDistance;
+		left_player->SetActorLocation(ServiceSpot);
+		break;
+	}
+
 	auto cast_to_player = (ABasePlayer*)left_player;
-	if (cast_to_player)
+	//if (cast_to_player)
 		//cast_to_player->CanControlBallCursor = true;
 
 	//arena_ball_->Rename(nullptr, left_player->ball_attachment_);
@@ -88,23 +106,21 @@ void AVolleyballArenaBase::Tick(float DeltaTime)
 
 void AVolleyballArenaBase::UpdateBallTrigger()
 {
-	if (ball_trigger_ == nullptr)
+	if (arena_ball_ == nullptr || ball_trigger_ == nullptr)
 		return;
 
 	if (arena_ball_->current_ball_state_ == EBallState::eDropped)
 	{
-		ball_trigger_->SetActive(false);
+		ball_trigger_->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		ball_trigger_->SetWorldLocation(FVector(0, 0, 0));
 		arena_ball_->current_predict_.b_hit_land = false;
 		return;
 	}
 	if (arena_ball_->current_predict_.b_hit_land)
 	{
+		ball_trigger_->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		ball_trigger_->SetWorldLocation(arena_ball_->current_predict_.destination);
-		ball_trigger_->SetActive(true);
-		ball_trigger_->SetVisibility(true);
-		ball_trigger_->SetHiddenInGame(false);
-		ball_trigger_->SetSphereRadius(100.0f);
+		ball_trigger_->SetSphereRadius(200.0f);
 		return;
 	}
 }

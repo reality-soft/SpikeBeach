@@ -11,14 +11,14 @@ enum class EStateUINotice
 {
 	eActivateUI_StableRG,
 	eActivateUI_OffensiveRG,
-	eActiveUI_ClickGuide,
 
 	eCloseUI_ReadyGauge,
-	eCloseUI_ClickGuide,
 };
 
 enum class EClickableAction
 {
+	Nothing,
+
 	LClick_To_UnderService,
 	LClick_To_StandingService,
 	LClick_To_JumpService,
@@ -40,8 +40,8 @@ enum class EPingOrderType : uint8
 
 struct ClickableActionState
 {
-	EClickableAction LClick;
-	EClickableAction RClick;
+	EClickableAction LClick = EClickableAction::Nothing;
+	EClickableAction RClick = EClickableAction::Nothing;
 };
 
 UCLASS()
@@ -183,6 +183,7 @@ protected:
 	virtual void PlayAttackAnimation() override;
 	virtual void PlayReceiveAnimation() override;
 	virtual void PlayBlockAnimation() override;
+	void TimingCalculateIfClick(float DeltaTime);
 
 public:
 	FVector current_traced_pos_;
