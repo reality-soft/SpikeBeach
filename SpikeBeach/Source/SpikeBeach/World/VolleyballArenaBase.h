@@ -16,14 +16,34 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "BallSystem")
 		class ABall* arena_ball_ = nullptr;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Game Play")
-		class USphereComponent* ball_trigger_;
-
 	UPROPERTY(BlueprintReadWrite, Category = "VolleyBallGame")
 		class UVolleyBallGame* game_playing_;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Players")
 		TArray<ABaseCharacter*> Players;
+
+#pragma region ActionTriggers
+	UPROPERTY(BlueprintReadWrite, Category = Components)
+		class UBoxComponent* BoxPlayableArea;
+
+	UPROPERTY(BlueprintReadWrite, Category = ActionTriggers)
+		class UCapsuleComponent* receive_trigger_;
+
+	UPROPERTY(BlueprintReadWrite, Category = ActionTriggers)
+		class UCapsuleComponent* dig_trigger_;
+
+	UPROPERTY(BlueprintReadWrite, Category = ActionTriggers)
+		class UCapsuleComponent* spike_trigger_;
+
+	UPROPERTY(BlueprintReadWrite, Category = ActionTriggers)
+		class UCapsuleComponent* floating_trigger_;
+
+	UPROPERTY(BlueprintReadWrite, Category = ActionTriggers)
+		class UCapsuleComponent* toss_trigger_;
+
+	UPROPERTY(BlueprintReadWrite, Category = ActionTriggers)
+		class UCapsuleComponent* pass_trigger_;
+#pragma endregion
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "BallSystem")
@@ -31,9 +51,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "BallSystem")
 		ECourtName GetPlayerTeam(ABaseCharacter* player);
-
-	UFUNCTION(BlueprintCallable, Category = "Game Play")
-		void UpdateBallTrigger();
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Players")

@@ -87,6 +87,18 @@ AVolleyballArenaBase::AVolleyballArenaBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	game_playing_ = CreateDefaultSubobject<UVolleyBallGame>(TEXT("VolleyBallGameComponent"));
+
+	BoxPlayableArea = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxPlayableArea"));
+	BoxPlayableArea->InitBoxExtent(FVector(700, 1100, 1000));
+	BoxPlayableArea->bHiddenInGame = true;
+	RootComponent = BoxPlayableArea;
+
+	receive_trigger_	= CreateDefaultSubobject<UCapsuleComponent>(TEXT("ReceiveTrigger"));
+	dig_trigger_		= CreateDefaultSubobject<UCapsuleComponent>(TEXT("DigTrigger"));
+	spike_trigger_		= CreateDefaultSubobject<UCapsuleComponent>(TEXT("SpikeTrigger"));
+	floating_trigger_	= CreateDefaultSubobject<UCapsuleComponent>(TEXT("FloatingTrigger"));
+	toss_trigger_		= CreateDefaultSubobject<UCapsuleComponent>(TEXT("TossTrigger"));
+	pass_trigger_		= CreateDefaultSubobject<UCapsuleComponent>(TEXT("PassTrigger"));
 }
 
 // Called when the game starts or when spawned
@@ -100,31 +112,6 @@ void AVolleyballArenaBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UpdateBallTrigger();
-
-}
-
-void AVolleyballArenaBase::UpdateBallTrigger()
-{
-	if (arena_ball_ == nullptr || ball_trigger_ == nullptr)
-		return;
-
-	if (arena_ball_->current_ball_state_ == EBallState::eDropped)
-	{
-		ball_trigger_->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		//ball_trigger_->SetWorldLocation(FVector(0, 0, 0));
-		arena_ball_->current_predict_.b_hit_land = false;
-		ball_trigger_->SetHiddenInGame(false);
-		return;
-	}
-	if (arena_ball_->current_predict_.b_hit_land)
-	{
-		ball_trigger_->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		ball_trigger_->SetWorldLocation(arena_ball_->current_predict_.destination);
-		ball_trigger_->SetHiddenInGame(false);
-		ball_trigger_->SetSphereRadius(200.0f);
-		return;
-	}
 }
 
 void AVolleyballArenaBase::SetPlayerRole()

@@ -328,7 +328,7 @@ void ABall::BlockHitMovement(const FVector& hit_location, const FVector& impulse
 
 FVector ABall::ServiceThrowMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
-	power = (0.4 - 0.3) * power + 0.3;
+	power = (0.7 - 0.2) * (1.0 - power) + 0.2;
 	FVector velocity;
 
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);

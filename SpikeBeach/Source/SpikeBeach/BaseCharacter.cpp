@@ -260,7 +260,7 @@ void ABaseCharacter::ServiceFloatingBall()
 			power = 0.8f;
 		}
 
-		Ball->ReceiveMovement(power, StartPos, EndPos, EBallState::eFloatToService);
+		Ball->ServiceThrowMovement(power, StartPos, EndPos, EBallState::eFloatToService);
 	}
 }
 
