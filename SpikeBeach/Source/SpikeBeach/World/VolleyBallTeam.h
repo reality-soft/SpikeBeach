@@ -58,6 +58,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void SetTeamCourt(ECourtName court_name) { court = court_name; }
+
+	UFUNCTION(BlueprintCallable)
+		void ResetScore() { score = 0; }
 #pragma endregion
 
 #pragma region GETTER
