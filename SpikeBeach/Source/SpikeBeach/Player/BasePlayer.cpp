@@ -247,6 +247,7 @@ void ABasePlayer::WheelTriggered(const FInputActionValue& Value)
 		Company->ai_ping_order_.pass_ordered = true;
 		Company->ai_ping_order_.pass_order_pos = current_traced_pos_;
 		PingOrderEvent(EPingOrderType::ePassHere, current_traced_pos_);
+		dest_position_ = Company->ai_ping_order_.pass_order_pos;
 	}
 	else
 	{

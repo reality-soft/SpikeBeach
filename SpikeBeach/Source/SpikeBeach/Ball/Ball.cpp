@@ -292,6 +292,8 @@ void ABall::NetHitMovement(const FVector& hit_location, const FVector& impulse_n
 	start_pos_ = hit_location;
 	end_pos_ = current_predict_.destination;
 
+	is_valid_attack_ = true;
+
 	CheckTurnChanged();
 }
 

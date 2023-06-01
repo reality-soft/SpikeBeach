@@ -203,9 +203,20 @@ protected:
 	TMap<FName, FVector> PassOffsetMap;
 	
 	// Properties
+#pragma region Component
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Ball Attach Component")
 		class USceneComponent* ball_attachment_;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Block Capsule")
+		class UCapsuleComponent* BlockCapsuleR;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Block Capsule")
+		class UCapsuleComponent* BlockCapsuleL;
+#pragma endregion
+
+public:
+	
 
 public:
 	AI_PingOrder ai_ping_order_;
@@ -356,6 +367,7 @@ protected:
 	void SetSuperSettings();
 	void SetPlayerAttributes();
 	void SetCapsuleComponent();
+	void SetBlockHand();
 	void SetCharacterMovement();
 	bool LoadDataTable();
 

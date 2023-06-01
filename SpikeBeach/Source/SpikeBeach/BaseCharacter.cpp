@@ -58,6 +58,7 @@ ABaseCharacter::ABaseCharacter()
 	SetPlayerAttributes();
 	SetCapsuleComponent();
 	SetCharacterMovement();
+	SetBlockHand();
 	LoadDataTable();
 }
 
@@ -65,6 +66,9 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	BlockCapsuleR->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true), FName("hand_r"));
+	BlockCapsuleL->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true), FName("hand_l"));
 
 	bUseControllerRotationYaw = false;
 }
@@ -138,6 +142,19 @@ void ABaseCharacter::SetCapsuleComponent()
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 90.0f);
 	GetCapsuleComponent()->SetRelativeLocation({ 0.f, 0.f, -90.f });
 }
+
+void ABaseCharacter::SetBlockHand()
+{
+	BlockCapsuleR = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BlockCapsuleR"));
+	BlockCapsuleR->SetCapsuleHalfHeight(44.0f);
+	BlockCapsuleR->SetCapsuleRadius(22.0f);
+	BlockCapsuleR->SetHiddenInGame(false);
+	
+	BlockCapsuleL = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BlockCapsuleL"));
+	BlockCapsuleL->SetCapsuleHalfHeight(44.0f);
+	BlockCapsuleL->SetCapsuleRadius(22.0f);
+	BlockCapsuleL->SetHiddenInGame(false);
+	}
 
 void ABaseCharacter::SetCharacterMovement()
 {
@@ -315,17 +332,9 @@ void ABaseCharacter::TossBall()
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos;
 
-	if (ai_ping_order_.pass_ordered)
-	{
-		EndPos = ai_ping_order_.pass_order_pos;
-	}
-	else
-	{
-		EndPos = Company->GetActorLocation();
-	}
+	EndPos = Company->dest_position_;
 
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
-	dest_position_ = EndPos;
 	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 
