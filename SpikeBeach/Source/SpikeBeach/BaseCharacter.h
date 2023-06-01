@@ -475,6 +475,9 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Character)
 		FName GetDirectionFromPlayer(FVector TargetPos);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Character)
+		bool  IsReachableTrigger(UCapsuleComponent* trigger_);
+
 	/* To Play Animation in Accurate Timing, Calculate Play Rate */
 	float CalculatePlayRate(float TimeRemaining, UAnimMontage* Montage, FName SectionName);
 

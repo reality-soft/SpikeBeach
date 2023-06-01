@@ -812,6 +812,23 @@ FName ABaseCharacter::GetDirectionFromPlayer(FVector TargetPos)
 	return FName("Left");
 }
 
+bool ABaseCharacter::IsReachableTrigger(UCapsuleComponent* trigger_)
+{	
+	FDropInfo drop_info = Ball->GetDropInfo(trigger_->GetComponentLocation()[2]);
+
+	FVector end_pos = trigger_->GetComponentLocation();
+	end_pos[2] = 0.0f;
+	FVector start_pos = GetActorLocation();
+	start_pos[2] = 0.0f;
+
+	float dist_can_go = drop_info.remain_time * GetMovementComponent()->GetMaxSpeed();
+	if (FVector::Distance(start_pos, end_pos) < dist_can_go) {
+		return true;
+	}
+
+	return false;
+}
+
 float ABaseCharacter::CalculatePlayRate(float TimeRemaining, UAnimMontage* Montage, FName SectionName)
 {
 	float StartTime, EndTime;
