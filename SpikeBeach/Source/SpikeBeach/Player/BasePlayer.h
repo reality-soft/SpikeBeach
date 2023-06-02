@@ -191,6 +191,7 @@ protected:
 	virtual void PlayBlockAnimation() override;
 
 public:
+	FVector current_ping_pos_;
 	FVector current_traced_pos_;
 	bool traced_in_team_court_;
 	bool is_ping_clicked_;

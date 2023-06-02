@@ -350,14 +350,8 @@ void ABaseCharacter::PassBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos;
-	if (FVector::PointsAreSame(Company->dest_position_, FVector(0, 0, 0)))
-	{
-		EndPos = Company->GetActorLocation();
-	}
-	else
-	{
-		EndPos = Company->dest_position_;
-	}
+	
+	EndPos = Company->dest_position_;
 
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 	Ball->TossMovement(1.0, StartPos, EndPos, EBallState::eStableSetted);
