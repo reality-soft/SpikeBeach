@@ -46,6 +46,13 @@ public:
 #pragma endregion
 
 public:
+	UPROPERTY(BlueprintReadWrite, Category = "MatchInfo")
+		int32 max_set_ = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "MatchInfo")
+		int32 max_score_ = 0;
+
+public:
 	UFUNCTION(BlueprintCallable, Category = "BallSystem")
 		void SetServiceTeam(ECourtName service_team);
 
