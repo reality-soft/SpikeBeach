@@ -79,7 +79,7 @@ void ABasePlayer::Tick(float DeltaTime)
 
 	if (is_ping_clicked_)
 	{
-		dest_position_ = current_traced_pos_;
+		dest_position_ = current_ping_pos_;
 	}
 	else
 	{
@@ -252,6 +252,7 @@ void ABasePlayer::WheelTriggered(const FInputActionValue& Value)
 	if (traced_in_team_court_)
 	{
 		PingOrderEvent(EPingOrderType::ePassHere, current_traced_pos_);
+		current_ping_pos_ = current_traced_pos_;
 		is_ping_clicked_ = true;
 	}
 	else

@@ -147,14 +147,16 @@ void ABaseCharacter::SetCapsuleComponent()
 void ABaseCharacter::SetBlockHand()
 {
 	BlockCapsuleR = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BlockCapsuleR"));
-	BlockCapsuleR->SetCapsuleHalfHeight(44.0f);
-	BlockCapsuleR->SetCapsuleRadius(22.0f);
-	BlockCapsuleR->SetHiddenInGame(false);
+	BlockCapsuleR->SetCapsuleHalfHeight(70.0f);
+	BlockCapsuleR->SetCapsuleRadius(32.0f);
+	BlockCapsuleR->SetVisibility(false);
+	BlockCapsuleR->bHiddenInGame = true;
 	
 	BlockCapsuleL = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BlockCapsuleL"));
-	BlockCapsuleL->SetCapsuleHalfHeight(44.0f);
-	BlockCapsuleL->SetCapsuleRadius(22.0f);
-	BlockCapsuleL->SetHiddenInGame(false);
+	BlockCapsuleL->SetCapsuleHalfHeight(70.0f);
+	BlockCapsuleL->SetCapsuleRadius(32.0f);
+	BlockCapsuleL->SetVisibility(false);
+	BlockCapsuleL->bHiddenInGame = true;
 	}
 
 void ABaseCharacter::SetCharacterMovement()
@@ -315,7 +317,7 @@ void ABaseCharacter::ReceiveBall()
 	FVector EndPos = Company->GetActorLocation();
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
-	Ball->ReceiveMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->ReceiveMovement(1.0, StartPos, EndPos, EBallState::eStableSetted);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
@@ -336,7 +338,7 @@ void ABaseCharacter::TossBall()
 	EndPos = Company->dest_position_;
 
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
-	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->TossMovement(1.0, StartPos, EndPos, EBallState::eStableSetted);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
@@ -348,17 +350,11 @@ void ABaseCharacter::PassBall()
 
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos;
-	if (FVector::PointsAreSame(Company->dest_position_, FVector(0, 0, 0)))
-	{
-		EndPos = Company->GetActorLocation();
-	}
-	else
-	{
-		EndPos = Company->dest_position_;
-	}
+	
+	EndPos = Company->dest_position_;
 
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
-	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->TossMovement(1.0, StartPos, EndPos, EBallState::eStableSetted);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
@@ -603,9 +599,11 @@ void ABaseCharacter::SetServiceMode()
 
 void ABaseCharacter::SetPassMode()
 {
-	OffenceMode = JudgePassMode();
-	if (OffenceMode == EOffenceMode::OM_NONE)
+	auto mode = JudgePassMode();
+	if (mode == EOffenceMode::OM_NONE)
 		return;
+
+	OffenceMode = mode;
 
 	TimingMax = RemainingTimeToAction;
 
@@ -614,9 +612,11 @@ void ABaseCharacter::SetPassMode()
 
 void ABaseCharacter::SetAttackMode()
 {
-	OffenceMode = JudgeAttackMode();
-	if (OffenceMode == EOffenceMode::OM_NONE)
+	auto mode = JudgeAttackMode();
+	if (mode == EOffenceMode::OM_NONE)
 		return;
+
+	OffenceMode = mode;
 
 	TimingMax = RemainingTimeToAction;
 
@@ -625,9 +625,11 @@ void ABaseCharacter::SetAttackMode()
 
 void ABaseCharacter::SetReceiveMode()
 {
-	DefenceMode = JudgeReceiveMode();
-	if (DefenceMode == EDefenceMode::DM_NONE)
+	auto mode = JudgeReceiveMode();
+	if (mode == EDefenceMode::DM_NONE)
 		return;
+
+	DefenceMode = mode;
 
 	TimingMax = RemainingTimeToAction;
 
@@ -636,9 +638,11 @@ void ABaseCharacter::SetReceiveMode()
 
 void ABaseCharacter::SetBlockMode()
 {
-	DefenceMode = JudgeBlockMode();
-	if (DefenceMode == EDefenceMode::DM_NONE)
+	auto mode = JudgeBlockMode();
+	if (mode == EDefenceMode::DM_NONE)
 		return;
+
+	DefenceMode = mode;
 
 	PlayBlockAnimation();
 }
@@ -741,13 +745,13 @@ void ABaseCharacter::PlayReceiveAnimation()
 	switch (DefenceMode)
 	{
 	case EDefenceMode::DM_DIG:
-		// Move To Action Pos
-		SetMoveToActionPos(*DigOffsetMap.Find(Direction));
 		RotationDir = (ActionPos - GetActorLocation());
 		RotationDir.Z = 0;
 		RotationDir.Normalize();
 		quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
 		AddActorLocalRotation(quat);
+		// Move To Action Pos
+		SetMoveToActionPos(*DigOffsetMap.Find(FName("Front")));
 
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, DigMontage, Direction);
 		PlayAnimMontage(DigMontage, PlayRate, Direction);
