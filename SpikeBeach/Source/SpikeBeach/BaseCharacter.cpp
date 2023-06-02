@@ -147,13 +147,13 @@ void ABaseCharacter::SetCapsuleComponent()
 void ABaseCharacter::SetBlockHand()
 {
 	BlockCapsuleR = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BlockCapsuleR"));
-	BlockCapsuleR->SetCapsuleHalfHeight(44.0f);
-	BlockCapsuleR->SetCapsuleRadius(22.0f);
+	BlockCapsuleR->SetCapsuleHalfHeight(70.0f);
+	BlockCapsuleR->SetCapsuleRadius(32.0f);
 	BlockCapsuleR->SetHiddenInGame(false);
 	
 	BlockCapsuleL = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BlockCapsuleL"));
-	BlockCapsuleL->SetCapsuleHalfHeight(44.0f);
-	BlockCapsuleL->SetCapsuleRadius(22.0f);
+	BlockCapsuleL->SetCapsuleHalfHeight(70.0f);
+	BlockCapsuleL->SetCapsuleRadius(32.0f);
 	BlockCapsuleL->SetHiddenInGame(false);
 	}
 
@@ -315,7 +315,7 @@ void ABaseCharacter::ReceiveBall()
 	FVector EndPos = Company->GetActorLocation();
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
 
-	Ball->ReceiveMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->ReceiveMovement(1.0, StartPos, EndPos, EBallState::eStableSetted);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
@@ -336,7 +336,7 @@ void ABaseCharacter::TossBall()
 	EndPos = Company->dest_position_;
 
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
-	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->TossMovement(1.0, StartPos, EndPos, EBallState::eStableSetted);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 
@@ -358,7 +358,7 @@ void ABaseCharacter::PassBall()
 	}
 
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
-	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
+	Ball->TossMovement(1.0, StartPos, EndPos, EBallState::eStableSetted);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
 }
 

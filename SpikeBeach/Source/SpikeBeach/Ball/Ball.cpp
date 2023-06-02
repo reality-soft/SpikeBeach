@@ -122,10 +122,10 @@ FVector ABall::SpikeMovement(float power, const FVector& start_pos, const FVecto
 
 FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
-	float dist_factor = FVector::Distance(end_pos, start_pos) / 1000.0f;
+	float dist_factor = FVector::Distance(end_pos, start_pos) / 1500.0f;
 	dist_factor = FMath::Min(dist_factor, 1.0f);
-	dist_factor = FMath::Max(dist_factor, 0.0f);
-	power = (0.4 - 0.2) * (1.0 - power) * dist_factor + 0.2;
+	dist_factor = FMath::Max(dist_factor, 0.1f);
+	power = (0.4 - 0.1) * dist_factor + 0.1;
 	FVector velocity;
 	
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
@@ -149,10 +149,10 @@ FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVec
 
 FVector ABall::TossMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
-	float dist_factor = FVector::Distance(end_pos, start_pos) / 1000.0f;
+	float dist_factor = FVector::Distance(end_pos, start_pos) / 1500.0f;
 	dist_factor = FMath::Min(dist_factor, 1.0f);
-	dist_factor = FMath::Max(dist_factor, 0.0f);
-	power = (0.3 - 0.2) * (1.0 - power) * dist_factor + 0.2;
+	dist_factor = FMath::Max(dist_factor, 0.1f);
+	power = (0.3 - 0.1) * dist_factor + 0.1;
 	FVector velocity;
 
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
@@ -200,10 +200,10 @@ FVector ABall::FloatingMovement(float power, const FVector& start_pos, const FVe
 
 FVector ABall::DigMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
-	float dist_factor = FVector::Distance(end_pos, start_pos) / 1000.0f;
+	float dist_factor = FVector::Distance(end_pos, start_pos) / 1500.0f;
 	dist_factor = FMath::Min(dist_factor, 1.0f);
-	dist_factor = FMath::Max(dist_factor, 0.0f);
-	power = (0.4 - 0.2) * (1.0 - power) * dist_factor + 0.2;
+	dist_factor = FMath::Max(dist_factor, 0.1f);
+	power = (0.4 - 0.2) * dist_factor + 0.2;
 	FVector velocity;
 
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);

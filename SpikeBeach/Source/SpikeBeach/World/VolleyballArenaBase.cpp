@@ -126,9 +126,9 @@ AVolleyballArenaBase::AVolleyballArenaBase()
 	toss_trigger_->SetCapsuleHalfHeight(1000);
 	pass_trigger_->SetCapsuleHalfHeight(1000);
 
-	receive_trigger_->SetCapsuleRadius(150);
+	receive_trigger_->SetCapsuleRadius(200);
 	dig_trigger_->SetCapsuleRadius(300);
-	spike_trigger_->SetCapsuleRadius(150);
+	spike_trigger_->SetCapsuleRadius(200);
 	floating_trigger_->SetCapsuleRadius(150);
 	toss_trigger_->SetCapsuleRadius(150);
 	pass_trigger_->SetCapsuleRadius(150);
