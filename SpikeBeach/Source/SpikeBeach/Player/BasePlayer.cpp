@@ -55,8 +55,6 @@ void ABasePlayer::Tick(float DeltaTime)
 	if (player_controller == nullptr)
 		return;
 
-	player_controller->SetShowMouseCursor(false);
-
 	if (CanControlBallCursor)
 	{
 		if (GetPlayerRole() == EPlayerRole::PR_S_SERVICE || GetPlayerRole() == EPlayerRole::PR_A_ATTACK)
