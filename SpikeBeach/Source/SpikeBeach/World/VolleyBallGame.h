@@ -53,6 +53,9 @@ public:
 #pragma endregion
 
 	UFUNCTION(BlueprintCallable)
+		void SetWin(ECourtName winning_court);
+
+	UFUNCTION(BlueprintCallable)
 		void ReturnPlayerToCourtPoint();
 
 	UFUNCTION(BlueprintCallable)

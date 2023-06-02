@@ -112,6 +112,12 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+protected:
+	void TimingCalculateIfClick(float DeltaTime);
+	void CheckClickableUI();
+		EOffenceMode GetPassUIMode();
+		EOffenceMode GetAttackUIMode();
+		EDefenceMode GetReceiveUIMode();
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -173,21 +179,21 @@ protected:
 	
 protected:
 	virtual bool JudgeServiceMode() override;
-	virtual bool JudgePassMode() override;
-	virtual bool JudgeAttackMode() override;
-	virtual bool JudgeReceiveMode() override;
-	virtual bool JudgeBlockMode() override;
+	virtual EOffenceMode JudgePassMode() override;
+	virtual EOffenceMode JudgeAttackMode() override;
+	virtual EDefenceMode JudgeReceiveMode() override;
+	virtual EDefenceMode JudgeBlockMode() override;
 protected:
 	virtual void PlayServiceAnimation() override;
 	virtual void PlayPassAnimation() override;
 	virtual void PlayAttackAnimation() override;
 	virtual void PlayReceiveAnimation() override;
 	virtual void PlayBlockAnimation() override;
-	void TimingCalculateIfClick(float DeltaTime);
 
 public:
 	FVector current_traced_pos_;
 	bool traced_in_team_court_;
+	bool is_ping_clicked_;
 	bool show_ping_cursor_;
 	void MouseTraceOnGround();
 

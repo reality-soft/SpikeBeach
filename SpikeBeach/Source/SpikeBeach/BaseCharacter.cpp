@@ -1,19 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+
 #include "BaseCharacter.h"
 #include "Ball/Ball.h"
 #include "World/VolleyballArenaBase.h"
 #include "World/VolleyballGame.h"
 #include "World/VolleyballTeam.h"
-#include "GameFramework/Controller.h"
-#include "Math/UnrealMathUtility.h"
+#include "Math/UnrealMathUtility.h"	
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/Controller.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 
 
 AVolleyBallTeam* ABaseCharacter::GetEnemyTeam()
@@ -57,6 +59,7 @@ ABaseCharacter::ABaseCharacter()
 	SetPlayerAttributes();
 	SetCapsuleComponent();
 	SetCharacterMovement();
+	SetBlockHand();
 	LoadDataTable();
 }
 
@@ -64,6 +67,9 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	BlockCapsuleR->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true), FName("hand_r"));
+	BlockCapsuleL->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true), FName("hand_l"));
 
 	bUseControllerRotationYaw = false;
 }
@@ -101,7 +107,7 @@ void ABaseCharacter::MoveToOffsetDestination(float DeltaTime)
 	FVector Offset = OffsetDestination - OffsetStart;
 	FVector LocationThisTime = OffsetStart + Offset * OffsetTimer / RemainingTimeToAction;
 
-	SetActorLocation(LocationThisTime);
+	SetActorLocation(LocationThisTime, true);
 }
 
 void ABaseCharacter::SetSuperSettings()
@@ -137,6 +143,19 @@ void ABaseCharacter::SetCapsuleComponent()
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 90.0f);
 	GetCapsuleComponent()->SetRelativeLocation({ 0.f, 0.f, -90.f });
 }
+
+void ABaseCharacter::SetBlockHand()
+{
+	BlockCapsuleR = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BlockCapsuleR"));
+	BlockCapsuleR->SetCapsuleHalfHeight(44.0f);
+	BlockCapsuleR->SetCapsuleRadius(22.0f);
+	BlockCapsuleR->SetHiddenInGame(false);
+	
+	BlockCapsuleL = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BlockCapsuleL"));
+	BlockCapsuleL->SetCapsuleHalfHeight(44.0f);
+	BlockCapsuleL->SetCapsuleRadius(22.0f);
+	BlockCapsuleL->SetHiddenInGame(false);
+	}
 
 void ABaseCharacter::SetCharacterMovement()
 {
@@ -242,7 +261,7 @@ void ABaseCharacter::ServiceFloatingBall()
 			power = 0.8f;
 		}
 
-		Ball->ReceiveMovement(power, StartPos, EndPos, EBallState::eFloatToService);
+		Ball->ServiceThrowMovement(power, StartPos, EndPos, EBallState::eFloatToService);
 	}
 }
 
@@ -314,21 +333,11 @@ void ABaseCharacter::TossBall()
 	FVector StartPos = Ball->GetActorLocation();
 	FVector EndPos;
 
-	if (ai_ping_order_.pass_ordered)
-	{
-		EndPos = ai_ping_order_.pass_order_pos;
-	}
-	else
-	{
-		EndPos = Company->GetActorLocation();
-	}
+	EndPos = Company->dest_position_;
 
 	EndPos = GetRandomPosInRange(EndPos, TimingAccuracy);
-	dest_position_ = EndPos;
 	Ball->TossMovement(1.2, StartPos, EndPos, EBallState::eStableSetted);
 	Ball->SetLastTouchCourt(GetMyTeam()->GetCourtName());
-
-	ai_ping_order_.pass_ordered = false;
 }
 
 void ABaseCharacter::PassBall()
@@ -391,165 +400,191 @@ bool ABaseCharacter::JudgeServiceMode()
 	return true;
 }
 
-bool ABaseCharacter::JudgePassMode()
+EOffenceMode ABaseCharacter::JudgePassMode()
 {
-	if (!bIsInBallTrigger || !Company)
-		return false;
+	if (!Company)
+		return EOffenceMode::OM_NONE;
+
+	if (GetEnemyTeam()->IsVectorInTeamBox(Ball->end_pos_))
+		return EOffenceMode::OM_NONE;
 
 	float TimeToPlayAnim = 0;
+	float RequiredHeight = 0;
+	FDropInfo DropInfo;
 
 	// 1. Set Direction
 	Direction = GetDirectionFromPlayer(Company->GetActorLocation());
 
-	// 2. Check If Toss is Possible
-	FName FilterName = Direction.Compare(FName("Back")) == 0 ? FName("Front") : Direction;
-	float RequiredHeight = GetRequiredHeightFromOffset(TossOffsetMap, FilterName);
-	auto DropInfo = Ball->GetDropInfo(RequiredHeight);
-
-	// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
-	TimeToPlayAnim = TossMontage->GetSectionLength(TossMontage->GetSectionIndex(FilterName));
-
-	if (DropInfo.remain_time > TimeToPlayAnim)
-		return false;
-
-	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_TOSS)
 	{
-		Direction = FilterName;
-		OffenceMode = EOffenceMode::OM_TOSS;
-		RemainingTimeToAction = DropInfo.remain_time;
-		ActionPos = DropInfo.drop_pos;
-		return true;
+		// 2. Check If Toss is Possible
+		FName FilterName = Direction.Compare(FName("Back")) == 0 ? FName("Front") : Direction;
+		RequiredHeight = GetRequiredHeightFromOffset(TossOffsetMap, FilterName);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = TossMontage->GetSectionLength(TossMontage->GetSectionIndex(FilterName));
+
+		if (DropInfo.remain_time > TimeToPlayAnim)
+			return EOffenceMode::OM_NONE;
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			Direction = FilterName;
+			RemainingTimeToAction = DropInfo.remain_time;
+			ActionPos = DropInfo.drop_pos;
+			return EOffenceMode::OM_TOSS;
+		}
 	}
 
-	// 4. Check If Pass is Possible
-	RequiredHeight = GetRequiredHeightFromOffset(PassOffsetMap, Direction);
-	DropInfo = Ball->GetDropInfo(RequiredHeight);
-
-	// 5. If Remaining Time to Arrive is more than AnimTime, Waiting
-	TimeToPlayAnim = PassMontage->GetSectionLength(PassMontage->GetSectionIndex(Direction));
-
-	if (DropInfo.remain_time > TimeToPlayAnim)
-		return false;
-
-	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_PASS)
 	{
-		OffenceMode = EOffenceMode::OM_PASS;
-		RemainingTimeToAction = DropInfo.remain_time;
-		ActionPos = DropInfo.drop_pos;
-		return true;
+		// 4. Check If Pass is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(PassOffsetMap, Direction);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 5. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = PassMontage->GetSectionLength(PassMontage->GetSectionIndex(Direction));
+
+		if (DropInfo.remain_time > TimeToPlayAnim)
+			return EOffenceMode::OM_NONE;
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			RemainingTimeToAction = DropInfo.remain_time;
+			ActionPos = DropInfo.drop_pos;
+			return EOffenceMode::OM_PASS;
+		}
 	}
 
-	return false;
+	return EOffenceMode::OM_NONE;
 }
 
-bool ABaseCharacter::JudgeAttackMode()
+EOffenceMode ABaseCharacter::JudgeAttackMode()
 {
-	if (!bIsInBallTrigger || !Company)
-		return false;
+	if (!Company)
+		return EOffenceMode::OM_NONE;
+
+	if (GetEnemyTeam()->IsVectorInTeamBox(Ball->end_pos_))
+		return EOffenceMode::OM_NONE;
 
 	float TimeToPlayAnim = 0;
+	float RequiredHeight = 0;
+	FDropInfo DropInfo;
 
-	// 1. Set Spike
-	SpikeMode = FName("FullSpike");
-
-	// 2. Check If Spike is Possible
-	float RequiredHeight = GetRequiredHeightFromOffset(SpikeOffsetMap, SpikeMode);
-	auto DropInfo = Ball->GetDropInfo(RequiredHeight);
-
-	// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
-	TimeToPlayAnim = SpikeMontage->GetSectionLength(SpikeMontage->GetSectionIndex(SpikeMode));
-
-	if (DropInfo.remain_time > TimeToPlayAnim)
-		return false;
-
-	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_SPIKE)
 	{
-		OffenceMode = EOffenceMode::OM_SPIKE;
-		RemainingTimeToAction = DropInfo.remain_time;
-		ActionPos = DropInfo.drop_pos;
-		return true;
+		// 1. Set Spike
+		SpikeMode = FName("FullSpike");
+
+		// 2. Check If Spike is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(SpikeOffsetMap, SpikeMode);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = SpikeMontage->GetSectionLength(SpikeMontage->GetSectionIndex(SpikeMode));
+
+		if (DropInfo.remain_time > TimeToPlayAnim)
+			return EOffenceMode::OM_NONE;
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			RemainingTimeToAction = DropInfo.remain_time;
+			ActionPos = DropInfo.drop_pos;
+			return EOffenceMode::OM_SPIKE;
+		}
 	}
-
-	// 4. Set Direction to Enemy's Court : TODO
-	Direction = FName("Front");
-
-	// 5. Check If Floating is Possible
-	RequiredHeight = GetRequiredHeightFromOffset(FloatingOffsetMap, Direction);
-	DropInfo = Ball->GetDropInfo(RequiredHeight);
-
-	// 6. If Remaining Time to Arrive is more than AnimTime, Waiting
-	TimeToPlayAnim = FloatingMontage->GetSectionLength(FloatingMontage->GetSectionIndex(Direction));
-
-	if (DropInfo.remain_time > TimeToPlayAnim)
-		return false;
-
-	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+	
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_FLOATING)
 	{
-		OffenceMode = EOffenceMode::OM_FLOATING;
-		RemainingTimeToAction = DropInfo.remain_time;
-		ActionPos = DropInfo.drop_pos;
-		return true;
-	}
-
-	return false;
-}
-
-bool ABaseCharacter::JudgeReceiveMode()
-{
-	if (!bIsInBallTrigger || !Company)
-		return false;
-
-	float TimeToPlayAnim = 0;
-
-	// 1. Set Direction
-	Direction = GetDirectionFromPlayer(Company->GetActorLocation());
-
-	// 2. Check If Receive is Possible
-	float RequiredHeight = GetRequiredHeightFromOffset(ReceiveOffsetMap, Direction);
-	auto DropInfo = Ball->GetDropInfo(RequiredHeight);
-
-	// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
-	TimeToPlayAnim = ReceiveMontage->GetSectionLength(ReceiveMontage->GetSectionIndex(Direction));
-
-	if (DropInfo.remain_time > TimeToPlayAnim)
-		return false;
-
-	if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
-	{
-		DefenceMode = EDefenceMode::DM_RECEIVE;
-		RemainingTimeToAction = DropInfo.remain_time;
-		ActionPos = DropInfo.drop_pos;
-		return true;
-	}
-
-	// 4. Check If Dig is Possible
-	RequiredHeight = GetRequiredHeightFromOffset(DigOffsetMap, FName("Front"));
-	DropInfo = Ball->GetDropInfo(RequiredHeight);
-
-	// 5. If Remaining Time to Arrive is more than AnimTime, Waiting
-	TimeToPlayAnim = DigMontage->GetSectionLength(DigMontage->GetSectionIndex(Direction));
-
-	if (DropInfo.remain_time > TimeToPlayAnim)
-		return false;
-
-	if (DropInfo.remain_time > 0.0f)//TimeToPlayAnim * 0.4f)
-	{
+		// 4. Set Direction to Enemy's Court : TODO
 		Direction = FName("Front");
-		DefenceMode = EDefenceMode::DM_DIG;
-		RemainingTimeToAction = DropInfo.remain_time;
-		ActionPos = DropInfo.drop_pos;
-		return true;
+
+		// 5. Check If Floating is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(FloatingOffsetMap, Direction);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 6. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = FloatingMontage->GetSectionLength(FloatingMontage->GetSectionIndex(Direction));
+
+		if (DropInfo.remain_time > TimeToPlayAnim)
+			return EOffenceMode::OM_NONE;
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			RemainingTimeToAction = DropInfo.remain_time;
+			ActionPos = DropInfo.drop_pos;
+			return EOffenceMode::OM_FLOATING;
+		}
 	}
 
-	return false;
+	return EOffenceMode::OM_NONE;
 }
 
-bool ABaseCharacter::JudgeBlockMode()
+EDefenceMode ABaseCharacter::JudgeReceiveMode()
 {
-	DefenceMode = EDefenceMode::DM_BLOCK;
+	if (!Company)
+		return EDefenceMode::DM_NONE;
+
+	if(!GetMyTeam()->IsVectorInTeamBox(Ball->end_pos_))
+		return EDefenceMode::DM_NONE;
+
+	float TimeToPlayAnim = 0;
+	float RequiredHeight = 0;
+	FDropInfo DropInfo;
+
+	// 1. Set Direction
+	Direction = GetDirectionFromPlayer(Company->GetActorLocation());
+
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_RECEIVE)
+	{
+		// 2. Check If Receive is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(ReceiveOffsetMap, Direction);
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 3. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = ReceiveMontage->GetSectionLength(ReceiveMontage->GetSectionIndex(Direction));
+
+		if (DropInfo.remain_time > TimeToPlayAnim)
+			return EDefenceMode::DM_NONE;
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.7f)
+		{
+			RemainingTimeToAction = DropInfo.remain_time;
+			ActionPos = DropInfo.drop_pos;
+			return EDefenceMode::DM_RECEIVE;
+		}
+	}
+	
+	if (trigger_state_ & (uint8)EActionTriggerState::TS_DIG)
+	{
+		// 4. Check If Dig is Possible
+		RequiredHeight = GetRequiredHeightFromOffset(DigOffsetMap, FName("Front"));
+		DropInfo = Ball->GetDropInfo(RequiredHeight);
+
+		// 5. If Remaining Time to Arrive is more than AnimTime, Waiting
+		TimeToPlayAnim = DigMontage->GetSectionLength(DigMontage->GetSectionIndex(Direction));
+
+		if (DropInfo.remain_time > TimeToPlayAnim)
+			return EDefenceMode::DM_NONE;
+
+		if (DropInfo.remain_time > TimeToPlayAnim * 0.3f)
+		{
+			Direction = FName("Front");
+			RemainingTimeToAction = DropInfo.remain_time;
+			ActionPos = DropInfo.drop_pos;
+			return EDefenceMode::DM_DIG;
+		}
+	}
+
+	return EDefenceMode::DM_NONE;
+}
+
+EDefenceMode ABaseCharacter::JudgeBlockMode()
+{
 	Direction = FName("Front");
 
-	return true;
+	return EDefenceMode::DM_BLOCK;
 }
 
 void ABaseCharacter::SetServiceMode()
@@ -568,7 +603,8 @@ void ABaseCharacter::SetServiceMode()
 
 void ABaseCharacter::SetPassMode()
 {
-	if (!JudgePassMode())
+	OffenceMode = JudgePassMode();
+	if (OffenceMode == EOffenceMode::OM_NONE)
 		return;
 
 	TimingMax = RemainingTimeToAction;
@@ -578,7 +614,8 @@ void ABaseCharacter::SetPassMode()
 
 void ABaseCharacter::SetAttackMode()
 {
-	if (!JudgeAttackMode())
+	OffenceMode = JudgeAttackMode();
+	if (OffenceMode == EOffenceMode::OM_NONE)
 		return;
 
 	TimingMax = RemainingTimeToAction;
@@ -588,7 +625,8 @@ void ABaseCharacter::SetAttackMode()
 
 void ABaseCharacter::SetReceiveMode()
 {
-	if (!JudgeReceiveMode())
+	DefenceMode = JudgeReceiveMode();
+	if (DefenceMode == EDefenceMode::DM_NONE)
 		return;
 
 	TimingMax = RemainingTimeToAction;
@@ -598,7 +636,8 @@ void ABaseCharacter::SetReceiveMode()
 
 void ABaseCharacter::SetBlockMode()
 {
-	if (!JudgeBlockMode())
+	DefenceMode = JudgeBlockMode();
+	if (DefenceMode == EDefenceMode::DM_NONE)
 		return;
 
 	PlayBlockAnimation();
@@ -782,6 +821,23 @@ FName ABaseCharacter::GetDirectionFromPlayer(FVector TargetPos)
 	return FName("Left");
 }
 
+bool ABaseCharacter::IsReachableTrigger(UCapsuleComponent* trigger_)
+{	
+	FDropInfo drop_info = Ball->GetDropInfo(trigger_->GetComponentLocation()[2]);
+
+	FVector end_pos = trigger_->GetComponentLocation();
+	end_pos[2] = 0.0f;
+	FVector start_pos = GetActorLocation();
+	start_pos[2] = 0.0f;
+
+	float dist_can_go = drop_info.remain_time * GetMovementComponent()->GetMaxSpeed();
+	if (FVector::Distance(start_pos, end_pos) < dist_can_go) {
+		return true;
+	}
+
+	return false;
+}
+
 float ABaseCharacter::CalculatePlayRate(float TimeRemaining, UAnimMontage* Montage, FName SectionName)
 {
 	float StartTime, EndTime;
@@ -835,3 +891,48 @@ FVector ABaseCharacter::GetRandomPosInRange(const FVector& Center, float accurac
 	return position;
 }
 
+float ABaseCharacter::GetReceiveZOffset()
+{
+	float MaxHeight = ReceiveOffsetMap.Find(FName("Front"))->Z; GetRequiredHeightFromOffset(ReceiveOffsetMap, FName("Front"));
+	MaxHeight = FMath::Max(MaxHeight, ReceiveOffsetMap.Find(FName("Back"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, ReceiveOffsetMap.Find(FName("Left"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, ReceiveOffsetMap.Find(FName("Right"))->Z);
+	return ACTOR_Z + MaxHeight;
+}
+
+float ABaseCharacter::GetDigZOffset()
+{
+	return ACTOR_Z + DigOffsetMap.Find(FName("Front"))->Z;
+}
+
+float ABaseCharacter::GetSpikeZOffset()
+{
+	
+	return ACTOR_Z + SpikeOffsetMap.Find(FName("FullSpike"))->Z;
+}
+
+float ABaseCharacter::GetFloatingZOffset()
+{
+	float MaxHeight = FloatingOffsetMap.Find(FName("Front"))->Z; GetRequiredHeightFromOffset(FloatingOffsetMap, FName("Front"));
+	MaxHeight = FMath::Max(MaxHeight, FloatingOffsetMap.Find(FName("Back"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, FloatingOffsetMap.Find(FName("Left"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, FloatingOffsetMap.Find(FName("Right"))->Z);
+	return ACTOR_Z + MaxHeight;
+}
+
+float ABaseCharacter::GetTossZOffset()
+{
+	float MaxHeight = TossOffsetMap.Find(FName("Front"))->Z; GetRequiredHeightFromOffset(TossOffsetMap, FName("Front"));
+	MaxHeight = FMath::Max(MaxHeight, TossOffsetMap.Find(FName("Left"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, TossOffsetMap.Find(FName("Right"))->Z);
+	return ACTOR_Z + MaxHeight;
+}
+
+float ABaseCharacter::GetPassZOffset()
+{
+	float MaxHeight = PassOffsetMap.Find(FName("Front"))->Z; GetRequiredHeightFromOffset(PassOffsetMap, FName("Front"));
+	MaxHeight = FMath::Max(MaxHeight, PassOffsetMap.Find(FName("Back"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, PassOffsetMap.Find(FName("Left"))->Z);
+	MaxHeight = FMath::Max(MaxHeight, PassOffsetMap.Find(FName("Right"))->Z);
+	return ACTOR_Z + MaxHeight;
+}

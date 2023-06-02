@@ -80,6 +80,23 @@ ECourtName AVolleyballArenaBase::GetPlayerTeam(ABaseCharacter* player)
 	return ECourtName();
 }
 
+void AVolleyballArenaBase::ResetActionTrigger()
+{
+	receive_trigger_->SetWorldLocation(arena_ball_->GetDropInfo(Players[0]->GetReceiveZOffset()).drop_pos);
+	dig_trigger_->SetWorldLocation(arena_ball_->GetDropInfo(Players[0]->GetDigZOffset()).drop_pos);
+	spike_trigger_->SetWorldLocation(arena_ball_->GetDropInfo(Players[0]->GetSpikeZOffset()).drop_pos);
+	floating_trigger_->SetWorldLocation(arena_ball_->GetDropInfo(Players[0]->GetFloatingZOffset()).drop_pos);
+	toss_trigger_->SetWorldLocation(arena_ball_->GetDropInfo(Players[0]->GetTossZOffset()).drop_pos);
+	pass_trigger_->SetWorldLocation(arena_ball_->GetDropInfo(Players[0]->GetPassZOffset()).drop_pos);
+
+	receive_trigger_->SetActive(true);
+	dig_trigger_->SetActive(true);
+	spike_trigger_->SetActive(true);
+	floating_trigger_->SetActive(true);
+	toss_trigger_->SetActive(true);
+	pass_trigger_->SetActive(true);
+}
+
 // Sets default values
 AVolleyballArenaBase::AVolleyballArenaBase()
 {
@@ -87,6 +104,48 @@ AVolleyballArenaBase::AVolleyballArenaBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	game_playing_ = CreateDefaultSubobject<UVolleyBallGame>(TEXT("VolleyBallGameComponent"));
+
+	BoxPlayableArea = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxPlayableArea"));
+	BoxPlayableArea->InitBoxExtent(FVector(700, 1100, 1000));
+	BoxPlayableArea->bHiddenInGame = false;
+	BoxPlayableArea->SetVisibility(true);
+	RootComponent = BoxPlayableArea;
+
+
+	receive_trigger_	= CreateDefaultSubobject<UCapsuleComponent>(TEXT("ReceiveTrigger"));
+	dig_trigger_		= CreateDefaultSubobject<UCapsuleComponent>(TEXT("DigTrigger"));
+	spike_trigger_		= CreateDefaultSubobject<UCapsuleComponent>(TEXT("SpikeTrigger"));
+	floating_trigger_	= CreateDefaultSubobject<UCapsuleComponent>(TEXT("FloatingTrigger"));
+	toss_trigger_		= CreateDefaultSubobject<UCapsuleComponent>(TEXT("TossTrigger"));
+	pass_trigger_		= CreateDefaultSubobject<UCapsuleComponent>(TEXT("PassTrigger"));
+
+	receive_trigger_->SetCapsuleHalfHeight(1000);
+	dig_trigger_->SetCapsuleHalfHeight(1000);
+	spike_trigger_->SetCapsuleHalfHeight(1000);
+	floating_trigger_->SetCapsuleHalfHeight(1000);
+	toss_trigger_->SetCapsuleHalfHeight(1000);
+	pass_trigger_->SetCapsuleHalfHeight(1000);
+
+	receive_trigger_->SetCapsuleRadius(150);
+	dig_trigger_->SetCapsuleRadius(300);
+	spike_trigger_->SetCapsuleRadius(150);
+	floating_trigger_->SetCapsuleRadius(150);
+	toss_trigger_->SetCapsuleRadius(150);
+	pass_trigger_->SetCapsuleRadius(150);
+
+	receive_trigger_->bHiddenInGame = false;
+	dig_trigger_->bHiddenInGame = false;
+	spike_trigger_->bHiddenInGame = false;
+	floating_trigger_->bHiddenInGame = false;
+	toss_trigger_->bHiddenInGame = false;
+	pass_trigger_->bHiddenInGame = false;
+
+	receive_trigger_->SetVisibility(true);
+	dig_trigger_->SetVisibility(true);
+	spike_trigger_->SetVisibility(true);
+	floating_trigger_->SetVisibility(true);
+	toss_trigger_->SetVisibility(true);
+	pass_trigger_->SetVisibility(true);
 }
 
 // Called when the game starts or when spawned
@@ -100,29 +159,6 @@ void AVolleyballArenaBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UpdateBallTrigger();
-
-}
-
-void AVolleyballArenaBase::UpdateBallTrigger()
-{
-	if (arena_ball_ == nullptr || ball_trigger_ == nullptr)
-		return;
-
-	if (arena_ball_->current_ball_state_ == EBallState::eDropped)
-	{
-		ball_trigger_->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		ball_trigger_->SetWorldLocation(FVector(0, 0, 0));
-		arena_ball_->current_predict_.b_hit_land = false;
-		return;
-	}
-	if (arena_ball_->current_predict_.b_hit_land)
-	{
-		ball_trigger_->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		ball_trigger_->SetWorldLocation(arena_ball_->current_predict_.destination);
-		ball_trigger_->SetSphereRadius(200.0f);
-		return;
-	}
 }
 
 void AVolleyballArenaBase::SetPlayerRole()
@@ -171,11 +207,11 @@ void AVolleyballArenaBase::SetPlayerRoleOverTurn()
 		attack_team_l_player->SetPlayerRole(EPlayerRole::PR_D_RECEIVE);
 		attack_team_l_player->SetPlayerTurn(EPlayerTurn::PT_DEFENCE);
 		attack_team_r_player->SetPlayerRole(EPlayerRole::PR_A_MOVE_TO_TOSS_POS);
-		attack_team_l_player->SetPlayerTurn(EPlayerTurn::PT_OFFENCE);
+		attack_team_l_player->SetPlayerTurn(EPlayerTurn::PT_DEFENCE);
 	}
 	else {
 		attack_team_l_player->SetPlayerRole(EPlayerRole::PR_A_MOVE_TO_TOSS_POS);
-		attack_team_l_player->SetPlayerTurn(EPlayerTurn::PT_OFFENCE);
+		attack_team_l_player->SetPlayerTurn(EPlayerTurn::PT_DEFENCE);
 		attack_team_r_player->SetPlayerRole(EPlayerRole::PR_D_RECEIVE);
 		attack_team_l_player->SetPlayerTurn(EPlayerTurn::PT_DEFENCE);
 	}

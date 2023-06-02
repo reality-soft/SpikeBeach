@@ -115,12 +115,14 @@ FVector ABall::SpikeMovement(float power, const FVector& start_pos, const FVecto
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
+	is_valid_attack_ = true;
+
 	return velocity;
 }
 
 FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
-	power = (0.7 - 0.2) * (1.0 - power) + 0.2;
+	power = (0.5 - 0.3) * (1.0 - power) + 0.3;
 	FVector velocity;
 	
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
@@ -137,12 +139,14 @@ FVector ABall::ReceiveMovement(float power, const FVector& start_pos, const FVec
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
 
+	is_valid_attack_ = true;
+
 	return velocity;
 }
 
 FVector ABall::TossMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
-	power = (0.7 - 0.2) * (1.0 - power) + 0.2;
+	power = (0.4 - 0.3) * (1.0 - power) + 0.3;
 	FVector velocity;
 
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
@@ -158,13 +162,15 @@ FVector ABall::TossMovement(float power, const FVector& start_pos, const FVector
 
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
+
+	is_valid_attack_ = true;
 
 	return velocity;
 }
 
 FVector ABall::FloatingMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
-	power = (0.7 - 0.2) * (1.0 - power) + 0.2;
+	power = (0.7 - 0.4) * (1.0 - power) + 0.4;
 	FVector velocity;
 
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
@@ -180,13 +186,15 @@ FVector ABall::FloatingMovement(float power, const FVector& start_pos, const FVe
 
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
+
+	is_valid_attack_ = true;
 
 	return velocity;
 }
 
 FVector ABall::DigMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
-	power = (0.7 - 0.5) * (1.0 - power) + 0.2;
+	power = (0.5 - 0.4) * (1.0 - power) + 0.4;
 	FVector velocity;
 
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
@@ -202,13 +210,15 @@ FVector ABall::DigMovement(float power, const FVector& start_pos, const FVector&
 
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
+
+	is_valid_attack_ = true;
 
 	return velocity;
 }
 
 FVector ABall::JumpServiceMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
 {
-	power = (0.7 - 0.5) * power + 0.5;
+	power = (0.7 - 0.6) * power + 0.6;
 	FVector velocity;
 
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
@@ -224,6 +234,8 @@ FVector ABall::JumpServiceMovement(float power, const FVector& start_pos, const 
 
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
+
+	is_valid_attack_ = true;
 
 	return velocity;
 }
@@ -246,6 +258,8 @@ FVector ABall::FloatingServiceMovement(float power, const FVector& start_pos, co
 
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
+
+	is_valid_attack_ = true;
 
 	return velocity;
 }
@@ -278,6 +292,8 @@ void ABall::NetHitMovement(const FVector& hit_location, const FVector& impulse_n
 	start_pos_ = hit_location;
 	end_pos_ = current_predict_.destination;
 
+	is_valid_attack_ = true;
+
 	CheckTurnChanged();
 }
 
@@ -305,7 +321,33 @@ void ABall::BlockHitMovement(const FVector& hit_location, const FVector& impulse
 
 	PushAndUpdateBallState(EBallState::eTurnOver);
 
+	is_valid_attack_ = true;
+
 	CheckTurnChanged();
+}
+
+FVector ABall::ServiceThrowMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
+{
+	power = (0.7 - 0.2) * (1.0 - power) + 0.2;
+	FVector velocity;
+
+	UGameplayStatics::SuggestProjectileVelocity_CustomArc(SphereCollisionComponent, velocity, start_pos, end_pos, 0.0f, power);
+
+	ProjectileMovementComponent->SetUpdatedComponent(GetRootComponent());
+	ProjectileMovementComponent->Velocity = velocity;
+
+	// set drop data
+	cur_time_ = 0.0f;
+	start_pos_ = start_pos;
+	end_pos_ = end_pos;
+	init_velocity_ = velocity;
+
+	CheckTurnChanged();
+	PushAndUpdateBallState(ball_state);
+
+	is_valid_attack_ = true;
+
+	return velocity;
 }
 
 FVector ABall::SpoonServiceMovement(float power, const FVector& start_pos, const FVector& end_pos, EBallState ball_state)
@@ -326,6 +368,8 @@ FVector ABall::SpoonServiceMovement(float power, const FVector& start_pos, const
 
 	CheckTurnChanged();
 	PushAndUpdateBallState(ball_state);
+
+	is_valid_attack_ = true;
 
 	return velocity;
 }

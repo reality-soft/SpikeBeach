@@ -107,16 +107,25 @@ void UPlayerStateUISystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 		player_state_ui_->rclick_guide_parent_->SetRenderTranslation(player_pos_current_tick_ + rclick_guide_local_);
 	}
 
-	if (target_player_->GetIsInBallTrigger())
+	if (target_player_->clickable_action_state_.LClick != EClickableAction::Nothing)
 	{
 		player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, true);
-		player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
 	}
 	else
 	{
 		player_state_ui_->SetStateUIVisible(EStateWidgets::eLClickGuide, false);
+	}
+
+	if (target_player_->clickable_action_state_.RClick != EClickableAction::Nothing)
+	{
+		player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, true);
+	}
+	else
+	{
 		player_state_ui_->SetStateUIVisible(EStateWidgets::eRClickGuide, false);
 	}
+
+
 	if (player_state_ui_->lclick_guide_parent_->GetVisibility() == ESlateVisibility::Visible)
 	{
 		switch (target_player_->clickable_action_state_.LClick)

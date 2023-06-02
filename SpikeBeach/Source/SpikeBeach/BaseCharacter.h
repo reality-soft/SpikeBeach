@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
+
+#define ACTOR_Z 115
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
@@ -87,6 +88,18 @@ enum class EPlayerPosition : uint8
 	POSITION_COUNT,
 };
 
+UENUM(BlueprintType)
+enum class EActionTriggerState : uint8
+{
+	TS_NONE		= 0b000000,
+	TS_DIG		= 0b000001,
+	TS_RECEIVE	= 0b000010,
+	TS_FLOATING	= 0b000100,
+	TS_SPIKE	= 0b001000,
+	TS_PASS		= 0b010000,
+	TS_TOSS		= 0b100000,
+};
+
 USTRUCT(BlueprintType)
 struct FAnimationOffsetData : public FTableRowBase
 {
@@ -165,6 +178,8 @@ protected:
 		float	OffsetTimer;
 	FVector OffsetStart;
 	FVector OffsetDestination;
+	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+		int32 trigger_state_;
 
 	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 		class AVolleyBallTeam* my_team_;
@@ -174,9 +189,6 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 		EPlayerPosition MyCourtPosition;
-
-	UPROPERTY(BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
-		bool bIsInBallTrigger;
 
 
 	UPROPERTY(BlueprintReadWrite, Category = Location, meta = (AllowPrivateAccess = "true"))
@@ -203,12 +215,19 @@ protected:
 	TMap<FName, FVector> PassOffsetMap;
 	
 	// Properties
+#pragma region Component
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Ball Attach Component")
 		class USceneComponent* ball_attachment_;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Block Capsule")
+		class UCapsuleComponent* BlockCapsuleR;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Block Capsule")
+		class UCapsuleComponent* BlockCapsuleL;
+#pragma endregion
+
 public:
-	AI_PingOrder ai_ping_order_;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Player Movement")
 		FVector dest_position_;
@@ -316,7 +335,6 @@ public:
 #pragma region GETTER
 	public:
 		bool GetIsClicking() { return bIsClicking; }
-		bool GetIsInBallTrigger() { return bIsInBallTrigger;  }
 		AVolleyBallTeam* GetMyTeam() { return my_team_; }
 		UFUNCTION(BlueprintCallable, Category = EnemyFunc)
 			AVolleyBallTeam* GetEnemyTeam();
@@ -334,7 +352,7 @@ public:
 #pragma endregion
 
 
-protected:
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	bool is_montage_started_ = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
@@ -356,6 +374,7 @@ protected:
 	void SetSuperSettings();
 	void SetPlayerAttributes();
 	void SetCapsuleComponent();
+	void SetBlockHand();
 	void SetCharacterMovement();
 	bool LoadDataTable();
 
@@ -402,13 +421,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Player)
 		virtual bool JudgeServiceMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		virtual bool JudgePassMode();
+		virtual EOffenceMode JudgePassMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		virtual bool JudgeAttackMode();
+		virtual EOffenceMode JudgeAttackMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		virtual bool JudgeReceiveMode();
+		virtual EDefenceMode JudgeReceiveMode();
 	UFUNCTION(BlueprintCallable, Category = Player)
-		virtual bool JudgeBlockMode();
+		virtual EDefenceMode JudgeBlockMode();
 
 	UFUNCTION(BlueprintCallable, Category = Player)
 		FString GetPlayerMode();
@@ -456,6 +475,9 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Character)
 		FName GetDirectionFromPlayer(FVector TargetPos);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Character)
+		bool  IsReachableTrigger(UCapsuleComponent* trigger_);
+
 	/* To Play Animation in Accurate Timing, Calculate Play Rate */
 	float CalculatePlayRate(float TimeRemaining, UAnimMontage* Montage, FName SectionName);
 
@@ -467,4 +489,12 @@ protected:
 
 protected:
 	FVector GetRandomPosInRange(const FVector& Center, float accuracy);
+
+public:
+	float GetReceiveZOffset();
+	float GetDigZOffset();
+	float GetSpikeZOffset();
+	float GetFloatingZOffset();
+	float GetTossZOffset();
+	float GetPassZOffset();
 };
