@@ -149,12 +149,14 @@ void ABaseCharacter::SetBlockHand()
 	BlockCapsuleR = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BlockCapsuleR"));
 	BlockCapsuleR->SetCapsuleHalfHeight(70.0f);
 	BlockCapsuleR->SetCapsuleRadius(32.0f);
-	BlockCapsuleR->SetHiddenInGame(false);
+	BlockCapsuleR->SetVisibility(false);
+	BlockCapsuleR->bHiddenInGame = true;
 	
 	BlockCapsuleL = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BlockCapsuleL"));
 	BlockCapsuleL->SetCapsuleHalfHeight(70.0f);
 	BlockCapsuleL->SetCapsuleRadius(32.0f);
-	BlockCapsuleL->SetHiddenInGame(false);
+	BlockCapsuleL->SetVisibility(false);
+	BlockCapsuleL->bHiddenInGame = true;
 	}
 
 void ABaseCharacter::SetCharacterMovement()
@@ -603,9 +605,11 @@ void ABaseCharacter::SetServiceMode()
 
 void ABaseCharacter::SetPassMode()
 {
-	OffenceMode = JudgePassMode();
-	if (OffenceMode == EOffenceMode::OM_NONE)
+	auto mode = JudgePassMode();
+	if (mode == EOffenceMode::OM_NONE)
 		return;
+
+	OffenceMode = mode;
 
 	TimingMax = RemainingTimeToAction;
 
@@ -614,9 +618,11 @@ void ABaseCharacter::SetPassMode()
 
 void ABaseCharacter::SetAttackMode()
 {
-	OffenceMode = JudgeAttackMode();
-	if (OffenceMode == EOffenceMode::OM_NONE)
+	auto mode = JudgeAttackMode();
+	if (mode == EOffenceMode::OM_NONE)
 		return;
+
+	OffenceMode = mode;
 
 	TimingMax = RemainingTimeToAction;
 
@@ -625,9 +631,11 @@ void ABaseCharacter::SetAttackMode()
 
 void ABaseCharacter::SetReceiveMode()
 {
-	DefenceMode = JudgeReceiveMode();
-	if (DefenceMode == EDefenceMode::DM_NONE)
+	auto mode = JudgeReceiveMode();
+	if (mode == EDefenceMode::DM_NONE)
 		return;
+
+	DefenceMode = mode;
 
 	TimingMax = RemainingTimeToAction;
 
@@ -636,9 +644,11 @@ void ABaseCharacter::SetReceiveMode()
 
 void ABaseCharacter::SetBlockMode()
 {
-	DefenceMode = JudgeBlockMode();
-	if (DefenceMode == EDefenceMode::DM_NONE)
+	auto mode = JudgeBlockMode();
+	if (mode == EDefenceMode::DM_NONE)
 		return;
+
+	DefenceMode = mode;
 
 	PlayBlockAnimation();
 }

@@ -107,8 +107,8 @@ AVolleyballArenaBase::AVolleyballArenaBase()
 
 	BoxPlayableArea = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxPlayableArea"));
 	BoxPlayableArea->InitBoxExtent(FVector(700, 1100, 1000));
-	BoxPlayableArea->bHiddenInGame = false;
-	BoxPlayableArea->SetVisibility(true);
+	//BoxPlayableArea->bHiddenInGame = false;
+	//BoxPlayableArea->SetVisibility(true);
 	RootComponent = BoxPlayableArea;
 
 
@@ -133,19 +133,19 @@ AVolleyballArenaBase::AVolleyballArenaBase()
 	toss_trigger_->SetCapsuleRadius(150);
 	pass_trigger_->SetCapsuleRadius(150);
 
-	receive_trigger_->bHiddenInGame = false;
-	dig_trigger_->bHiddenInGame = false;
-	spike_trigger_->bHiddenInGame = false;
-	floating_trigger_->bHiddenInGame = false;
-	toss_trigger_->bHiddenInGame = false;
-	pass_trigger_->bHiddenInGame = false;
+	//receive_trigger_->bHiddenInGame = false;
+	//dig_trigger_->bHiddenInGame = false;
+	//spike_trigger_->bHiddenInGame = false;
+	//floating_trigger_->bHiddenInGame = false;
+	//toss_trigger_->bHiddenInGame = false;
+	//pass_trigger_->bHiddenInGame = false;
 
-	receive_trigger_->SetVisibility(true);
-	dig_trigger_->SetVisibility(true);
-	spike_trigger_->SetVisibility(true);
-	floating_trigger_->SetVisibility(true);
-	toss_trigger_->SetVisibility(true);
-	pass_trigger_->SetVisibility(true);
+	//receive_trigger_->SetVisibility(true);
+	//dig_trigger_->SetVisibility(true);
+	//spike_trigger_->SetVisibility(true);
+	//floating_trigger_->SetVisibility(true);
+	//toss_trigger_->SetVisibility(true);
+	//pass_trigger_->SetVisibility(true);
 }
 
 // Called when the game starts or when spawned
