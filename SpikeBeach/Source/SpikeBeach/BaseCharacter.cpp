@@ -751,13 +751,13 @@ void ABaseCharacter::PlayReceiveAnimation()
 	switch (DefenceMode)
 	{
 	case EDefenceMode::DM_DIG:
-		// Move To Action Pos
-		SetMoveToActionPos(*DigOffsetMap.Find(Direction));
 		RotationDir = (ActionPos - GetActorLocation());
 		RotationDir.Z = 0;
 		RotationDir.Normalize();
 		quat = FQuat::FindBetweenVectors(GetActorForwardVector(), RotationDir);
 		AddActorLocalRotation(quat);
+		// Move To Action Pos
+		SetMoveToActionPos(*DigOffsetMap.Find(FName("Front")));
 
 		PlayRate = CalculatePlayRate(RemainingTimeToAction, DigMontage, Direction);
 		PlayAnimMontage(DigMontage, PlayRate, Direction);
