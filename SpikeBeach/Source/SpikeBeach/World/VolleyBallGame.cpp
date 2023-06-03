@@ -3,7 +3,9 @@
 
 #include "VolleyBallGame.h"
 #include "VolleyBallTeam.h"
-#include "GameFramework/CharacterMovementComponent.h"	
+#include "GameFramework/CharacterMovementComponent.h"
+#include "../Player/BasePlayer.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
 UVolleyBallGame::UVolleyBallGame()
@@ -103,4 +105,26 @@ void UVolleyBallGame::ChangeCourt()
 	auto temp_box = reef_side_team->team_box_;
 	reef_side_team->team_box_ = beach_side_team->team_box_;
 	beach_side_team->team_box_ = temp_box;
+
+	ABasePlayer* controlled_player = nullptr;
+	if (controlled_player == nullptr)
+	{
+		controlled_player = Cast<ABasePlayer>(beach_side_team->GetRightSidePlayer());
+	}
+	if (controlled_player == nullptr)
+	{
+		controlled_player = Cast<ABasePlayer>(beach_side_team->GetLeftSidePlayer());
+	}
+	if (controlled_player == nullptr)
+	{
+		controlled_player = Cast<ABasePlayer>(reef_side_team->GetRightSidePlayer());
+	}
+	if (controlled_player == nullptr)
+	{
+		controlled_player = Cast<ABasePlayer>(reef_side_team->GetLeftSidePlayer());
+	}
+
+	controlled_player->is_ping_clicked_ = false;
+	controlled_player->PingOrderEvent(EPingOrderType::eWrongPos, FVector(0, 0, 0));
+
 }
