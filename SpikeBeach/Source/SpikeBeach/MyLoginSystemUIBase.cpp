@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "LoginUIBase.h"
+#include "MyLoginSystemUIBase.h"
 
-void ULoginUIBase::LoginRequest(FString userAssignedId, FString password, FString clientVersion)
+void UMyLoginSystemUIBase::RegisterRequest(FString userAssignedId, FString password, FString clientVersion)
 {
 	FHttpRequestRef Request = FHttpModule::Get().CreateRequest();
-	Request->OnProcessRequestComplete().BindUObject(this, &ULoginUIBase::OnLoginResponseRecevied);
+	Request->OnProcessRequestComplete().BindUObject(this, &UMyLoginSystemUIBase::OnRegisterResponseRecevied);
 
 	TSharedRef<FJsonObject> RequestObj = MakeShared<FJsonObject>();
 	RequestObj->SetStringField("userAssignedId", userAssignedId);
@@ -17,7 +17,7 @@ void ULoginUIBase::LoginRequest(FString userAssignedId, FString password, FStrin
 	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&RequestBody);
 	FJsonSerializer::Serialize(RequestObj, Writer);
 
-	Request->SetURL("http://52.197.242.93/Login");
+	Request->SetURL("http://52.197.242.93/Register");
 	Request->SetVerb("POST");
 	Request->SetHeader("Content-Type", "application/json");
 	Request->SetContentAsString(RequestBody);
@@ -27,7 +27,7 @@ void ULoginUIBase::LoginRequest(FString userAssignedId, FString password, FStrin
 	Request->ProcessRequest();
 }
 
-void ULoginUIBase::OnLoginResponseRecevied(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
+void UMyLoginSystemUIBase::OnRegisterResponseRecevied(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
 {
-	UE_LOG(LogTemp, Display, TEXT("Login Response : %s"), *Response->GetContentAsString());
+	UE_LOG(LogTemp, Display, TEXT("Register Response : %s"), *Response->GetContentAsString());
 }
