@@ -17,7 +17,7 @@ class SPIKEBEACH_API URegisterUIBase : public ULoginSystemUIBase
 
 public:
 	UFUNCTION(BlueprintCallable)
-		void RegisterRequest(FString userAssignedId, FString password, FString clientVersion);
+		void RegisterRequest(FString userAssignedId, FString nickname, FString password);
 
 	void OnRegisterResponseRecevied(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully);
 };

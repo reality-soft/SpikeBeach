@@ -3,15 +3,15 @@
 
 #include "RegisterUIBase.h"
 
-void URegisterUIBase::RegisterRequest(FString userAssignedId, FString password, FString clientVersion)
+void URegisterUIBase::RegisterRequest(FString userAssignedId, FString nickname, FString password)
 {
 	FHttpRequestRef Request = FHttpModule::Get().CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &URegisterUIBase::OnRegisterResponseRecevied);
 
 	TSharedRef<FJsonObject> RequestObj = MakeShared<FJsonObject>();
 	RequestObj->SetStringField("userAssignedId", userAssignedId);
+	RequestObj->SetStringField("nickname", nickname);
 	RequestObj->SetStringField("password", password);
-	RequestObj->SetStringField("clientVersion", clientVersion);
 
 	FString RequestBody;
 	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&RequestBody);
