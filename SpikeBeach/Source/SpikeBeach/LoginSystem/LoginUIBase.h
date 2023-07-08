@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "LoginSystem/LoginSystemUIBase.h"
+#include "LoginSystemUIBase.h"
 #include "LoginUIBase.generated.h"
 
 /**

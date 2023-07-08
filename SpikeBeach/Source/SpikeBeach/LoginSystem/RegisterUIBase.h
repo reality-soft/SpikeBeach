@@ -3,16 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "LoginSystem/LoginSystemUIBase.h"
-#include "MyLoginSystemUIBase.generated.h"
+#include "LoginSystemUIBase.h"
+#include "RegisterUIBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SPIKEBEACH_API UMyLoginSystemUIBase : public ULoginSystemUIBase
+class SPIKEBEACH_API URegisterUIBase : public ULoginSystemUIBase
 {
 	GENERATED_BODY()
+	
+
 public:
 	UFUNCTION(BlueprintCallable)
 		void RegisterRequest(FString userAssignedId, FString password, FString clientVersion);
