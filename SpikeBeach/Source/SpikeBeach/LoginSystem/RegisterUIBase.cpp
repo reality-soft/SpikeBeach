@@ -6,7 +6,7 @@
 void URegisterUIBase::RegisterRequest(FString userAssignedId, FString nickname, FString password)
 {
 	FHttpRequestRef Request = FHttpModule::Get().CreateRequest();
-	Request->OnProcessRequestComplete().BindUObject(this, &URegisterUIBase::OnRegisterResponseRecevied);
+	Request->OnProcessRequestComplete().BindUObject(this, &URegisterUIBase::OnRegisterResponseReceived);
 
 	TSharedRef<FJsonObject> RequestObj = MakeShared<FJsonObject>();
 	RequestObj->SetStringField("userAssignedId", userAssignedId);
@@ -27,7 +27,15 @@ void URegisterUIBase::RegisterRequest(FString userAssignedId, FString nickname, 
 	Request->ProcessRequest();
 }
 
-void URegisterUIBase::OnRegisterResponseRecevied(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
+void URegisterUIBase::OnRegisterResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
 {
 	UE_LOG(LogTemp, Display, TEXT("Register Response : %s"), *Response->GetContentAsString());
+	
+	TSharedPtr<FJsonObject> ResponseObj;
+	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+	FJsonSerializer::Deserialize(Reader, ResponseObj);
+
+	if (FCString::Atoi(*ResponseObj->GetStringField("errorCode")) == static_cast<int>(EErrorCode::None)) {
+		OnSuccess();
+	}
 }
