@@ -16,8 +16,12 @@ class SPIKEBEACH_API USpikeBeachGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Token")
-		FString login_token_;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LoginInfo")
+		FString login_id = "";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LoginInfo")
+		FString login_token_ = "";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LoginInfo")
+		FString client_version = "v1.0.0";
 
 	virtual void Init() override;
 	virtual void Shutdown() override;

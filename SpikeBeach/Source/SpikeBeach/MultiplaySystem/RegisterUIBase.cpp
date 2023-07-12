@@ -36,6 +36,6 @@ void URegisterUIBase::OnRegisterResponseReceived(FHttpRequestPtr Request, FHttpR
 	FJsonSerializer::Deserialize(Reader, ResponseObj);
 
 	if (FCString::Atoi(*ResponseObj->GetStringField("errorCode")) == static_cast<int>(EErrorCode::None)) {
-		OnSuccess();
+		OnSuccessRegister();
 	}
 }

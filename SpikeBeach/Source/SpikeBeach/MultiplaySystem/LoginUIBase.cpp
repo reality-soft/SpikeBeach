@@ -36,6 +36,6 @@ void ULoginUIBase::OnLoginResponseRecevied(FHttpRequestPtr Request, FHttpRespons
 	FJsonSerializer::Deserialize(Reader, ResponseObj);
 
 	if (FCString::Atoi(*ResponseObj->GetStringField("errorCode")) == static_cast<int>(EErrorCode::None)) {
-		OnSuccess(*ResponseObj->GetStringField("token"));
+		OnSuccessLogin(*ResponseObj->GetStringField("token"));
 	}
 }
