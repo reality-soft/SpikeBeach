@@ -30,4 +30,12 @@ void ULoginUIBase::LoginRequest(FString userAssignedId, FString password, FStrin
 void ULoginUIBase::OnLoginResponseRecevied(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
 {
 	UE_LOG(LogTemp, Display, TEXT("Login Response : %s"), *Response->GetContentAsString());
+
+	TSharedPtr<FJsonObject> ResponseObj;
+	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+	FJsonSerializer::Deserialize(Reader, ResponseObj);
+
+	if (FCString::Atoi(*ResponseObj->GetStringField("errorCode")) == static_cast<int>(EErrorCode::None)) {
+		OnSuccess(*ResponseObj->GetStringField("token"));
+	}
 }

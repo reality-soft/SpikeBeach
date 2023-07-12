@@ -29,7 +29,7 @@ public:
 	void OnRegisterResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnSuccess();
+		void OnSuccessRegister();
 
 	UPROPERTY(BlueprintReadWrite, Category = Location, meta = (AllowPrivateAccess = "true"))
 		ERegisterState RegisterState = ERegisterState::RS_NONE;
