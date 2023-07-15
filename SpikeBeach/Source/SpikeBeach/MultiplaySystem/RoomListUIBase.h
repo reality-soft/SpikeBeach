@@ -36,4 +36,8 @@ public:
 		void RoomListRequest(FString userAssignedId, FString token, FString clientVersion);
 
 	void OnRoomListResponseRecevied(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void PrintRoomList();
+
 };
