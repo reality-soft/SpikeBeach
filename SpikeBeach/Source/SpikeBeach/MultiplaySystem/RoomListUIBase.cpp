@@ -35,7 +35,25 @@ void URoomListUIBase::OnRoomListResponseRecevied(FHttpRequestPtr Request, FHttpR
 	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
 	FJsonSerializer::Deserialize(Reader, ResponseObj);
 
-	if (FCString::Atoi(*ResponseObj->GetStringField("errorCode")) == static_cast<int>(EErrorCode::None)) {
+	
 
+	if (FCString::Atoi(*ResponseObj->GetStringField("errorCode")) == static_cast<int>(EErrorCode::None)) {
+		const TArray<TSharedPtr<FJsonValue>>* RoomList;
+		ResponseObj->TryGetArrayField("roomList", RoomList);
+		for (const auto& cur_room : *RoomList) {
+			FString cur_room_str = cur_room.Get()->AsString();
+			FString temp_room_info;
+
+			FRoomInfo cur_room_info;
+
+			cur_room_str.Split(FString("\t"), &temp_room_info, &cur_room_str);
+			cur_room_str.Split(FString("\t"), &temp_room_info, &cur_room_str);
+			cur_room_info.room_number_ = FCString::Atoi(*temp_room_info);
+			cur_room_str.Split(FString("\t"), &temp_room_info, &cur_room_str);
+			cur_room_info.room_name_ = temp_room_info;
+			cur_room_info.num_people_ = FCString::Atoi(*cur_room_str);
+
+			room_info_.Add(cur_room_info);
+		}
 	}
 }
