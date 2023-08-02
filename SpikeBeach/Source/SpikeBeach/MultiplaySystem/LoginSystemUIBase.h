@@ -39,39 +39,6 @@ enum class EErrorCode : uint8
     UserNotReady = 106
 };
 
-class RequestHeader
-{
-public:
-    int packetId;
-
-    std::vector<uint8_t> Serialize(int fullPacketId)
-    {
-        packetId = fullPacketId;
-        std::vector<uint8_t> bytes(sizeof(int));
-        std::memcpy(bytes.data(), &packetId, sizeof(int));
-        return bytes;
-    }
-
-    virtual int Deserialize(const std::vector<uint8_t>& data)
-    {
-        std::memcpy(&packetId, data.data(), sizeof(int));
-        return sizeof(int);
-    }
-
-    std::string ReadString(const std::vector<uint8_t>& data, int& offset)
-    {
-        int length = 0;
-        while (offset + length < static_cast<int>(data.size()) && data[offset + length] != '\0')
-        {
-            length++;
-        }
-
-        std::string str(reinterpret_cast<const char*>(data.data() + offset), length);
-        offset += length + 1;
-        return str;
-    }
-};
-
 /**
  * 
  */
