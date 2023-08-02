@@ -3,7 +3,7 @@
 
 #include "RequestHeader.h"
 
-TArray<uint8> RequestHeader::Serialize(int fullPacketId)
+TArray<uint8> URequestHeader::Serialize(int fullPacketId)
 {
     packetId = fullPacketId;
     TArray<uint8_t> data;
@@ -12,21 +12,21 @@ TArray<uint8> RequestHeader::Serialize(int fullPacketId)
     return data;
 }
 
-int RequestHeader::Deserialize(const std::vector<uint8_t>& data)
+int URequestHeader::Deserialize(const TArray<uint8_t>& data)
 {
-    std::memcpy(&packetId, data.data(), sizeof(int));
+    std::memcpy(&packetId, data.GetData(), sizeof(int));
     return sizeof(int);
 }
 
-FString RequestHeader::ReadString(const std::vector<uint8_t>& data, int& offset)
+FString URequestHeader::ReadString(const TArray<uint8_t>& data, int& offset)
 {
     int length = 0;
-    while (offset + length < static_cast<int>(data.size()) && data[offset + length] != '\0')
+    while (offset + length < static_cast<int>(data.Num()) && data[offset + length] != '\0')
     {
         length++;
     }
 
-    FString str(reinterpret_cast<const char*>(data.data() + offset), length);
+    FString str(reinterpret_cast<const char*>(data.Num() + offset), length);
     offset += length + 1;
     return str;
 }
