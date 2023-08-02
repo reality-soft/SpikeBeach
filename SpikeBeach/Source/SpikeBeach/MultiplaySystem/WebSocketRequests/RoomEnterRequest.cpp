@@ -3,7 +3,7 @@
 #include "RoomEnterRequest.h"
 #include "RequestHeader.h"
 
-TArray<uint8> URoomEnterRequest::Serialize(int fullPacketId)
+TArray<uint8> URoomEnterRequest::Serialize()
 {
     TArray<uint8> Bytes;
     Bytes.Append(URequestHeader::Serialize(static_cast<int>(PacketIdDef::RoomEnterReq))); // Make sure to call the base class's Serialize method

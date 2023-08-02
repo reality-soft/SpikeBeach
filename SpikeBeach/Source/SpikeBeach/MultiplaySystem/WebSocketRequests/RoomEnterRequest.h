@@ -16,6 +16,6 @@ public:
     FString clientVersion;
     int16 roomId;
 
-    TArray<uint8> Serialize(int fullPacketId);
+    TArray<uint8> Serialize();
     virtual int Deserialize(const TArray<uint8_t>& data);
 };
