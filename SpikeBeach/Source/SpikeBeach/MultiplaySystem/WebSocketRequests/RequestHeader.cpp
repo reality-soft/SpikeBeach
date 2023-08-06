@@ -8,7 +8,7 @@ TArray<uint8> URequestHeader::Serialize(int fullPacketId)
     packetId = fullPacketId;
     TArray<uint8_t> data;
     data.Reset(sizeof(int));
-    data.AddUninitialized(sizeof(int));
+    data.Append((const uint8*)&packetId, sizeof(int32));
     return data;
 }
 

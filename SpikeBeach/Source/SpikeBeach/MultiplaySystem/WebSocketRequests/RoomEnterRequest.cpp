@@ -10,7 +10,7 @@ TArray<uint8> URoomEnterRequest::Serialize()
     Bytes.Append((const uint8*)TCHAR_TO_UTF8(*userAssignedId), userAssignedId.Len() + 1);
     Bytes.Append((const uint8*)TCHAR_TO_UTF8(*token), token.Len() + 1);
     Bytes.Append((const uint8*)TCHAR_TO_UTF8(*clientVersion), clientVersion.Len() + 1);
-    Bytes.Append((const uint8*)&roomId, sizeof(int16));
+    Bytes.Append((const uint8*)&roomId, sizeof(int32));
     return Bytes;
 }
 

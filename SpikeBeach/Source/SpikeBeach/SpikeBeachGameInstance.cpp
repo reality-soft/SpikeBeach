@@ -37,13 +37,13 @@ void USpikeBeachGameInstance::ConnectWebSocket()
 
 	WebSocket->OnRawMessage().AddLambda([](const void* Data, SIZE_T Size, SIZE_T BytesRemaining)
 		{
-			const char* charArray = nullptr;
-			if (Data) {
-				memcpy(&charArray, Data, Size);
-			}
-			
-			FString s(charArray, Size);
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "Received message: " + s);
+			const int* intPtr = static_cast<const int*>(Data);
+
+			FString packetId = FString::FromInt(intPtr[0]);
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "Packet Id: " + packetId);
+
+			FString errorCode = FString::FromInt(intPtr[1]);
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "Error Code: " + errorCode);
 		});
 
 	WebSocket->OnMessageSent().AddLambda([](const FString& MessageString)
