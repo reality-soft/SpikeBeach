@@ -35,6 +35,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void RoomListRequest(FString userAssignedId, FString token, FString clientVersion);
 
+	UFUNCTION(BlueprintCallable)
+		void RoomEnterRequest(const FString& roomName, int roomId);
+
 	void OnRoomListResponseRecevied(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully);
 
 	UFUNCTION(BlueprintImplementableEvent)

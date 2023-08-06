@@ -3,17 +3,16 @@
 
 #include "SpikeBeachGameInstance.h"
 #include "WebSocketsModule.h"
+#include "MultiplaySystem/WebSocketRequests/RoomEnterRequest.h"
 
-void USpikeBeachGameInstance::Init()
+void USpikeBeachGameInstance::ConnectWebSocket()
 {
-	Super::Init();
-
 	if (!FModuleManager::Get().IsModuleLoaded("WebSockets"))
 	{
 		FModuleManager::Get().LoadModule("WebSockets");
 	}
 
-	WebSocket = FWebSocketsModule::Get().CreateWebSocket("ws://52.197.242.93:80/Test/ws");
+	WebSocket = FWebSocketsModule::Get().CreateWebSocket("ws://52.197.242.93:80/Room/ws/Enter");
 
 	WebSocket->OnConnected().AddLambda([]()
 		{
@@ -35,6 +34,18 @@ void USpikeBeachGameInstance::Init()
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "Received message: " + MessageString);
 		});
 
+
+	WebSocket->OnRawMessage().AddLambda([](const void* Data, SIZE_T Size, SIZE_T BytesRemaining)
+		{
+			const char* charArray = nullptr;
+			if (Data) {
+				memcpy(&charArray, Data, Size);
+			}
+			
+			FString s(charArray, Size);
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "Received message: " + s);
+		});
+
 	WebSocket->OnMessageSent().AddLambda([](const FString& MessageString)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "Sent message: " + MessageString);
@@ -47,15 +58,23 @@ void USpikeBeachGameInstance::Shutdown()
 {
 	Super::Shutdown();
 
-	if (WebSocket->IsConnected())
+	if (WebSocket.IsValid() && WebSocket->IsConnected())
 	{
 		WebSocket->Close();
 	}
 	Super::Shutdown();
 }
 
-void USpikeBeachGameInstance::SendMessage()
+void USpikeBeachGameInstance::RoomEnterRequest(const FString& roomName, int roomId)
 {
-	WebSocket->Send("Sended Message");
-	WebSocket->Send("Sended Message");
+	URoomEnterRequest room_enter_request;
+
+	room_enter_request.clientVersion = client_version;
+	room_enter_request.token = login_token_;
+	room_enter_request.userAssignedId = login_id;
+	room_enter_request.roomId = roomId;
+	
+	dataToSend.Empty();
+	dataToSend = room_enter_request.Serialize();
+	WebSocket->Send(dataToSend.GetData(), dataToSend.Num(), true);
 }

@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "RoomListUIBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "../SpikeBeachGameInstance.h"
 
 void URoomListUIBase::RoomListRequest(FString userAssignedId, FString token, FString clientVersion)
 {
@@ -25,6 +26,13 @@ void URoomListUIBase::RoomListRequest(FString userAssignedId, FString token, FSt
 	UE_LOG(LogTemp, Display, TEXT("Request : %s"), *RequestBody);
 
 	Request->ProcessRequest();
+}
+
+void URoomListUIBase::RoomEnterRequest(const FString& roomName, int roomId)
+{
+	USpikeBeachGameInstance* game_instance =  Cast<USpikeBeachGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	game_instance->ConnectWebSocket();
+	game_instance->RoomEnterRequest(roomName, roomId);
 }
 
 void URoomListUIBase::OnRoomListResponseRecevied(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)

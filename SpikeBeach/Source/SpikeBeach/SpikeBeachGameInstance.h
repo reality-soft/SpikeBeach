@@ -22,12 +22,18 @@ public:
 		FString login_token_ = "";
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LoginInfo")
 		FString client_version = "v1.0.0";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LoginInfo")
+		int room_number = -1;
 
-	virtual void Init() override;
+
 	virtual void Shutdown() override;
 
 	TSharedPtr<IWebSocket> WebSocket;
-	
+	TArray<uint8_t> dataToSend;
+
 	UFUNCTION(BlueprintCallable)
-		void SendMessage();
+		void RoomEnterRequest(const FString& roomName, int roomId);
+
+	UFUNCTION(BlueprintCallable)
+		virtual void ConnectWebSocket();
 };
