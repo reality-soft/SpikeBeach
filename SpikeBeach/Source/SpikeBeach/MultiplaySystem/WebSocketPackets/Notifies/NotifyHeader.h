@@ -7,7 +7,7 @@
 /**
  * 
  */
-class SPIKEBEACH_API RequestHeader
+class SPIKEBEACH_API NotifyHeader
 {
 public:
     int packetId;
