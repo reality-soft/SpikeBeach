@@ -3,18 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RequestHeader.h"
+#include "ResponseHeader.h"
 
 /**
  * 
  */
-class SPIKEBEACH_API URoomEnterRequest : public RequestHeader
+class SPIKEBEACH_API RoomEnterResponse : public ResponseHeader
 {
 public:
-    FString userAssignedId;
-    FString token;
-    FString clientVersion;
-    int16 roomId;
+    FString roomInfoString;
 
     TArray<uint8> Serialize();
     virtual int Deserialize(const TArray<uint8_t>& data);
