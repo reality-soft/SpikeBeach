@@ -4,7 +4,7 @@
 #include "RequestHeader.h"
 #include "../PacketIdDef.h"
 
-TArray<uint8> URoomEnterRequest::Serialize()
+TArray<uint8> RoomEnterRequest::Serialize()
 {
     TArray<uint8> Bytes;
     Bytes.Append(RequestHeader::Serialize(static_cast<int>(PacketIdDef::RoomEnterReq)));
@@ -15,7 +15,7 @@ TArray<uint8> URoomEnterRequest::Serialize()
     return Bytes;
 }
 
-int URoomEnterRequest::Deserialize(const uint8* data)
+int RoomEnterRequest::Deserialize(const uint8* data)
 {
     int Offset = RequestHeader::Deserialize(data);
     userAssignedId = ReadString(data, Offset);

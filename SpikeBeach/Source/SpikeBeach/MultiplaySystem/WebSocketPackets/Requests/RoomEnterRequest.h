@@ -8,7 +8,7 @@
 /**
  * 
  */
-class SPIKEBEACH_API URoomEnterRequest : public RequestHeader
+class SPIKEBEACH_API RoomEnterRequest : public RequestHeader
 {
 public:
     FString userAssignedId;
