@@ -8,7 +8,7 @@
 /**
  * 
  */
-class SPIKEBEACH_API RoomLeaveResponse : ResponseHeader
+class SPIKEBEACH_API RoomLeaveResponse : public ResponseHeader
 {
 public:
 	TArray<uint8> Serialize();
