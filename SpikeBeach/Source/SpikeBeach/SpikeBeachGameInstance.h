@@ -32,7 +32,10 @@ public:
 	TArray<uint8_t> dataToSend;
 
 	UFUNCTION(BlueprintCallable)
-		void RoomEnterRequest(const FString& roomName, int roomId);
+		void SendRoomEnterRequest(const FString& roomName, int roomId);
+	
+	UFUNCTION(BlueprintCallable)
+		void SendRoomLeaveRequest();
 
 	UFUNCTION(BlueprintCallable)
 		virtual void ConnectWebSocket();

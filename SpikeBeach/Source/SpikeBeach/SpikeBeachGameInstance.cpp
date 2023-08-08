@@ -6,6 +6,9 @@
 #include "MultiplaySystem/WebSocketPackets/Requests/RoomEnterRequest.h"
 #include "MultiplaySystem/WebSocketPackets/Responses/RoomEnterResponse.h"
 #include "MultiplaySystem/WebSocketPackets/Notifies/RoomEnterNotify.h"
+#include "MultiplaySystem/WebSocketPackets/Requests/RoomLeaveRequest.h"
+#include "MultiplaySystem/WebSocketPackets/Responses/RoomLeaveResponse.h"
+#include "MultiplaySystem/WebSocketPackets/Notifies/RoomLeaveNotify.h"
 #include "MultiplaySystem/WebSocketPackets/PacketIdDef.h"
 #include "MultiplaySystem/WebSocketPackets/ErrorCode.h"
 
@@ -68,9 +71,6 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 		RoomEnterResponse roomEnterResponse;
 		roomEnterResponse.Deserialize(static_cast<const uint8*>(Data));
 
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "RoomInfoString: " + roomEnterResponse.roomInfoString);
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "ErrorCode: " + roomEnterResponse.errorCode);
-
 		UE_LOG(LogTemp, Display, TEXT("RoomInfoString : %s"), *roomEnterResponse.roomInfoString);
 		UE_LOG(LogTemp, Display, TEXT("ErrorCode : %s"), *FString::FromInt(roomEnterResponse.errorCode));
 
@@ -81,8 +81,25 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 		RoomEnterNotify roomEnterNotify;
 		roomEnterNotify.Deserialize(static_cast<const uint8*>(Data));
 
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "enterUserNick: " + roomEnterNotify.enterUserNick);
 		UE_LOG(LogTemp, Display, TEXT("enterUserNick : %s"), *roomEnterNotify.enterUserNick);
+
+		break;
+	}
+	case PacketIdDef::RoomLeaveRes:
+	{
+		RoomLeaveResponse roomLeaveResponse;
+		roomLeaveResponse.Deserialize(static_cast<const uint8*>(Data));
+
+		UE_LOG(LogTemp, Display, TEXT("ErrorCode : %s"), *FString::FromInt(roomLeaveResponse.errorCode));
+
+		break;
+	}
+	case PacketIdDef::RoomLeaveNtf:
+	{
+		RoomLeaveNotify roomLeaveNotify;
+		roomLeaveNotify.Deserialize(static_cast<const uint8*>(Data));
+
+		UE_LOG(LogTemp, Display, TEXT("enterUserNick : %s"), *roomLeaveNotify.leaveInfoString);
 
 		break;
 	}
@@ -100,9 +117,9 @@ void USpikeBeachGameInstance::Shutdown()
 	Super::Shutdown();
 }
 
-void USpikeBeachGameInstance::RoomEnterRequest(const FString& roomName, int roomId)
+void USpikeBeachGameInstance::SendRoomEnterRequest(const FString& roomName, int roomId)
 {
-	URoomEnterRequest room_enter_request;
+	RoomEnterRequest room_enter_request;
 
 	room_enter_request.clientVersion = client_version;
 	room_enter_request.token = login_token_;
@@ -111,5 +128,13 @@ void USpikeBeachGameInstance::RoomEnterRequest(const FString& roomName, int room
 	
 	dataToSend.Empty();
 	dataToSend = room_enter_request.Serialize();
+	WebSocket->Send(dataToSend.GetData(), dataToSend.Num(), true);
+}
+
+void USpikeBeachGameInstance::SendRoomLeaveRequest()
+{
+	RoomLeaveRequest room_leave_request;
+
+	dataToSend = room_leave_request.Serialize();
 	WebSocket->Send(dataToSend.GetData(), dataToSend.Num(), true);
 }

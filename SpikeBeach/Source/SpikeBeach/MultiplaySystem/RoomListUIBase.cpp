@@ -29,11 +29,11 @@ void URoomListUIBase::RoomListRequest(FString userAssignedId, FString token, FSt
 	Request->ProcessRequest();
 }
 
-void URoomListUIBase::RoomEnterRequest(const FString& roomName, int roomId)
+void URoomListUIBase::SendRoomEnterRequest(const FString& roomName, int roomId)
 {
 	USpikeBeachGameInstance* game_instance =  Cast<USpikeBeachGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	game_instance->ConnectWebSocket();
-	game_instance->RoomEnterRequest(roomName, roomId);
+	game_instance->SendRoomEnterRequest(roomName, roomId);
 }
 
 void URoomListUIBase::OnRoomListResponseRecevied(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
