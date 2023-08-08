@@ -3,7 +3,11 @@
 
 #include "SpikeBeachGameInstance.h"
 #include "WebSocketsModule.h"
-#include "MultiplaySystem/WebSocketRequests/RoomEnterRequest.h"
+#include "MultiplaySystem/WebSocketPackets/Requests/RoomEnterRequest.h"
+#include "MultiplaySystem/WebSocketPackets/Responses/RoomEnterResponse.h"
+#include "MultiplaySystem/WebSocketPackets/Notifies/RoomEnterNotify.h"
+#include "MultiplaySystem/WebSocketPackets/PacketIdDef.h"
+#include "MultiplaySystem/WebSocketPackets/ErrorCode.h"
 
 void USpikeBeachGameInstance::ConnectWebSocket()
 {
@@ -35,15 +39,9 @@ void USpikeBeachGameInstance::ConnectWebSocket()
 		});
 
 
-	WebSocket->OnRawMessage().AddLambda([](const void* Data, SIZE_T Size, SIZE_T BytesRemaining)
+	WebSocket->OnRawMessage().AddLambda([this](const void* Data, SIZE_T Size, SIZE_T BytesRemaining)
 		{
-			const int* intPtr = static_cast<const int*>(Data);
-
-			FString packetId = FString::FromInt(intPtr[0]);
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "Packet Id: " + packetId);
-
-			FString errorCode = FString::FromInt(intPtr[1]);
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "Error Code: " + errorCode);
+			ProcessPacket(Data, Size, BytesRemaining);
 		});
 
 	WebSocket->OnMessageSent().AddLambda([](const FString& MessageString)
@@ -52,6 +50,43 @@ void USpikeBeachGameInstance::ConnectWebSocket()
 		});
 
 	WebSocket->Connect();
+}
+
+void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_T BytesRemaining)
+{
+	int offset = 0;
+	const int32* int32Ptr = static_cast<const int32*>(Data);
+	const int16* int16Ptr = static_cast<const int16*>(Data);
+	PacketIdDef packetIdEnum = static_cast<PacketIdDef>(int32Ptr[0]);
+
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "Packet Id: " + FString::FromInt(int32Ptr[0]));
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "ErrorCode: " + FString::FromInt(int16Ptr[2]));
+
+	switch (packetIdEnum) {
+	case PacketIdDef::RoomEnterRes:
+	{
+		RoomEnterResponse roomEnterResponse;
+		roomEnterResponse.Deserialize(static_cast<const uint8*>(Data));
+
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "RoomInfoString: " + roomEnterResponse.roomInfoString);
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "ErrorCode: " + roomEnterResponse.errorCode);
+
+		UE_LOG(LogTemp, Display, TEXT("RoomInfoString : %s"), *roomEnterResponse.roomInfoString);
+		UE_LOG(LogTemp, Display, TEXT("ErrorCode : %s"), *FString::FromInt(roomEnterResponse.errorCode));
+
+		break;
+	}
+	case PacketIdDef::RoomEnterNtf:
+	{
+		RoomEnterNotify roomEnterNotify;
+		roomEnterNotify.Deserialize(static_cast<const uint8*>(Data));
+
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "enterUserNick: " + roomEnterNotify.enterUserNick);
+		UE_LOG(LogTemp, Display, TEXT("enterUserNick : %s"), *roomEnterNotify.enterUserNick);
+
+		break;
+	}
+	}
 }
 
 void USpikeBeachGameInstance::Shutdown()

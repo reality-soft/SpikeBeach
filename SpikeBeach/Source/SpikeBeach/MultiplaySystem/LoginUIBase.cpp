@@ -2,6 +2,7 @@
 
 
 #include "LoginUIBase.h"
+#include "WebSocketPackets/ErrorCode.h"
 
 void ULoginUIBase::LoginRequest(FString userAssignedId, FString password, FString clientVersion)
 {

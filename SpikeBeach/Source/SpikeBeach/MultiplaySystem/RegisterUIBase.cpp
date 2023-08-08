@@ -2,6 +2,7 @@
 
 
 #include "RegisterUIBase.h"
+#include "WebSocketPackets/ErrorCode.h"
 
 void URegisterUIBase::RegisterRequest(FString userAssignedId, FString nickname, FString password)
 {

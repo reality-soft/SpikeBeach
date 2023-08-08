@@ -3,6 +3,7 @@
 #include "RoomListUIBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "../SpikeBeachGameInstance.h"
+#include "WebSocketPackets/ErrorCode.h"
 
 void URoomListUIBase::RoomListRequest(FString userAssignedId, FString token, FString clientVersion)
 {
