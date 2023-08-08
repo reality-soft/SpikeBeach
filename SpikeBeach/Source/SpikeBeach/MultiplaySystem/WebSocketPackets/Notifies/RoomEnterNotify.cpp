@@ -12,7 +12,7 @@ TArray<uint8> RoomEnterNotify::Serialize()
     return Bytes;
 }
 
-int RoomEnterNotify::Deserialize(const TArray<uint8_t>& data)
+int RoomEnterNotify::Deserialize(const uint8* data)
 {
     int Offset = NotifyHeader::Deserialize(data);
     enterUserNick = ReadString(data, Offset);

@@ -14,5 +14,5 @@ public:
     FString roomInfoString;
 
     TArray<uint8> Serialize();
-    virtual int Deserialize(const TArray<uint8_t>& data);
+    virtual int Deserialize(const uint8* data);
 };

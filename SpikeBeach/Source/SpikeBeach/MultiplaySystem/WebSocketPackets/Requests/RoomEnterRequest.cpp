@@ -15,7 +15,7 @@ TArray<uint8> URoomEnterRequest::Serialize()
     return Bytes;
 }
 
-int URoomEnterRequest::Deserialize(const TArray<uint8_t>& data)
+int URoomEnterRequest::Deserialize(const uint8* data)
 {
     int Offset = RequestHeader::Deserialize(data);
     userAssignedId = ReadString(data, Offset);
@@ -26,7 +26,7 @@ int URoomEnterRequest::Deserialize(const TArray<uint8_t>& data)
     clientVersion = ReadString(data, Offset);
     Offset += clientVersion.Len() + 1;
 
-    FMemory::Memcpy(&roomId, data.GetData() + Offset, sizeof(int16));
+    FMemory::Memcpy(&roomId, data + Offset, sizeof(int16));
 
     return Offset + sizeof(int16);
 }

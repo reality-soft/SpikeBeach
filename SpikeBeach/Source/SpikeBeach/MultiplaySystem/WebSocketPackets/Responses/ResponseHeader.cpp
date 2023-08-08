@@ -2,6 +2,7 @@
 
 
 #include "ResponseHeader.h"
+#include "Containers/UnrealString.h"
 
 TArray<uint8> ResponseHeader::Serialize(int fullPacketId)
 {
@@ -13,27 +14,29 @@ TArray<uint8> ResponseHeader::Serialize(int fullPacketId)
     return data;
 }
 
-int ResponseHeader::Deserialize(const TArray<uint8_t>& data)
+int ResponseHeader::Deserialize(const uint8* data)
 {
     int offset = 0;
-    std::memcpy(&packetId, data.GetData(), sizeof(int32));
+    std::memcpy(&packetId, data, sizeof(int32));
     offset += sizeof(int32);
 
-    std::memcpy(&packetId, data.GetData(), sizeof(int16));
+    std::memcpy(&errorCode, data + offset, sizeof(int16));
     offset += sizeof(int16);
 
     return offset;
 }
 
-FString ResponseHeader::ReadString(const TArray<uint8_t>& data, int& offset)
+FString ResponseHeader::ReadString(const uint8* data, int& offset)
 {
     int length = 0;
-    while (offset + length < static_cast<int>(data.Num()) && data[offset + length] != '\0')
+    TArray <uint8> strringArray;
+    while (data[offset + length] != '\0')
     {
         length++;
     }
 
-    FString str(reinterpret_cast<const char*>(data.Num() + offset), length);
+    FString str(reinterpret_cast<const char*>(data + offset));
+
     offset += length + 1;
     return str;
 }

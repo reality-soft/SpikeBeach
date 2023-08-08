@@ -13,6 +13,6 @@ public:
     int packetId;
 
     TArray<uint8> Serialize(int fullPacketId);
-    virtual int Deserialize(const TArray<uint8_t>& data);
-    FString ReadString(const TArray<uint8_t>& data, int& offset);
+    virtual int Deserialize(const uint8* data);
+    FString ReadString(const uint8* data, int& offset);
 };

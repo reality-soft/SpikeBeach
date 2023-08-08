@@ -12,7 +12,7 @@ TArray<uint8> RoomEnterResponse::Serialize()
     return Bytes;
 }
 
-int RoomEnterResponse::Deserialize(const TArray<uint8_t>& data)
+int RoomEnterResponse::Deserialize(const uint8* data)
 {
     int Offset = ResponseHeader::Deserialize(data);
     roomInfoString = ReadString(data, Offset);

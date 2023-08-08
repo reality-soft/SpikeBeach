@@ -12,21 +12,23 @@ TArray<uint8> RequestHeader::Serialize(int fullPacketId)
     return data;
 }
 
-int RequestHeader::Deserialize(const TArray<uint8_t>& data)
+int RequestHeader::Deserialize(const uint8* data)
 {
-    std::memcpy(&packetId, data.GetData(), sizeof(int));
-    return sizeof(int);
+    std::memcpy(&packetId, data, sizeof(int32));
+    return sizeof(int32);
 }
 
-FString RequestHeader::ReadString(const TArray<uint8_t>& data, int& offset)
+FString RequestHeader::ReadString(const uint8* data, int& offset)
 {
     int length = 0;
-    while (offset + length < static_cast<int>(data.Num()) && data[offset + length] != '\0')
+    TArray <uint8> strringArray;
+    while (data[offset + length] != '\0')
     {
         length++;
     }
 
-    FString str(reinterpret_cast<const char*>(data.Num() + offset), length);
+    FString str(reinterpret_cast<const char*>(data + offset));
+  
     offset += length + 1;
     return str;
 }
