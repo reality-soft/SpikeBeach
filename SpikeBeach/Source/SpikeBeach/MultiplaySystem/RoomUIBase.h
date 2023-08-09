@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "LoginSystemUIBase.h"
-#include "IWebSocket.h"
 #include "RoomUIBase.generated.h"
 
 /**
@@ -16,8 +15,7 @@ class SPIKEBEACH_API URoomUIBase : public ULoginSystemUIBase
 	GENERATED_BODY()
 	
 public:
-	TSharedPtr<IWebSocket> WebSocket;
-
 	UFUNCTION(BlueprintCallable)
-		void ConnectSocket();
+		void ExitRoom();
+
 };
