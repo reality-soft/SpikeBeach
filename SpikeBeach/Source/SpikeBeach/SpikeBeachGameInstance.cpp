@@ -3,6 +3,7 @@
 
 #include "SpikeBeachGameInstance.h"
 #include "WebSocketsModule.h"
+#include "OpeningGameModeBase.h"
 #include "MultiplaySystem/WebSocketPackets/Requests/RoomEnterRequest.h"
 #include "MultiplaySystem/WebSocketPackets/Responses/RoomEnterResponse.h"
 #include "MultiplaySystem/WebSocketPackets/Notifies/RoomEnterNotify.h"
