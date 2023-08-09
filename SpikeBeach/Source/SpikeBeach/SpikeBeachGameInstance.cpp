@@ -4,6 +4,7 @@
 #include "SpikeBeachGameInstance.h"
 #include "WebSocketsModule.h"
 #include "OpeningGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "MultiplaySystem/WebSocketPackets/Requests/RoomEnterRequest.h"
 #include "MultiplaySystem/WebSocketPackets/Responses/RoomEnterResponse.h"
 #include "MultiplaySystem/WebSocketPackets/Notifies/RoomEnterNotify.h"
@@ -75,6 +76,8 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 		UE_LOG(LogTemp, Display, TEXT("RoomInfoString : %s"), *roomEnterResponse.roomInfoString);
 		UE_LOG(LogTemp, Display, TEXT("ErrorCode : %s"), *FString::FromInt(roomEnterResponse.errorCode));
 
+		Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->EnterRoom(roomEnterResponse.roomInfoString);
+
 		break;
 	}
 	case PacketIdDef::RoomEnterNtf:
@@ -83,6 +86,8 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 		roomEnterNotify.Deserialize(static_cast<const uint8*>(Data));
 
 		UE_LOG(LogTemp, Display, TEXT("enterUserNick : %s"), *roomEnterNotify.enterUserNick);
+		
+		Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->AddUserToRoom(roomEnterNotify.enterUserNick);
 
 		break;
 	}
@@ -93,6 +98,8 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 
 		UE_LOG(LogTemp, Display, TEXT("ErrorCode : %s"), *FString::FromInt(roomLeaveResponse.errorCode));
 
+		Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->ExitRoom();
+
 		break;
 	}
 	case PacketIdDef::RoomLeaveNtf:
@@ -100,21 +107,25 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 		RoomLeaveNotify roomLeaveNotify;
 		roomLeaveNotify.Deserialize(static_cast<const uint8*>(Data));
 
-		UE_LOG(LogTemp, Display, TEXT("enterUserNick : %s"), *roomLeaveNotify.leaveInfoString);
+		UE_LOG(LogTemp, Display, TEXT("leaveUserNick : %s"), *roomLeaveNotify.leaveInfoString);
+
+		Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->RemoveUserFromRoom(roomLeaveNotify.leaveInfoString, roomLeaveNotify.leaveInfoString);
 
 		break;
 	}
 	}
 }
 
-void USpikeBeachGameInstance::Shutdown()
+void USpikeBeachGameInstance::CloseWebSocket()
 {
-	Super::Shutdown();
-
 	if (WebSocket.IsValid() && WebSocket->IsConnected())
 	{
 		WebSocket->Close();
 	}
+}
+
+void USpikeBeachGameInstance::Shutdown()
+{
 	Super::Shutdown();
 }
 
