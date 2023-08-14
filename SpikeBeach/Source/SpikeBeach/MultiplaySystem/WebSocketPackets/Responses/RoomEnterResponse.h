@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ResponseHeader.h"
+#include "../../UserInRoom.h"
 
 /**
  * 
@@ -12,7 +13,14 @@ class SPIKEBEACH_API RoomEnterResponse : public ResponseHeader
 {
 public:
     FString roomInfoString;
+    
+    int roomNum;
+    FString roomName;
+    TArray<FUserInRoom> userInfo;
 
     TArray<uint8> Serialize();
     virtual int Deserialize(const uint8* data);
+
+private:
+    void parseUserInfo();
 };
