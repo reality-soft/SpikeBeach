@@ -45,6 +45,8 @@ void URoomListUIBase::OnRoomListResponseRecevied(FHttpRequestPtr Request, FHttpR
 	FJsonSerializer::Deserialize(Reader, ResponseObj);
 
 	if (FCString::Atoi(*ResponseObj->GetStringField("errorCode")) == static_cast<int>(EErrorCode::None)) {
+		room_info_.Empty();
+
 		const TArray<TSharedPtr<FJsonValue>>* RoomList;
 		ResponseObj->TryGetArrayField("roomList", RoomList);
 		for (const auto& cur_room : *RoomList) {
