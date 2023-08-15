@@ -9,7 +9,7 @@
 /**
  * 
  */
-class SPIKEBEACH_API UnReadyNotify : public NotifyHeader
+class SPIKEBEACH_API UnreadyNotify : public NotifyHeader
 {
 public:
     FString teamString;

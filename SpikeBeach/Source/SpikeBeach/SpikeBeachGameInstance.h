@@ -41,6 +41,9 @@ public:
 		void SendRoomReadyRequest(int team);
 
 	UFUNCTION(BlueprintCallable)
+		void SendRoomUnreadyRequest();
+
+	UFUNCTION(BlueprintCallable)
 		virtual void ConnectWebSocket();
 
 	void ProcessPacket(const void* Data, SIZE_T Size, SIZE_T BytesRemaining);

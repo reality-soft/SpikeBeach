@@ -14,6 +14,9 @@
 #include "MultiplaySystem/WebSocketPackets/Requests/ReadyRequest.h"
 #include "MultiplaySystem/WebSocketPackets/Responses/ReadyResponse.h"
 #include "MultiplaySystem/WebSocketPackets/Notifies/ReadyNotify.h"
+#include "MultiplaySystem/WebSocketPackets/Requests/UnReadyRequest.h"
+#include "MultiplaySystem/WebSocketPackets/Responses/UnReadyResponse.h"
+#include "MultiplaySystem/WebSocketPackets/Notifies/UnReadyNotify.h"
 #include "MultiplaySystem/WebSocketPackets/PacketIdDef.h"
 #include "MultiplaySystem/WebSocketPackets/ErrorCode.h"
 
@@ -141,6 +144,27 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 
 		break;
 	}
+	case PacketIdDef::RoomUnreadyRes:
+	{
+		UnreadyResponse roomUnReadyResponse;
+		roomUnReadyResponse.Deserialize(static_cast<const uint8*>(Data));
+
+		UE_LOG(LogTemp, Display, TEXT("ErrorCode : %s"), *FString::FromInt(roomUnReadyResponse.errorCode));
+
+		break;
+	}
+	case PacketIdDef::RoomUnreadyNtf:
+	{
+		UnreadyNotify roomUnReadyNotify;
+		roomUnReadyNotify.Deserialize(static_cast<const uint8*>(Data));
+
+		UE_LOG(LogTemp, Display, TEXT("leaveUserNick : %s"), *roomUnReadyNotify.teamString);
+
+		roomUnReadyNotify.ProcessUserInfo(openingGameModeBaseRef->userInfo_);
+		openingGameModeBaseRef->RefreshUserInfo();
+
+		break;
+	}
 	}
 }
 
@@ -185,5 +209,13 @@ void USpikeBeachGameInstance::SendRoomReadyRequest(int team)
 	room_ready_request.team = static_cast<Team>(team);
 
 	dataToSend = room_ready_request.Serialize();
+	WebSocket->Send(dataToSend.GetData(), dataToSend.Num(), true);
+}
+
+void USpikeBeachGameInstance::SendRoomUnreadyRequest()
+{
+	UnreadyRequest room_unready_request;
+
+	dataToSend = room_unready_request.Serialize();
 	WebSocket->Send(dataToSend.GetData(), dataToSend.Num(), true);
 }

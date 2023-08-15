@@ -4,7 +4,7 @@
 #include "UnReadyNotify.h"
 #include "../PacketIdDef.h"
 
-TArray<uint8> UnReadyNotify::Serialize()
+TArray<uint8> UnreadyNotify::Serialize()
 {
     TArray<uint8> Bytes;
     Bytes.Append(NotifyHeader::Serialize(static_cast<int>(PacketIdDef::RoomUnreadyNtf)));
@@ -12,7 +12,7 @@ TArray<uint8> UnReadyNotify::Serialize()
     return Bytes;
 }
 
-int UnReadyNotify::Deserialize(const uint8* data)
+int UnreadyNotify::Deserialize(const uint8* data)
 {
     int Offset = NotifyHeader::Deserialize(data);
     teamString = ReadString(data, Offset);
@@ -21,7 +21,7 @@ int UnReadyNotify::Deserialize(const uint8* data)
     return Offset + sizeof(int16);
 }
 
-void UnReadyNotify::ProcessUserInfo(TArray<FUserInRoom>& userInfo)
+void UnreadyNotify::ProcessUserInfo(TArray<FUserInRoom>& userInfo)
 {
     TArray<FString> teamInfoStrings;
     teamString.ParseIntoArray(teamInfoStrings, TEXT("\t"), true);
