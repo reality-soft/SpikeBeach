@@ -3,13 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NotifyHeader.h"
 
 /**
  * 
  */
-class SPIKEBEACH_API ReadyNotify
+class SPIKEBEACH_API ReadyNotify : public NotifyHeader
 {
 public:
-	ReadyNotify();
-	~ReadyNotify();
+    FString teamString;
+
+    TArray<uint8> Serialize();
+    virtual int Deserialize(const uint8* data);
 };

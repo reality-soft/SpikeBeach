@@ -27,6 +27,7 @@ int RoomEnterRequest::Deserialize(const uint8* data)
     Offset += clientVersion.Len() + 1;
 
     FMemory::Memcpy(&roomId, data + Offset, sizeof(int16));
+    Offset += sizeof(int16);
 
     return Offset + sizeof(int16);
 }

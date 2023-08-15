@@ -3,13 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "RequestHeader.h"
+
+enum Team : int16
+{
+	teamA = 0,
+	teamB = 1,
+};
+
 
 /**
  * 
  */
-class SPIKEBEACH_API ReadyRequest
+class SPIKEBEACH_API ReadyRequest : public RequestHeader
 {
 public:
-	ReadyRequest();
-	~ReadyRequest();
+	Team team;
+
+	TArray<uint8> Serialize();
+	virtual int Deserialize(const uint8* data);
 };

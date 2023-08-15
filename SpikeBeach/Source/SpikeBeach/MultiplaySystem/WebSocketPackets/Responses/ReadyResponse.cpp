@@ -2,11 +2,17 @@
 
 
 #include "ReadyResponse.h"
+#include "../PacketIdDef.h"
 
-ReadyResponse::ReadyResponse()
+
+TArray<uint8> ReadyResponse::Serialize()
 {
+    TArray<uint8> Bytes;
+    Bytes.Append(ResponseHeader::Serialize(static_cast<int>(PacketIdDef::RoomReadyRes)));
+    return Bytes;
 }
 
-ReadyResponse::~ReadyResponse()
+int ReadyResponse::Deserialize(const uint8* data)
 {
+    return ResponseHeader::Deserialize(data);
 }
