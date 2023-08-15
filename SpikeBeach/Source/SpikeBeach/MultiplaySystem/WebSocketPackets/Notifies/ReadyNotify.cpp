@@ -20,3 +20,45 @@ int ReadyNotify::Deserialize(const uint8* data)
 
     return Offset + sizeof(int16);
 }
+
+void ReadyNotify::ProcessUserInfo(TArray<FUserInRoom>& userInfo)
+{
+    TArray<FString> teamInfoStrings;
+    teamString.ParseIntoArray(teamInfoStrings, TEXT("\t"), true);
+
+    for (const auto& curInfo : teamInfoStrings) {
+        switch (curInfo[0]) {
+        case 'A':
+        {
+            TArray<FString> users;
+            curInfo.Mid(2).ParseIntoArray(users, TEXT(" "), true);
+
+            for (const auto& curNickname : users) {
+                for (auto& curUserInfo : userInfo) {
+                    if (curNickname == curUserInfo.nickName) {
+                        curUserInfo.readyState = EReadyState::eATeam;
+                        break;
+                    }
+                }
+            }
+
+            break;
+        }
+        case 'B':
+        {
+            TArray<FString> users;
+            curInfo.Mid(1).ParseIntoArray(users, TEXT(" "), true);
+
+            for (const auto& curNickname : users) {
+                for (auto& curUserInfo : userInfo) {
+                    if (curNickname == curUserInfo.nickName) {
+                        curUserInfo.readyState = EReadyState::eBTeam;
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        }
+    }
+}

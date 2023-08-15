@@ -3,13 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NotifyHeader.h"
+#include "../../UserInRoom.h"
 
 /**
  * 
  */
-class SPIKEBEACH_API UnReadyNotify
+class SPIKEBEACH_API UnReadyNotify : public NotifyHeader
 {
 public:
-	UnReadyNotify();
-	~UnReadyNotify();
+    FString teamString;
+
+    TArray<uint8> Serialize();
+    virtual int Deserialize(const uint8* data);
+
+    void ProcessUserInfo(TArray<FUserInRoom>& userInfo);
 };

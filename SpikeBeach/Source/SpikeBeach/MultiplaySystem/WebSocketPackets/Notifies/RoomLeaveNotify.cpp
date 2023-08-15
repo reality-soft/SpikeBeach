@@ -20,3 +20,38 @@ int RoomLeaveNotify::Deserialize(const uint8* data)
 
     return Offset + sizeof(int16);
 }
+
+void RoomLeaveNotify::ProcessUserInfo(TArray<FUserInRoom>& userInfo)
+{
+    TArray<FString> leaveInfoStrings;
+    leaveInfoString.ParseIntoArray(leaveInfoStrings, TEXT("\t"), true);
+
+    for (const auto& curInfo : leaveInfoStrings) {
+        switch (curInfo[0]) {
+        case 'L':
+        {
+            FString leaveNickname = curInfo.Mid(2);
+            int index = 0;
+            for (auto& curUserInfo : userInfo) {
+                if (leaveNickname == curUserInfo.nickName) {
+                    userInfo.RemoveAt(index);
+                    break;
+                }
+                index++;
+            }
+            break;
+        }
+        case 'H':
+        {
+            FString newHostNickname = curInfo.Mid(2);
+            for (auto& curUserInfo : userInfo) {
+                if (newHostNickname == curUserInfo.nickName) {
+                    curUserInfo.isHost = true;
+                    break;
+                }
+            }
+            break;
+        }
+        }
+    }
+}

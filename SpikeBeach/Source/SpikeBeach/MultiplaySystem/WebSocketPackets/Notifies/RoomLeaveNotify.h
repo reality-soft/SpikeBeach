@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "NotifyHeader.h"
+#include "../../UserInRoom.h"
 
 /**
  * 
@@ -15,4 +16,6 @@ public:
 
     TArray<uint8> Serialize();
     virtual int Deserialize(const uint8* data);
+
+    void ProcessUserInfo(TArray<FUserInRoom>& userInfo);
 };

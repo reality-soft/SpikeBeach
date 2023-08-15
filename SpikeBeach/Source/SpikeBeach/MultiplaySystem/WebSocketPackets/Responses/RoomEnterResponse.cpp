@@ -16,12 +16,11 @@ int RoomEnterResponse::Deserialize(const uint8* data)
 {
     int Offset = ResponseHeader::Deserialize(data);
     roomInfoString = ReadString(data, Offset);
-    parseUserInfo();
 
     return Offset + sizeof(int16);
 }
 
-void RoomEnterResponse::parseUserInfo()
+void RoomEnterResponse::ProcessUserInfo(TArray<FUserInRoom>& userInfo)
 {
     TArray<FString> roomInfoStrings;
     roomInfoString.ParseIntoArray(roomInfoStrings, TEXT("\t"), true);

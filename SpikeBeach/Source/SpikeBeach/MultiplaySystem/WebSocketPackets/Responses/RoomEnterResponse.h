@@ -16,11 +16,9 @@ public:
     
     int roomNum;
     FString roomName;
-    TArray<FUserInRoom> userInfo;
 
     TArray<uint8> Serialize();
     virtual int Deserialize(const uint8* data);
 
-private:
-    void parseUserInfo();
+    void ProcessUserInfo(TArray<FUserInRoom>& userInfo);
 };

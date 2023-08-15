@@ -20,3 +20,10 @@ int RoomEnterNotify::Deserialize(const uint8* data)
 
     return Offset + sizeof(int16);
 }
+
+void RoomEnterNotify::ProcessUserInfo(TArray<FUserInRoom>& userInfo)
+{
+    FUserInRoom newUser;
+    newUser.nickName = enterUserNick;
+    userInfo.Add(newUser);
+}
