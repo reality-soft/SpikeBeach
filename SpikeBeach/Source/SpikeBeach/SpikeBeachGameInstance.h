@@ -38,6 +38,9 @@ public:
 		void SendRoomLeaveRequest();
 
 	UFUNCTION(BlueprintCallable)
+		void SendRoomReadyRequest(int16 team);
+
+	UFUNCTION(BlueprintCallable)
 		virtual void ConnectWebSocket();
 
 	void ProcessPacket(const void* Data, SIZE_T Size, SIZE_T BytesRemaining);

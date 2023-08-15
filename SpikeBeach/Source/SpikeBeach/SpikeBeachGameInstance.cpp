@@ -11,6 +11,9 @@
 #include "MultiplaySystem/WebSocketPackets/Requests/RoomLeaveRequest.h"
 #include "MultiplaySystem/WebSocketPackets/Responses/RoomLeaveResponse.h"
 #include "MultiplaySystem/WebSocketPackets/Notifies/RoomLeaveNotify.h"
+#include "MultiplaySystem/WebSocketPackets/Requests/ReadyRequest.h"
+#include "MultiplaySystem/WebSocketPackets/Responses/ReadyResponse.h"
+#include "MultiplaySystem/WebSocketPackets/Notifies/ReadyNotify.h"
 #include "MultiplaySystem/WebSocketPackets/PacketIdDef.h"
 #include "MultiplaySystem/WebSocketPackets/ErrorCode.h"
 
@@ -113,6 +116,26 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 
 		break;
 	}
+	case PacketIdDef::RoomReadyRes:
+	{
+		ReadyResponse roomReadyResponse;
+		roomReadyResponse.Deserialize(static_cast<const uint8*>(Data));
+
+		UE_LOG(LogTemp, Display, TEXT("ErrorCode : %s"), *FString::FromInt(roomReadyResponse.errorCode));
+
+		Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->ExitRoom();
+
+		break;
+	}
+	case PacketIdDef::RoomReadyNtf:
+	{
+		ReadyNotify roomReadyNotify;
+		roomReadyNotify.Deserialize(static_cast<const uint8*>(Data));
+
+		UE_LOG(LogTemp, Display, TEXT("leaveUserNick : %s"), *roomReadyNotify.teamString);
+
+		break;
+	}
 	}
 }
 
@@ -148,5 +171,14 @@ void USpikeBeachGameInstance::SendRoomLeaveRequest()
 	RoomLeaveRequest room_leave_request;
 
 	dataToSend = room_leave_request.Serialize();
+	WebSocket->Send(dataToSend.GetData(), dataToSend.Num(), true);
+}
+
+void USpikeBeachGameInstance::SendRoomReadyRequest(int16 team)
+{
+	ReadyRequest room_ready_request;
+	room_ready_request.team = static_cast<Team>(team);
+
+	dataToSend = room_ready_request.Serialize();
 	WebSocket->Send(dataToSend.GetData(), dataToSend.Num(), true);
 }
