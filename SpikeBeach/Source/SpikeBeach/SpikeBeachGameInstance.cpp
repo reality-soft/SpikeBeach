@@ -174,7 +174,7 @@ void USpikeBeachGameInstance::SendRoomLeaveRequest()
 	WebSocket->Send(dataToSend.GetData(), dataToSend.Num(), true);
 }
 
-void USpikeBeachGameInstance::SendRoomReadyRequest(int16 team)
+void USpikeBeachGameInstance::SendRoomReadyRequest(int team)
 {
 	ReadyRequest room_ready_request;
 	room_ready_request.team = static_cast<Team>(team);

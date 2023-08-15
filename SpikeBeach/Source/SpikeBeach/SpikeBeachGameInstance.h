@@ -38,7 +38,7 @@ public:
 		void SendRoomLeaveRequest();
 
 	UFUNCTION(BlueprintCallable)
-		void SendRoomReadyRequest(int16 team);
+		void SendRoomReadyRequest(int team);
 
 	UFUNCTION(BlueprintCallable)
 		virtual void ConnectWebSocket();
