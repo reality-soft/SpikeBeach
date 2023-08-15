@@ -85,6 +85,8 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 		UE_LOG(LogTemp, Display, TEXT("ErrorCode : %s"), *FString::FromInt(roomEnterResponse.errorCode));
 
 		Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->EnterRoom();
+		roomEnterResponse.ProcessUserInfo(openingGameModeBaseRef->userInfo_);
+		openingGameModeBaseRef->RefreshUserInfo();
 
 		break;
 	}
@@ -106,7 +108,7 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 		roomLeaveResponse.Deserialize(static_cast<const uint8*>(Data));
 
 		UE_LOG(LogTemp, Display, TEXT("ErrorCode : %s"), *FString::FromInt(roomLeaveResponse.errorCode));
-
+		openingGameModeBaseRef->userInfo_.Empty();
 		openingGameModeBaseRef->ExitRoom();
 
 		break;
@@ -159,7 +161,6 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 		roomUnReadyNotify.Deserialize(static_cast<const uint8*>(Data));
 
 		UE_LOG(LogTemp, Display, TEXT("leaveUserNick : %s"), *roomUnReadyNotify.teamString);
-
 		roomUnReadyNotify.ProcessUserInfo(openingGameModeBaseRef->userInfo_);
 		openingGameModeBaseRef->RefreshUserInfo();
 

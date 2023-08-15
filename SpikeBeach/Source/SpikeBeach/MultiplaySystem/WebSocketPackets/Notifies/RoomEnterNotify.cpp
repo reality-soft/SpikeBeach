@@ -24,6 +24,17 @@ int RoomEnterNotify::Deserialize(const uint8* data)
 void RoomEnterNotify::ProcessUserInfo(TArray<FUserInRoom>& userInfo)
 {
     FUserInRoom newUser;
-    newUser.nickName = enterUserNick;
-    userInfo.Add(newUser);
+
+    bool isInList = false;
+    for (auto& curUserInfo : userInfo) {
+        if (enterUserNick == curUserInfo.nickName) {
+            isInList = true;
+            break;
+        }
+    }
+
+    if (isInList == false) {
+        newUser.nickName = enterUserNick;
+        userInfo.Add(newUser);
+    }
 }

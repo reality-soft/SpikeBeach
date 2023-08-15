@@ -26,6 +26,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void OnNotifyOrResponseRecevied(const TArray<FUserInRoom>& userInfo);
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 		void RefreshUserList();
 };

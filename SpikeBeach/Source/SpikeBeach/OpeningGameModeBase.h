@@ -17,7 +17,7 @@ class SPIKEBEACH_API AOpeningGameModeBase : public AGameModeBase
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserInfo")
-		TArray<FUserInRoom>& userInfo_;
+		TArray<FUserInRoom> userInfo_;
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void EnterRoom();
@@ -26,8 +26,5 @@ public:
 		void ExitRoom();
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void AddUserToRoom();
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void RemoveUserFromRoom();
+		void RefreshUserInfo();
 };
