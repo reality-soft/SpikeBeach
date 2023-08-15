@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "MultiplaySystem/UserInRoom.h"
 #include "OpeningGameModeBase.generated.h"
 
 /**
@@ -15,15 +16,18 @@ class SPIKEBEACH_API AOpeningGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UserInfo")
+		TArray<FUserInRoom>& userInfo_;
+
 	UFUNCTION(BlueprintImplementableEvent)
-		void EnterRoom(const FString& roomInfoString);
+		void EnterRoom();
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void ExitRoom();
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void AddUserToRoom(const FString& enterUserNick);
+		void AddUserToRoom();
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void RemoveUserFromRoom(const FString& enterUserNick, const FString& newHostNick);
+		void RemoveUserFromRoom();
 };
