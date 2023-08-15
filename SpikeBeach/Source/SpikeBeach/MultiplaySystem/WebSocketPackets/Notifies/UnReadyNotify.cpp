@@ -26,6 +26,10 @@ void UnreadyNotify::ProcessUserInfo(TArray<FUserInRoom>& userInfo)
     TArray<FString> teamInfoStrings;
     teamString.ParseIntoArray(teamInfoStrings, TEXT("\t"), true);
 
+    for (auto& curUserInfo : userInfo) {
+        curUserInfo.readyState = EReadyState::eNotReady;
+    }
+
     for (const auto& curInfo : teamInfoStrings) {
         switch (curInfo[0]) {
         case 'A':
