@@ -3,13 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "RequestHeader.h"
 
 /**
  * 
  */
-class SPIKEBEACH_API UnreadyRequest
+class SPIKEBEACH_API UnreadyRequest : public RequestHeader
 {
 public:
-	UnreadyRequest();
-	~UnreadyRequest();
+    TArray<uint8> Serialize();
+    virtual int Deserialize(const uint8* data);
 };

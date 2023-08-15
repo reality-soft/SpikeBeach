@@ -10,3 +10,9 @@ void URoomUIBase::ExitRoom()
 	USpikeBeachGameInstance* game_instance = Cast<USpikeBeachGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	game_instance->SendRoomLeaveRequest();
 }
+
+void URoomUIBase::OnNotifyOrResponseRecevied(const TArray<FUserInRoom>& userInfo)
+{
+	this->userInfo_ = userInfo;
+	RefreshUserList();
+}

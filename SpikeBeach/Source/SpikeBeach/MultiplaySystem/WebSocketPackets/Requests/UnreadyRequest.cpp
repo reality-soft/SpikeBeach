@@ -2,11 +2,18 @@
 
 
 #include "UnreadyRequest.h"
+#include "../PacketIdDef.h"
 
-UnreadyRequest::UnreadyRequest()
+TArray<uint8> UnreadyRequest::Serialize()
 {
+    TArray<uint8> Bytes;
+    Bytes.Append(RequestHeader::Serialize(static_cast<int>(PacketIdDef::RoomUnreadyReq)));
+    return Bytes;
 }
 
-UnreadyRequest::~UnreadyRequest()
+int UnreadyRequest::Deserialize(const uint8* data)
 {
+    int Offset = RequestHeader::Deserialize(data);
+
+    return Offset + sizeof(int16);
 }
