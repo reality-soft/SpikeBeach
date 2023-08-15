@@ -70,6 +70,8 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "Packet Id: " + FString::FromInt(int32Ptr[0]));
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, "ErrorCode: " + FString::FromInt(int16Ptr[2]));
 
+	AOpeningGameModeBase* openingGameModeBaseRef = Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+
 	switch (packetIdEnum) {
 	case PacketIdDef::RoomEnterRes:
 	{
@@ -79,7 +81,7 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 		UE_LOG(LogTemp, Display, TEXT("RoomInfoString : %s"), *roomEnterResponse.roomInfoString);
 		UE_LOG(LogTemp, Display, TEXT("ErrorCode : %s"), *FString::FromInt(roomEnterResponse.errorCode));
 
-		Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->EnterRoom(roomEnterResponse.roomInfoString);
+		Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->EnterRoom();
 
 		break;
 	}
@@ -90,7 +92,8 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 
 		UE_LOG(LogTemp, Display, TEXT("enterUserNick : %s"), *roomEnterNotify.enterUserNick);
 		
-		Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->AddUserToRoom(roomEnterNotify.enterUserNick);
+		roomEnterNotify.ProcessUserInfo(openingGameModeBaseRef->userInfo_);
+		openingGameModeBaseRef->RefreshUserInfo();
 
 		break;
 	}
@@ -101,7 +104,7 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 
 		UE_LOG(LogTemp, Display, TEXT("ErrorCode : %s"), *FString::FromInt(roomLeaveResponse.errorCode));
 
-		Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->ExitRoom();
+		openingGameModeBaseRef->ExitRoom();
 
 		break;
 	}
@@ -112,7 +115,8 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 
 		UE_LOG(LogTemp, Display, TEXT("leaveUserNick : %s"), *roomLeaveNotify.leaveInfoString);
 
-		Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->RemoveUserFromRoom(roomLeaveNotify.leaveInfoString, roomLeaveNotify.leaveInfoString);
+		roomLeaveNotify.ProcessUserInfo(openingGameModeBaseRef->userInfo_);
+		openingGameModeBaseRef->RefreshUserInfo();
 
 		break;
 	}
@@ -123,8 +127,6 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 
 		UE_LOG(LogTemp, Display, TEXT("ErrorCode : %s"), *FString::FromInt(roomReadyResponse.errorCode));
 
-		Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->ExitRoom();
-
 		break;
 	}
 	case PacketIdDef::RoomReadyNtf:
@@ -133,6 +135,9 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 		roomReadyNotify.Deserialize(static_cast<const uint8*>(Data));
 
 		UE_LOG(LogTemp, Display, TEXT("leaveUserNick : %s"), *roomReadyNotify.teamString);
+
+		roomReadyNotify.ProcessUserInfo(openingGameModeBaseRef->userInfo_);
+		openingGameModeBaseRef->RefreshUserInfo();
 
 		break;
 	}
