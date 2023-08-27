@@ -2,11 +2,14 @@
 
 
 #include "GameStartRequest.h"
+#include "../PacketIdDef.h"
 
-GameStartRequest::GameStartRequest()
+TArray<uint8> GameStartRequest::Serialize()
 {
+    return RequestHeader::Serialize(static_cast<int>(PacketIdDef::GameStartReq));
 }
 
-GameStartRequest::~GameStartRequest()
+int GameStartRequest::Deserialize(const uint8* data)
 {
+    return RequestHeader::Deserialize(data);
 }

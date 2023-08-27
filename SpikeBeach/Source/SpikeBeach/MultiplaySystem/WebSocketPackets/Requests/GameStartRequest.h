@@ -3,13 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "RequestHeader.h"
 
 /**
  * 
  */
-class SPIKEBEACH_API GameStartRequest
+class SPIKEBEACH_API GameStartRequest : public RequestHeader
 {
 public:
-	GameStartRequest();
-	~GameStartRequest();
+    TArray<uint8> Serialize();
+    virtual int Deserialize(const uint8* data);
 };

@@ -3,13 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NotifyHeader.h"
 
 /**
  * 
  */
-class SPIKEBEACH_API GameStartNotify
+class SPIKEBEACH_API GameStartNotify : public NotifyHeader
 {
 public:
-	GameStartNotify();
-	~GameStartNotify();
+    FString gameInfoString;
+    FString ipAddress;
+    int portNumber;
+
+    TArray<uint8> Serialize();
+    virtual int Deserialize(const uint8* data);
 };
