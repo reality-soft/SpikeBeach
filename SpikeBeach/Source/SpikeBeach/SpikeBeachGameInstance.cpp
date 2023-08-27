@@ -17,6 +17,9 @@
 #include "MultiplaySystem/WebSocketPackets/Requests/UnReadyRequest.h"
 #include "MultiplaySystem/WebSocketPackets/Responses/UnReadyResponse.h"
 #include "MultiplaySystem/WebSocketPackets/Notifies/UnReadyNotify.h"
+#include "MultiplaySystem/WebSocketPackets/Requests/GameStartRequest.h"
+#include "MultiplaySystem/WebSocketPackets/Responses/GameStartResponse.h"
+#include "MultiplaySystem/WebSocketPackets/Notifies/GameStartNotify.h"
 #include "MultiplaySystem/WebSocketPackets/PacketIdDef.h"
 #include "MultiplaySystem/WebSocketPackets/ErrorCode.h"
 
@@ -166,6 +169,25 @@ void USpikeBeachGameInstance::ProcessPacket(const void* Data, SIZE_T Size, SIZE_
 
 		break;
 	}
+	case PacketIdDef::GameStartRes:
+	{
+		GameStartResponse gameStartResponse;
+		gameStartResponse.Deserialize(static_cast<const uint8*>(Data));
+
+		UE_LOG(LogTemp, Display, TEXT("ErrorCode : %s"), *FString::FromInt(gameStartResponse.errorCode));
+
+		break;
+	}
+	case PacketIdDef::GameStartNtf:
+	{
+		GameStartNotify gameStartNotify;
+		gameStartNotify.Deserialize(static_cast<const uint8*>(Data));
+
+
+		openingGameModeBaseRef->RefreshUserInfo();
+
+		break;
+	}
 	}
 }
 
@@ -218,5 +240,13 @@ void USpikeBeachGameInstance::SendRoomUnreadyRequest()
 	UnreadyRequest room_unready_request;
 
 	dataToSend = room_unready_request.Serialize();
+	WebSocket->Send(dataToSend.GetData(), dataToSend.Num(), true);
+}
+
+void USpikeBeachGameInstance::SendGameStartRequest()
+{
+	GameStartRequest game_start_request;
+
+	dataToSend = game_start_request.Serialize();
 	WebSocket->Send(dataToSend.GetData(), dataToSend.Num(), true);
 }
