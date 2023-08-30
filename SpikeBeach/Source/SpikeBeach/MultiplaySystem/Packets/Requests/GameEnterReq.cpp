@@ -32,9 +32,9 @@ TArray<char> GameEnterReq::Serialize()
 	TArray<char> serialized = Packet::Serialize();
 	serialized.Reserve(packetLength);
 
-	serialized.Append((const char*)TCHAR_TO_UTF8(*userAssignedId), userAssignedId.Len() + 1);
-	serialized.Append((const char*)TCHAR_TO_UTF8(*token), token.Len() + 1);
-	serialized.Append((const char*)TCHAR_TO_UTF8(*clientVersion), clientVersion.Len() + 1);
+	serialized.Append((const char*)(*userAssignedId), userAssignedId.Len() + 1);
+	serialized.Append((const char*)(*token), token.Len() + 1);
+	serialized.Append((const char*)(*clientVersion), clientVersion.Len() + 1);
 	serialized.Append((const char*)&gameId, sizeof(gameId));
 
 	return serialized;
