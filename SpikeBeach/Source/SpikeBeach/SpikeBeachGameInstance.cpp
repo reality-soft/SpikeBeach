@@ -199,6 +199,14 @@ void USpikeBeachGameInstance::CloseWebSocket()
 	}
 }
 
+void USpikeBeachGameInstance::InitSocket()
+{
+	ipAddress = "211.177.188.31";
+	portNum = 11021;
+
+	clientSocket = new ClientSocket("211.177.188.31", portNum, login_id, login_token_, client_version, room_number);
+}
+
 void USpikeBeachGameInstance::Shutdown()
 {
 	Super::Shutdown();
