@@ -17,7 +17,7 @@ size_t SyncReq::Deserialize(char* buf, size_t len)
 {
 	size_t offset = Packet::Deserialize(buf, len);
 
-	std::copy(buf + offset, buf + sizeof(syncReqTime), &syncReqTime);
+	std::copy(buf + offset, buf + offset + sizeof(syncReqTime), &syncReqTime);
 	offset += sizeof(syncReqTime);
 	return offset;
 }
