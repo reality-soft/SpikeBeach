@@ -13,7 +13,7 @@ class SPIKEBEACH_API GameStartNotify : public NotifyHeader
 public:
     FString gameInfoString;
     FString ipAddress;
-    int portNumber;
+    uint16 portNumber;
 
     TArray<uint8> Serialize();
     virtual int Deserialize(const uint8* data);
