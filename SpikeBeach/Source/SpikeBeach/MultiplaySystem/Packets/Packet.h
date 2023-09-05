@@ -23,6 +23,8 @@ public:
 
 	virtual void Process() {};
 
+	virtual ~Packet();
+
 public:
 	static INT32 ParsePacketLength(char* base, size_t bufSize)
 	{
