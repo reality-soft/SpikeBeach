@@ -3,15 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameMode.h"
 #include "SpikeBeachGameModeBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SPIKEBEACH_API ASpikeBeachGameModeBase : public AGameModeBase
+class SPIKEBEACH_API ASpikeBeachGameModeBase : public AGameMode
 {
 	GENERATED_BODY()
-	
+
+	virtual void BeginPlay() override;
 };
