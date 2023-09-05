@@ -10,7 +10,7 @@
 /**
  * 
  */
-class SPIKEBEACH_API Packet
+class SPIKEBEACH_API Packet : public AActor
 {
 public:
 	INT32 packetLength;
@@ -22,8 +22,6 @@ public:
 	FString ReadString(const char* data, size_t& offset);
 
 	virtual void Process() {};
-
-	virtual ~Packet();
 
 public:
 	static INT32 ParsePacketLength(char* base, size_t bufSize)
