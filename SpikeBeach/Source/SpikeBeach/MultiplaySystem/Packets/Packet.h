@@ -21,6 +21,8 @@ public:
 	virtual size_t Deserialize(char* buf, size_t length);
 	FString ReadString(const char* data, size_t& offset);
 
+	virtual void Process() {};
+
 public:
 	static INT32 ParsePacketLength(char* base, size_t bufSize)
 	{
