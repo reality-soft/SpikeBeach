@@ -21,11 +21,30 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-/**
- * 
- */
-class SPIKEBEACH_API ClientSocket
+#include "GameFramework/Actor.h"
+
+#include "Windows/PostWindowsApi.h"
+#include "Windows/HideWindowsPlatformTypes.h"
+
+#include "ClientSocket.generated.h"
+
+UCLASS()
+class SPIKEBEACH_API AClientSocket : public AActor
 {
+	GENERATED_BODY()
+	
+public:	
+	// Sets default values for this actor's properties
+	AClientSocket();
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
 private:
     SOCKET socketDescriptor;
     std::thread sendThread;
@@ -39,13 +58,14 @@ private:
     std::queue<std::shared_ptr<Packet>> incomingQueue;
 
 public:
-    FString userAssignedId;
-    FString token;
-    FString clientVersion;
-    INT32 gameId; //roomId
+    FString userAssignedId_;
+    FString token_;
+    FString clientVersion_;
+    INT32 gameId_; //roomId
 
 public:
-    ClientSocket(const char* serverIP,
+    void Initialize(
+        const char* serverIP,
         int serverPort,
         FString userAssignedId,
         FString token,
@@ -69,7 +89,7 @@ public:
         cv.notify_one();
     }
 
-    ~ClientSocket() {
+    ~AClientSocket() {
         CloseConnection();
     }
 
@@ -81,7 +101,5 @@ private:
 
 public:
     void ProcessPackets();
-};
 
-#include "Windows/PostWindowsApi.h"
-#include "Windows/HideWindowsPlatformTypes.h"
+};

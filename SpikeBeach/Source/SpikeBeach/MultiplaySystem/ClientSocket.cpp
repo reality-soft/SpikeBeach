@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
 #include "ClientSocket.h"
 #include "Packets/PacketId.h"
 #include "Packets/Requests/GameEnterReq.h"
@@ -7,14 +8,42 @@
 #include "Packets/Responses/GameEnterRes.h"
 #include "Packets/Responses/SyncRes.h"
 
-ClientSocket::ClientSocket(const char* serverIP, 
-    int serverPort, 
+// Sets default values
+AClientSocket::AClientSocket()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
+}
+
+// Called when the game starts or when spawned
+void AClientSocket::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
+// Called every frame
+void AClientSocket::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+    ProcessPackets();
+}
+
+void AClientSocket::Initialize(
+    const char* serverIP,
+    int serverPort,
     FString userAssignedId,
     FString token,
     FString clientVersion,
-    INT32 gameId) : userAssignedId(userAssignedId), token(token), clientVersion(clientVersion), gameId(gameId)
+    INT32 gameId)
 {
     {
+        this->userAssignedId_ = userAssignedId;
+        this->token_ = token;
+        this->clientVersion_ = clientVersion;
+        this->gameId_ = gameId;
+
         WSADATA wsaData;
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
             UE_LOG(LogTemp, Display, TEXT("Failed to initialize winsock2."));
@@ -48,24 +77,24 @@ ClientSocket::ClientSocket(const char* serverIP,
         isConnected = true;
         UE_LOG(LogTemp, Display, TEXT("Connected to the server."));
 
-        sendThread = std::thread(&ClientSocket::SendLoop, this);
-        receiveThread = std::thread(&ClientSocket::ReceiveLoop, this);
+        sendThread = std::thread(&AClientSocket::SendLoop, this);
+        receiveThread = std::thread(&AClientSocket::ReceiveLoop, this);
     }
 }
 
-void ClientSocket::SendLoop()
+void AClientSocket::SendLoop()
 {
     while (isConnected) {
         GameEnterReq packet;
-        packet.userAssignedId = userAssignedId;
-        packet.token = token;
-        packet.clientVersion = clientVersion;
-        packet.gameId = gameId;
+        packet.userAssignedId = userAssignedId_;
+        packet.token = token_;
+        packet.clientVersion = clientVersion_;
+        packet.gameId = gameId_;
 
         TArray<char> serializedPacket = packet.Serialize();
         send(socketDescriptor, serializedPacket.GetData(), static_cast<int>(serializedPacket.Num()), 0);
         std::unique_lock<std::mutex> lock(dataMutex);
-        cv.wait(lock);
+        cv.wait(lock, [&]{ return gameEntered; });
         if (gameEntered) {
             break;
         }
@@ -73,12 +102,12 @@ void ClientSocket::SendLoop()
     }
 
     if (isConnected && gameEntered) {
-        syncThread = std::thread(&ClientSocket::SyncLoop, this);
+        syncThread = std::thread(&AClientSocket::SyncLoop, this);
     }
 
     while (isConnected && gameEntered) {
         std::unique_lock<std::mutex> lock(dataMutex);
-        cv.wait(lock, [&] { return !outgoingQueue.empty(); });
+        cv.wait(lock, [&] { return !outgoingQueue.empty() || isConnected == false; });
 
         if (!outgoingQueue.empty()) {
             std::shared_ptr<Packet> packet = outgoingQueue.front();
@@ -91,7 +120,7 @@ void ClientSocket::SendLoop()
     }
 }
 
-void ClientSocket::ReceiveLoop()
+void AClientSocket::ReceiveLoop()
 {
     while (isConnected) {
         char buffer[1024] = { 0 };
@@ -125,23 +154,24 @@ void ClientSocket::ReceiveLoop()
     }
 }
 
-void ClientSocket::SyncLoop()
+void AClientSocket::SyncLoop()
 {
     SyncReq syncReq;
     while (isConnected) {
         syncReq.syncReqTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         TArray<char> serializedPacket = syncReq.Serialize();
         int bSendSuccess = send(socketDescriptor, serializedPacket.GetData(), static_cast<int>(serializedPacket.Num()), 0);
-        Sleep(100); // 동기화 주기
+        Sleep(1000); // 동기화 주기
     }
-    
+
 }
 
-void ClientSocket::CloseConnection()
+void AClientSocket::CloseConnection()
 {
     if (isConnected) {
         closesocket(socketDescriptor);
         isConnected = false;
+        cv.notify_all();
         sendThread.join();
         receiveThread.join();
         syncThread.join();
@@ -149,11 +179,15 @@ void ClientSocket::CloseConnection()
     }
 }
 
-void ClientSocket::ProcessPackets()
+void AClientSocket::ProcessPackets()
 {
     while (!incomingQueue.empty()) {
+        INT64 curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        FString MyFString;
+        MyFString = MyFString.Printf(TEXT("%lld"), curTime);
+        UE_LOG(LogTemp, Display, TEXT("curTime: %s"), *MyFString);
         std::shared_ptr<Packet> packet = incomingQueue.front();
-        packet->Process();
+        packet->Process(GetWorld());
         incomingQueue.pop();
     }
 }
