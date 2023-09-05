@@ -29,9 +29,7 @@ public:
 	FString ipAddress;
 	uint16 portNum = 11021;
 
-	ClientSocket* clientSocket;
-
-	virtual void Shutdown() override;
+	AClientSocket* clientSocket;
 
 	TSharedPtr<IWebSocket> WebSocket;
 	TArray<uint8_t> dataToSend;
@@ -61,4 +59,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void CloseWebSocket();
+
+
 };

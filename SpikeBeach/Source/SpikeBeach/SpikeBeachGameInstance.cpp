@@ -201,15 +201,15 @@ void USpikeBeachGameInstance::CloseWebSocket()
 
 void USpikeBeachGameInstance::InitSocket()
 {
-	ipAddress = "211.177.188.31";
+	ipAddress = "119.194.211.79";
 	portNum = 11021;
 
-	clientSocket = new ClientSocket("211.177.188.31", portNum, login_id, login_token_, client_version, room_number);
-}
+	FActorSpawnParameters SpawnParams;
+	FRotator rotator;
+	FVector spawnLocation = FVector::ZeroVector;
 
-void USpikeBeachGameInstance::Shutdown()
-{
-	Super::Shutdown();
+	clientSocket = GetWorld()->SpawnActor<AClientSocket>(AClientSocket::StaticClass(), spawnLocation, rotator, SpawnParams);
+	clientSocket->Initialize("119.194.211.79", portNum, login_id, login_token_, client_version, room_number);
 }
 
 void USpikeBeachGameInstance::SendRoomEnterRequest(const FString& roomName, int roomId)
