@@ -31,7 +31,7 @@ size_t GameEnterRes::Deserialize(char* buf, size_t length)
 	return offset;
 }
 
-void GameEnterRes::Process()
+void GameEnterRes::Process(UWorld* world)
 {	
-	Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->GameStartEvent();
+	//Cast<AOpeningGameModeBase>(UGameplayStatics::GetGameMode(world))->GameStartEvent();
 }

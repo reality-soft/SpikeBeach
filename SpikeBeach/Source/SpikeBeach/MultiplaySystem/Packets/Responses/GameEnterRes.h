@@ -18,5 +18,5 @@ public:
 	TArray<char> Serialize();
 	size_t Deserialize(char* buf, size_t length);
 
-	virtual void Process() override;
+	virtual void Process(UWorld* world) override;
 };

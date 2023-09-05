@@ -48,3 +48,34 @@ size_t SyncRes::Deserialize(char* buf, size_t len)
 
 	return offset;
 }
+
+void SyncRes::Process(UWorld* world)
+{
+	FString MyFString;
+	MyFString = MyFString.Printf(TEXT("%lld"), syncTime);
+	UE_LOG(LogTemp, Display, TEXT("syncTime: %s"), *MyFString);
+
+	UE_LOG(LogTemp, Display, TEXT("user0"));
+	UE_LOG(LogTemp, Display, TEXT("latency: %s"), *FString::Printf(TEXT("%lld"), latency[0]));
+	UE_LOG(LogTemp, Display, TEXT("position: %s"), *users[0].Position.ToString());
+	UE_LOG(LogTemp, Display, TEXT("velocity: %s"), *users[0].Velocity.ToString());
+	UE_LOG(LogTemp, Display, TEXT("acceleration: %s"), *users[0].Acceleration.ToString());
+
+	UE_LOG(LogTemp, Display, TEXT("user1"));
+	UE_LOG(LogTemp, Display, TEXT("latency: %s"), *FString::Printf(TEXT("%lld"), latency[1]));
+	UE_LOG(LogTemp, Display, TEXT("position: %s"), *users[1].Position.ToString());
+	UE_LOG(LogTemp, Display, TEXT("velocity: %s"), *users[1].Velocity.ToString());
+	UE_LOG(LogTemp, Display, TEXT("acceleration: %s"), *users[1].Acceleration.ToString());
+
+	UE_LOG(LogTemp, Display, TEXT("user2"));
+	UE_LOG(LogTemp, Display, TEXT("latency: %s"), *FString::Printf(TEXT("%lld"), latency[2]));
+	UE_LOG(LogTemp, Display, TEXT("position: %s"), *users[2].Position.ToString());
+	UE_LOG(LogTemp, Display, TEXT("velocity: %s"), *users[2].Velocity.ToString());
+	UE_LOG(LogTemp, Display, TEXT("acceleration: %s"), *users[2].Acceleration.ToString());
+
+	UE_LOG(LogTemp, Display, TEXT("user3"));
+	UE_LOG(LogTemp, Display, TEXT("latency: %s"), *FString::Printf(TEXT("%lld"), latency[3]));
+	UE_LOG(LogTemp, Display, TEXT("position: %s"), *users[3].Position.ToString());
+	UE_LOG(LogTemp, Display, TEXT("velocity: %s"), *users[3].Velocity.ToString());
+	UE_LOG(LogTemp, Display, TEXT("acceleration: %s"), *users[3].Acceleration.ToString());
+}

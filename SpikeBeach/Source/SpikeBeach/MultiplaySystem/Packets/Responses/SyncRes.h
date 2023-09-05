@@ -70,4 +70,6 @@ public:
 
 	virtual TArray<char> Serialize() override;
 	virtual size_t Deserialize(char* buf, size_t len) override;
+
+	virtual void Process(UWorld* world) override;
 };
