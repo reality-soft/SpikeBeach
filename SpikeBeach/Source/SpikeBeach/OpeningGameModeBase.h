@@ -27,4 +27,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void RefreshUserInfo();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void GameStartEvent();
 };
