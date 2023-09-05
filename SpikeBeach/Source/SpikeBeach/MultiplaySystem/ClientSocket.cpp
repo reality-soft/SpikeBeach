@@ -48,12 +48,12 @@ ClientSocket::ClientSocket(const char* serverIP,
         isConnected = true;
         UE_LOG(LogTemp, Display, TEXT("Connected to the server."));
 
-        communicationThread = std::thread(&ClientSocket::communicationLoop, this);
-        receiveThread = std::thread(&ClientSocket::receiveLoop, this);
+        sendThread = std::thread(&ClientSocket::SendLoop, this);
+        receiveThread = std::thread(&ClientSocket::ReceiveLoop, this);
     }
 }
 
-void ClientSocket::communicationLoop()
+void ClientSocket::SendLoop()
 {
     while (isConnected) {
         GameEnterReq packet;
@@ -73,7 +73,7 @@ void ClientSocket::communicationLoop()
     }
 
     if (isConnected && gameEntered) {
-        syncThread = std::thread(&ClientSocket::syncLoop, this);
+        syncThread = std::thread(&ClientSocket::SyncLoop, this);
     }
 
     while (isConnected && gameEntered) {
@@ -91,7 +91,7 @@ void ClientSocket::communicationLoop()
     }
 }
 
-void ClientSocket::receiveLoop()
+void ClientSocket::ReceiveLoop()
 {
     while (isConnected) {
         char buffer[1024] = { 0 };
@@ -105,8 +105,9 @@ void ClientSocket::receiveLoop()
             {
                 std::shared_ptr<GameEnterRes> packet = std::make_shared<GameEnterRes>();
                 packet->Deserialize(buffer, packetLength);
-                UE_LOG(LogTemp, Display, TEXT("ErrorCodeL: %s"), *FString::FromInt(packet->errorCode));
+
                 std::lock_guard<std::mutex> lock(dataMutex);
+                incomingQueue.push(packet);
                 gameEntered = true;
                 cv.notify_one();
                 break;
@@ -115,34 +116,8 @@ void ClientSocket::receiveLoop()
             {
                 std::shared_ptr<SyncRes> packet = std::make_shared<SyncRes>();
                 packet->Deserialize(buffer, packetLength);
-                UE_LOG(LogTemp, Display, TEXT("syncTime: %s"), *FString::FromInt(packet->syncTime));
-
-                UE_LOG(LogTemp, Display, TEXT("user0"));
-                UE_LOG(LogTemp, Display, TEXT("latency: %s"), *FString::Printf(TEXT("%lld"), packet->latency[0]));
-                UE_LOG(LogTemp, Display, TEXT("position: %s"), *packet->users[0].Position.ToString());
-                UE_LOG(LogTemp, Display, TEXT("velocity: %s"), *packet->users[0].Velocity.ToString());
-                UE_LOG(LogTemp, Display, TEXT("acceleration: %s"), *packet->users[0].Acceleration.ToString());
-
-                UE_LOG(LogTemp, Display, TEXT("user1"));
-                UE_LOG(LogTemp, Display, TEXT("latency: %s"), *FString::Printf(TEXT("%lld"), packet->latency[1]));
-                UE_LOG(LogTemp, Display, TEXT("position: %s"), *packet->users[1].Position.ToString());
-                UE_LOG(LogTemp, Display, TEXT("velocity: %s"), *packet->users[1].Velocity.ToString());
-                UE_LOG(LogTemp, Display, TEXT("acceleration: %s"), *packet->users[1].Acceleration.ToString());
-
-                UE_LOG(LogTemp, Display, TEXT("user2"));
-                UE_LOG(LogTemp, Display, TEXT("latency: %s"), *FString::Printf(TEXT("%lld"), packet->latency[2]));
-                UE_LOG(LogTemp, Display, TEXT("position: %s"), *packet->users[2].Position.ToString());
-                UE_LOG(LogTemp, Display, TEXT("velocity: %s"), *packet->users[2].Velocity.ToString());
-                UE_LOG(LogTemp, Display, TEXT("acceleration: %s"), *packet->users[2].Acceleration.ToString());
-
-                UE_LOG(LogTemp, Display, TEXT("user3"));
-                UE_LOG(LogTemp, Display, TEXT("latency: %s"), *FString::Printf(TEXT("%lld"), packet->latency[3]));
-                UE_LOG(LogTemp, Display, TEXT("position: %s"), *packet->users[3].Position.ToString());
-                UE_LOG(LogTemp, Display, TEXT("velocity: %s"), *packet->users[3].Velocity.ToString());
-                UE_LOG(LogTemp, Display, TEXT("acceleration: %s"), *packet->users[3].Acceleration.ToString());
                 std::lock_guard<std::mutex> lock(dataMutex);
-                gameEntered = true;
-                cv.notify_one();
+                incomingQueue.push(packet);
                 break;
             }
             }
@@ -150,34 +125,36 @@ void ClientSocket::receiveLoop()
     }
 }
 
-void ClientSocket::syncLoop()
+void ClientSocket::SyncLoop()
 {
     SyncReq syncReq;
     while (isConnected) {
         syncReq.syncReqTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         TArray<char> serializedPacket = syncReq.Serialize();
         int bSendSuccess = send(socketDescriptor, serializedPacket.GetData(), static_cast<int>(serializedPacket.Num()), 0);
-
-        //if (bSendSuccess == SOCKET_ERROR)
-        //{
-        //    UE_LOG(LogTemp, Error, TEXT("Send Error: %d"), WSAGetLastError());
-        //}
-        //else {
-        //    UE_LOG(LogTemp, Error, TEXT("Send Success"));
-        //}
-
         Sleep(100); // 동기화 주기
     }
     
 }
 
-void ClientSocket::closeConnection()
+void ClientSocket::CloseConnection()
 {
     if (isConnected) {
         closesocket(socketDescriptor);
         isConnected = false;
-        communicationThread.join();
+        sendThread.join();
+        receiveThread.join();
+        syncThread.join();
         WSACleanup();
+    }
+}
+
+void ClientSocket::ProcessPackets()
+{
+    while (!incomingQueue.empty()) {
+        std::shared_ptr<Packet> packet = incomingQueue.front();
+        packet->Process();
+        incomingQueue.pop();
     }
 }
 

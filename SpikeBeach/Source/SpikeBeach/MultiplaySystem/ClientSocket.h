@@ -28,7 +28,7 @@ class SPIKEBEACH_API ClientSocket
 {
 private:
     SOCKET socketDescriptor;
-    std::thread communicationThread;
+    std::thread sendThread;
     std::thread receiveThread;
     std::thread syncThread;
     std::mutex dataMutex;
@@ -45,14 +45,14 @@ public:
     INT32 gameId; //roomId
 
 public:
-    ClientSocket(const char* serverIP, 
-                int serverPort, 
-                FString userAssignedId,
-                FString token,
-                FString clientVersion,
-                INT32 gameId);
+    ClientSocket(const char* serverIP,
+        int serverPort,
+        FString userAssignedId,
+        FString token,
+        FString clientVersion,
+        INT32 gameId);
     template <typename PacketType, typename... Args>
-    void sendMessage(Args&&...args)
+    void sendPacket(Args&&...args)
     {
         if (!isConnected) {
             UE_LOG(LogTemp, Display, TEXT("Not connected to the server."));
@@ -70,14 +70,17 @@ public:
     }
 
     ~ClientSocket() {
-        closeConnection();
+        CloseConnection();
     }
 
 private:
-    void communicationLoop();
-    void receiveLoop();
-    void syncLoop();
-    void closeConnection();
+    void SendLoop();
+    void ReceiveLoop();
+    void SyncLoop();
+    void CloseConnection();
+
+public:
+    void ProcessPackets();
 };
 
 #include "Windows/PostWindowsApi.h"
