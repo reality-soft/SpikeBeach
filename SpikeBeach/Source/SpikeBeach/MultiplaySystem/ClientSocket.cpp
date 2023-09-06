@@ -163,6 +163,7 @@ void AClientSocket::SyncLoop()
     SyncReq syncReq;
     while (isConnected) {
         syncReq.syncReqTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        syncReq.RTT = RTT;
         TArray<char> serializedPacket = syncReq.Serialize();
         int bSendSuccess = send(socketDescriptor, serializedPacket.GetData(), static_cast<int>(serializedPacket.Num()), 0);
         Sleep(100); // 동기화 주기
@@ -186,10 +187,6 @@ void AClientSocket::CloseConnection()
 void AClientSocket::ProcessPackets()
 {
     while (!incomingQueue.empty()) {
-        INT64 curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        FString MyFString;
-        MyFString = MyFString.Printf(TEXT("%lld"), curTime);
-        UE_LOG(LogTemp, Display, TEXT("curTime: %s"), *MyFString);
         std::shared_ptr<Packet> packet = incomingQueue.front();
         packet->Process(GetWorld());
         incomingQueue.pop();
