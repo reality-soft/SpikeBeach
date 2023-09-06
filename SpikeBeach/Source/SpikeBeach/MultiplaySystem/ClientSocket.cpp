@@ -145,6 +145,10 @@ void AClientSocket::ReceiveLoop()
             {
                 std::shared_ptr<SyncRes> packet = std::make_shared<SyncRes>();
                 packet->Deserialize(buffer, packetLength);
+                
+                INT64 curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                RTT = curTime - packet->syncReqTime;
+
                 std::lock_guard<std::mutex> lock(dataMutex);
                 incomingQueue.push(packet);
                 break;
@@ -161,7 +165,7 @@ void AClientSocket::SyncLoop()
         syncReq.syncReqTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         TArray<char> serializedPacket = syncReq.Serialize();
         int bSendSuccess = send(socketDescriptor, serializedPacket.GetData(), static_cast<int>(serializedPacket.Num()), 0);
-        Sleep(1000); // 동기화 주기
+        Sleep(100); // 동기화 주기
     }
 
 }

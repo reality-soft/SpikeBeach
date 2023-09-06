@@ -2,6 +2,7 @@
 
 
 #include "SyncReq.h"
+#include <chrono>
 
 TArray<char> SyncReq::Serialize()
 {
@@ -9,6 +10,7 @@ TArray<char> SyncReq::Serialize()
 	TArray<char> serializeVec = Packet::Serialize();
 	serializeVec.Reserve(packetLength);
 
+	syncReqTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	serializeVec.Append(reinterpret_cast<char*>(&syncReqTime), sizeof(syncReqTime));
 	serializeVec.Append(reinterpret_cast<char*>(&RTT), sizeof(RTT));
 	return serializeVec;

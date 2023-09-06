@@ -47,15 +47,24 @@ public:
 
 private:
     SOCKET socketDescriptor;
+
     std::thread sendThread;
     std::thread receiveThread;
     std::thread syncThread;
+
     std::mutex dataMutex;
     std::condition_variable cv;
+
+private:
     bool isConnected = false;
     bool gameEntered = false;
+
+private:
     std::queue<std::shared_ptr<Packet>> outgoingQueue;
     std::queue<std::shared_ptr<Packet>> incomingQueue;
+
+private:
+    INT64 RTT = 0;
 
 public:
     FString userAssignedId_;
