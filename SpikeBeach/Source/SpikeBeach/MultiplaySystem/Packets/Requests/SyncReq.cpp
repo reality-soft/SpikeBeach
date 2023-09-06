@@ -6,7 +6,7 @@
 
 TArray<char> SyncReq::Serialize()
 {
-	packetLength = PACKET_SIZE + sizeof(syncReqTime);
+	packetLength = PACKET_SIZE + sizeof(syncReqTime) + sizeof(RTT);
 	TArray<char> serializeVec = Packet::Serialize();
 	serializeVec.Reserve(packetLength);
 
