@@ -60,5 +60,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void CloseWebSocket();
 
-
+	INT64 getCurDelayTime() {
+		return clientSocket->getCurDelayTime();
+	}
 };

@@ -65,6 +65,7 @@ private:
 
 private:
     INT64 RTT = 0;
+    INT64 otherClientsAvgRTT = 0;
 
 public:
     FString userAssignedId_;
@@ -111,4 +112,8 @@ private:
 public:
     void ProcessPackets();
 
+public:
+    INT64 getCurDelayTime() {
+        return RTT / 2 + otherClientsAvgRTT / 2;
+    }
 };

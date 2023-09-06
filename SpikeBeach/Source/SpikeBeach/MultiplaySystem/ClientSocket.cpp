@@ -148,6 +148,12 @@ void AClientSocket::ReceiveLoop()
                 
                 INT64 curTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                 RTT = curTime - packet->syncReqTime;
+                otherClientsAvgRTT = 0;
+                
+                for (const int & curRTT : packet->RTT) {
+                    otherClientsAvgRTT += curRTT;
+                }
+                otherClientsAvgRTT /= 4;
 
                 std::lock_guard<std::mutex> lock(dataMutex);
                 incomingQueue.push(packet);
