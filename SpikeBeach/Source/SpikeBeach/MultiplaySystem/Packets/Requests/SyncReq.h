@@ -13,6 +13,7 @@ class SPIKEBEACH_API SyncReq : public Packet
 public:
 	SyncReq() : Packet(PacketId::SYNC_REQ) {}
 	INT64 syncReqTime;
+	INT64 RTT;
 
 	virtual TArray<char> Serialize() override;
 

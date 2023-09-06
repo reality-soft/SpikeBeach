@@ -64,8 +64,8 @@ class SPIKEBEACH_API SyncRes : public Packet
 {
 public:
 	SyncRes() : Packet(PacketId::SYNC_RES) {}
-	INT64 syncTime;
-	TArray<INT64> latency;
+	INT64 syncReqTime;
+	TArray<INT64> RTT;
 	TArray<SyncInfo> users;
 
 	virtual TArray<char> Serialize() override;

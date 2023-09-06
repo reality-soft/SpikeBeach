@@ -10,6 +10,7 @@ TArray<char> SyncReq::Serialize()
 	serializeVec.Reserve(packetLength);
 
 	serializeVec.Append(reinterpret_cast<char*>(&syncReqTime), sizeof(syncReqTime));
+	serializeVec.Append(reinterpret_cast<char*>(&RTT), sizeof(RTT));
 	return serializeVec;
 }
 
@@ -19,5 +20,7 @@ size_t SyncReq::Deserialize(char* buf, size_t len)
 
 	std::copy(buf + offset, buf + offset + sizeof(syncReqTime), &syncReqTime);
 	offset += sizeof(syncReqTime);
+	std::copy(buf + offset, buf + offset + sizeof(RTT), &RTT);
+	offset += sizeof(RTT);
 	return offset;
 }
