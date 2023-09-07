@@ -63,4 +63,10 @@ public:
 	INT64 getCurDelayTime() {
 		return clientSocket->getCurDelayTime();
 	}
+
+	template <typename PacketType, typename... Args>
+	void sendPacket(Args&&...args)
+	{
+		clientSocket->sendPacket<PacketType>(std::forward<Args>(args)...);
+	}
 };
