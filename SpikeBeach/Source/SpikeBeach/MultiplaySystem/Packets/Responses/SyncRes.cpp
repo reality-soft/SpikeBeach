@@ -2,6 +2,8 @@
 
 
 #include "SyncRes.h"
+#include "Kismet/GameplayStatics.h"
+#include "../../MultiplayBasePlayer.h"
 
 TArray<char> SyncRes::Serialize()
 {
@@ -52,6 +54,15 @@ size_t SyncRes::Deserialize(char* buf, size_t len)
 
 void SyncRes::Process(UWorld* world)
 {
+	AMultiplayBasePlayer* character = Cast<AMultiplayBasePlayer>(UGameplayStatics::GetPlayerCharacter(world, 0));
+	character->GetVelocity();
+
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "Client Velocity: " + character->GetVelocity().ToString());
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, "Server Velocity: " + users[0].Velocity.ToString());
+
+	UE_LOG(LogTemp, Display, TEXT("Client Velocity: %s"), *character->GetVelocity().ToString());
+	UE_LOG(LogTemp, Display, TEXT("Server Velocity: %s"), *users[0].Velocity.ToString());
+
 	//FString MyFString;
 	//MyFString = MyFString.Printf(TEXT("%lld"), syncReqTime);
 	//UE_LOG(LogTemp, Display, TEXT("syncReqTime: %s"), *MyFString);
