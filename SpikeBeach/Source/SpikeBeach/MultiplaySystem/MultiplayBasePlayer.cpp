@@ -11,6 +11,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "../SpikeBeachGameInstance.h"
 
+#include "Packets/Requests/ControlReq.h"
+
 // Sets default values
 AMultiplayBasePlayer::AMultiplayBasePlayer() : ACharacter()
 {
@@ -67,13 +69,16 @@ void AMultiplayBasePlayer::Tick(float DeltaTime)
 			// 현재의 MovementVector를 변경된 MovementVector로 갱신합니다.
 			curMovementVector = CurMovementInput.MovementVector;
 
-
+			//// Vector2D의 X와 Y 값을 OnScreenDebug 메시지로 출력합니다.
+			//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::White, "Applied");
+			//FString DebugMessage = FString::Printf(TEXT("X: %f, Y: %f"), curMovementVector.X, curMovementVector.Y);
+			//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::White, DebugMessage);
 		}
 	}
 
 	// Vector2D의 X와 Y 값을 OnScreenDebug 메시지로 출력합니다.
-	FString DebugMessage = FString::Printf(TEXT("X: %f, Y: %f"), curMovementVector.X, curMovementVector.Y);
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::White, DebugMessage);
+	//FString DebugMessage = FString::Printf(TEXT("X: %f, Y: %f"), curMovementVector.X, curMovementVector.Y);
+	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::White, DebugMessage);
 
 
 	// find out which way is forward
@@ -166,12 +171,17 @@ void AMultiplayBasePlayer::Move(const FInputActionValue& Value)
 	// 가장 최근 입력에서 입력이 변경된 경우에만 큐에 저장
 	if (movementInputQueue.empty() || curInputMovementVector != movementInputQueue.back().MovementVector)
 	{
-		float DelayTime = Cast<USpikeBeachGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->getCurDelayTime() * 0.001f;
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "Changed");
+
+		USpikeBeachGameInstance* gameInstance = Cast<USpikeBeachGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+		float DelayTime = gameInstance->getCurDelayTime() * 0.001f;
 		float CurrentTime = UGameplayStatics::GetTimeSeconds(this);
 
 		FMovementInput MovementToApply;
 		MovementToApply.MovementVector = curInputMovementVector;
 		MovementToApply.ApplyTime = CurrentTime + DelayTime;
 		movementInputQueue.push_back(MovementToApply);
+
+		gameInstance->sendPacket<ControlReq>(curInputMovementVector);
 	}
 }
