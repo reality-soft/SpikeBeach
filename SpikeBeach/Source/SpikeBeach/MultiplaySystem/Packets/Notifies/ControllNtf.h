@@ -16,8 +16,6 @@ public:
 
 	ControllNtf() : Packet(PacketId::CONTROLL_REQ) {};
 
-	float movementVector[2];
-
 	TArray<char> Serialize() override;
 	size_t Deserialize(char* buf, size_t len) override;
 };
