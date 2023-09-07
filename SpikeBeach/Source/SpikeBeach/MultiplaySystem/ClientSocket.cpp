@@ -115,6 +115,7 @@ void AClientSocket::SendLoop()
             lock.unlock();
 
             TArray<char> serializedPacket = packet->Serialize();
+            std::lock_guard<std::mutex> packetSendLock(packetSendMutex);
             send(socketDescriptor, serializedPacket.GetData(), static_cast<int>(serializedPacket.Num()), 0);
         }
     }
@@ -171,7 +172,9 @@ void AClientSocket::SyncLoop()
         syncReq.syncReqTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         syncReq.RTT = RTT;
         TArray<char> serializedPacket = syncReq.Serialize();
+        std::unique_lock<std::mutex> lock(packetSendMutex);
         int bSendSuccess = send(socketDescriptor, serializedPacket.GetData(), static_cast<int>(serializedPacket.Num()), 0);
+        lock.unlock();
         Sleep(100); // 동기화 주기
     }
 

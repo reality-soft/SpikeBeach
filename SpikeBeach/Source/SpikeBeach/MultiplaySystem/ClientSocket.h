@@ -17,14 +17,14 @@
 #include <memory>
 #include <utility>
 
-#include "Packets/Packet.h"
-
 #pragma comment(lib, "ws2_32.lib")
-
-#include "GameFramework/Actor.h"
 
 #include "Windows/PostWindowsApi.h"
 #include "Windows/HideWindowsPlatformTypes.h"
+
+#include "Packets/Packet.h"
+#include "Packets/Requests/SyncReq.h"
+#include "GameFramework/Actor.h"
 
 #include "ClientSocket.generated.h"
 
@@ -53,6 +53,7 @@ private:
     std::thread syncThread;
 
     std::mutex dataMutex;
+    std::mutex packetSendMutex;
     std::condition_variable cv;
 
 private:
@@ -93,7 +94,7 @@ public:
             return;
         }
 
-        shared_ptr<Packet> curPacket = dynamic_pointer_cast<Packet>(make_shared<PacketType>(std::forward<Args>(args)...));
+        std::shared_ptr<Packet> curPacket = std::static_pointer_cast<Packet>(std::make_shared<PacketType>(std::forward<Args>(args)...));
         std::lock_guard<std::mutex> lock(dataMutex);
         outgoingQueue.push(curPacket);
         cv.notify_one();
